@@ -1,0 +1,162 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/hover_click.dart';
+import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+class AnimatedCameraMenu extends StatefulWidget {
+  const AnimatedCameraMenu({super.key});
+  @override
+  State<AnimatedCameraMenu> createState() => AnimatedCameraMenuState();
+}
+
+class TabInfo {
+  const TabInfo({required this.icon, required this.label});
+  final IconData icon;
+  final String label;
+}
+
+class AnimatedCameraMenuState extends State<AnimatedCameraMenu>
+    with TickerProviderStateMixin {
+  late final Animation<double> opacity;
+  late final Animation<double> width;
+  late final Animation<double> height;
+  late final Animation<double> _borderRadius;
+  late AnimationController _controller;
+  final List<TabInfo> tabs = [
+    const TabInfo(
+      icon: Icons.info_outline,
+      label: 'Auto',
+    ),
+    const TabInfo(icon: Icons.palette_outlined, label: 'Manual'),
+  ];
+  var tabInfoItems = <Widget>[];
+  final tag = 'animCameraMenu';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+
+    width = Tween<double>(
+      begin: 55.0,
+      end: 120.0,
+    ).animate(CurvedAnimation(
+        parent: _controller.view,
+        curve: const Interval(
+          0.125,
+          0.250,
+          curve: Curves.ease,
+        )));
+    height = Tween<double>(begin: 55.0, end: 100.0).animate(CurvedAnimation(
+        parent: _controller.view,
+        curve: const Interval(
+          0.250,
+          0.375,
+          curve: Curves.ease,
+        )));
+    _borderRadius =
+        Tween<double>(begin: 60.0, end: 25.0).animate(CurvedAnimation(
+            parent: _controller.view,
+            curve: const Interval(
+              0.000,
+              0.125,
+              curve: Curves.ease,
+            )));
+  }
+
+  Future<void> _playAnimation() async {
+    try {
+      if (_controller.isForwardOrCompleted) {
+        _doStop();
+        await _controller.reverse().orCancel;
+      } else {
+        _doPlay();
+        await _controller.forward().orCancel;
+      }
+    } on TickerCanceled {}
+  }
+
+  void _doPlay() {
+    Timer(const Duration(milliseconds: 1), () {
+      if (!mounted) return;
+      setState(() {
+        tabInfoItems = [
+          for (final tab in tabs)
+            Container(
+              padding:
+                  const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
+              color: Colors.transparent,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(tab.icon,
+                      color: Theme.of(context).colorScheme.colorPrimary),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      tab.label,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              ),
+            )
+        ];
+        tabInfoItems = tabInfoItems
+            .animate(interval: 50.ms)
+            .fadeIn(duration: 200.ms, delay: 100.ms)
+            .shimmer(blendMode: BlendMode.srcOver, color: Colors.white12)
+            .move(begin: const Offset(-16, 0), curve: Curves.easeOutQuad);
+      });
+    });
+  }
+
+  void _doStop() {
+    Timer(const Duration(milliseconds: 300), () {
+      if (!mounted) return;
+      setState(() {
+        tabInfoItems = [];
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return HoverClick(
+        onPressedL: (_) {
+          _playAnimation();
+        },
+        child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Container(
+                width: width.value,
+                height: height.value,
+                decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .colorBgUnderCard
+                        .withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(_borderRadius.value),
+                        topRight: Radius.circular(_borderRadius.value),
+                        bottomLeft: Radius.circular(_borderRadius.value),
+                        bottomRight: Radius.circular(_borderRadius.value))),
+                child: ListView(
+                  children: tabInfoItems,
+                ),
+              );
+            }));
+  }
+}

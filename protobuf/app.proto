@@ -1,0 +1,32 @@
+syntax = "proto2";
+
+package app;
+
+message StartLibParam {
+    optional string cache_dir_path = 1;
+    optional string reg_serv_addr = 2;
+    optional int32 reg_serv_port = 3;
+    optional string fcm = 6;
+    optional string native_log_path = 7;
+    optional bool use_mirror_cpp_log = 8;
+    optional bool notification_show_data = 10;
+    optional uint32 mtu_len = 12;
+}
+
+message CameraInfo {
+    optional string id = 1;
+    optional uint32 sensor_rotation = 2;
+    optional bool is_front = 3;
+    repeated Size cameraSizes = 4;
+    repeated Range fps_ranges = 5;
+}
+
+message Range {
+    optional uint32 lower = 1;
+    optional uint32 upper = 2;
+}
+
+message Size {
+    optional uint32 width = 1;
+    optional uint32 height = 2;
+}
