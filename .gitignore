@@ -11,6 +11,7 @@
 *.txt.user
 /lib_pack/**
 .lib_pack/**
+scripts/.opencv/**
 
 # IntelliJ related
 *.iml
