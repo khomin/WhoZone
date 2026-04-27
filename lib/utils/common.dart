@@ -1,11 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/message.dart';
+import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/nav_rep.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 
 enum ScreenType { minimum, full }
+
+enum ToastType { normal, error }
 
 extension DurationFormat on Duration {
   String format() => '$this'.split('.')[0].padLeft(8, '0');
@@ -55,6 +59,20 @@ class Common {
       dateTimeStr = DateFormat('dd-MM-yyyy').format(dateTime);
     }
     return dateTimeStr;
+  }
+
+  static void showTextSnackBar({
+    required BuildContext context,
+    required String text,
+    ToastType type = ToastType.normal,
+  }) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: BottomMessage(type: type, text: text, animated: false),
+        duration: const Duration(seconds: 2),
+        backgroundColor: Theme.of(context).colorScheme.snackColor,
+      ),
+    );
   }
 
   String dayOfWeekString(int dayOfWeek) {

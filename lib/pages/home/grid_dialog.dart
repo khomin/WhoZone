@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter_demo/components/circle_button.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/home/view_item2.dart';
 import 'package:flutter_demo/pages/home/history_view_dialog.dart';
 import 'package:flutter_demo/pages/home/grid_model.dart';
@@ -65,7 +66,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
     _selectRep = SelectionRep();
 
     Timer(const Duration(milliseconds: 1000), () async {
-      var history = await CameraRep().getHistory();
+      var history = await getIt<CameraRep>().getHistory();
       if (!mounted || history.firstOrNull == null) return;
       var v = history.firstWhereOrNull((element) {
         return element.folderName == widget.history.folderName;
@@ -79,7 +80,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
     });
 
     Future.microtask(() {
-      _dispStream.add(CameraRep().onHistory.listen((history) {
+      _dispStream.add(getIt<CameraRep>().onHistory.listen((history) {
         var v = history.firstWhereOrNull((element) {
           return element.folderName == widget.history.folderName;
         });
@@ -243,7 +244,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
                                     var v = _selectRep.getSelected(
                                         type: SearchType.media,
                                         resetSelection: false);
-                                    await CameraRep().deleteHistory2(v);
+                                    await getIt<CameraRep>().deleteHistory(v);
                                   }),
                               const SizedBox(width: 15),
                               RoundButton(
@@ -263,7 +264,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
                                     var v = _selectRep.getSelected(
                                         type: SearchType.media,
                                         resetSelection: true);
-                                    CameraRep().share(v);
+                                    getIt<CameraRep>().share(v);
                                   })
                             ])))
                   ]))

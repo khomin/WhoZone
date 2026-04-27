@@ -1,9 +1,9 @@
 package com.who.zone
 
+import android.os.Build
 import android.os.Bundle
+import android.view.Surface
 import androidx.activity.result.contract.ActivityResultContracts
-import com.elvishew.xlog.XLog
-import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -18,7 +18,7 @@ class MainActivity : FlutterFragmentActivity() {
     private var cameraPermissionResult: MethodChannel.Result ?= null
 
     val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
-        cameraPermissionResult?.success(true)
+        cameraPermissionResult?.success(isGranted)
         cameraPermissionResult = null
     }
 
@@ -32,16 +32,16 @@ class MainActivity : FlutterFragmentActivity() {
 
         val registry = flutterEngine.renderer
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
-        val textures = TextureRepository(registry, {})
+        val textureRep = TextureRepository(registry) {}
 
         channel.setMethodCallHandler { call, result ->
             val args = call.arguments as HashMap<*, *>
             when (call.method) {
                 "get_cameras" -> {
+                    val map = mutableMapOf<String, ByteArray>()
                     val cameras = cameraSession.getCameras()
-                    val map = mutableMapOf<String, String>()
                     for(i in cameras) {
-                        map[i.id] = Gson().toJson(i)
+                        map[i.id] = i.toByteArray()
                     }
                     result.success(map)
                     return@setMethodCallHandler
@@ -49,7 +49,7 @@ class MainActivity : FlutterFragmentActivity() {
                 "register_texture" -> {
                     val width = args["width"] as Int
                     val height = args["height"] as Int
-                    val texture = textures.registerTexture(width, height)
+                    val texture = textureRep.registerTexture(width, height)
                     val map = mutableMapOf<String, Long>().apply {
                         this["id"] = texture.id
                     }
@@ -58,7 +58,7 @@ class MainActivity : FlutterFragmentActivity() {
                 }
                 "unregister_texture" -> {
                     val id = args["id"] as Long
-                    textures.unregisterTexture(id)
+                    textureRep.unregisterTexture(id)
                 }
                 "request_camera_permissions" -> {
                     try {
@@ -73,7 +73,7 @@ class MainActivity : FlutterFragmentActivity() {
                     try {
                         val cameraId = args["camera_id"] as String
                         val textureId = args["texture_id"] as Long
-                        val texture = textures.getTexture(textureId)
+                        val texture = textureRep.getTexture(textureId)
                         if(texture != null) {
                             cameraSession.startCamera(cameraId, texture.producer.surface)
                         }
@@ -85,6 +85,22 @@ class MainActivity : FlutterFragmentActivity() {
                 }
                 "stop_camera" -> {
                     cameraSession.stopCamera()
+                    result.success(true)
+                    return@setMethodCallHandler
+                }
+                "get_device_sensor" -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        applicationContext?.display?.rotation?.let {
+                            when (it) {
+                                Surface.ROTATION_0 -> result.success(0)
+                                Surface.ROTATION_90 -> result.success(90)
+                                Surface.ROTATION_180 -> result.success(180)
+                                Surface.ROTATION_270 -> result.success(270)
+                            }
+                        }
+                    } else {
+                        result.success(0)
+                    }
                     return@setMethodCallHandler
                 }
             }

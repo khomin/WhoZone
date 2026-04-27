@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/app.dart';
+import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';

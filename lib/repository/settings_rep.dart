@@ -35,7 +35,7 @@ class SettingsRep {
     return ThemeMode.values[theme];
   }
 
-  void setCameraUsed(String id) async {
+  Future<void> setCameraUsed(String id) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_usedCameraIdKey, id);
   }

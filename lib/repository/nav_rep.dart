@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/navigation_observer.dart';
 import 'package:flutter_demo/utils/common.dart';
 import 'package:rxdart/rxdart.dart';
 

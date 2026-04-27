@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/custom_checkbox.dart';
 import 'package:flutter_demo/pages/app_model.dart';
-import 'package:flutter_demo/pages/capture/camera_model.dart';
+import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
@@ -17,7 +17,7 @@ class CameraSettingsPage extends StatefulWidget {
 
 class CameraSettingsPageState extends State<CameraSettingsPage> {
   final _dispStream = DisposableStream();
-  late CameraModel _model;
+  late CaptureModel _model;
 
   @override
   void initState() {
@@ -38,7 +38,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    _model = context.read<CameraModel>();
+    _model = context.read<CaptureModel>();
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: Stack(children: [
@@ -47,15 +47,11 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                 color: Theme.of(context).colorScheme.colorBar,
                 height: kToolbarHeight,
                 child: Row(children: [
-                  const Padding(
-                      padding: EdgeInsets.only(left: 25),
-                      child: Text('Camera settings',
-                          style: TextStyle(
-                            // fontFamily: 'Sulphur',
-                            fontSize: 25,
-                            // color: Colors.black38,
-                            // fontWeight: FontWeight.bold
-                          ))),
+                  Padding(
+                    padding: EdgeInsets.only(left: 25),
+                    child: Text('Camera settings',
+                        style: Theme.of(context).colorScheme.homeCardH1Style),
+                  ),
                   const Spacer(),
                   RoundButton(
                       color: Colors.transparent,
@@ -79,7 +75,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                       // min area
                       Builder(builder: (context) {
                         var minArea =
-                            context.select<CameraModel, int>((v) => v.minArea);
+                            context.select<CaptureModel, int>((v) => v.minArea);
                         return Row(children: [
                           Padding(
                               padding: const EdgeInsets.only(left: 25),
@@ -107,7 +103,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                                   label: minArea.toString(),
                                   onChanged: (double newValue) {
                                     context
-                                        .read<CameraModel>()
+                                        .read<CaptureModel>()
                                         .setMinArea(newValue.toInt());
                                   }))
                         ]);
@@ -115,7 +111,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                       //
                       // capture image interval
                       Builder(builder: (context) {
-                        var captureSec = context.select<CameraModel, int>(
+                        var captureSec = context.select<CaptureModel, int>(
                             (v) => v.captureIntervalSec);
                         return Row(children: [
                           Padding(
@@ -144,7 +140,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                                   label: captureSec.toString(),
                                   onChanged: (double newValue) {
                                     context
-                                        .read<CameraModel>()
+                                        .read<CaptureModel>()
                                         .setCaptureImageIntVal(
                                             newValue.toInt());
                                   }))
@@ -164,12 +160,12 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                         Padding(
                             padding: const EdgeInsets.only(right: 10),
                             child: Builder(builder: (context) {
-                              var showArea = context.select<CameraModel, bool>(
+                              var showArea = context.select<CaptureModel, bool>(
                                   (v) => v.showAreaOnCapture);
                               return CustomCheckBox(
                                   value: showArea,
                                   onChanged: (v) {
-                                    context.read<CameraModel>().setShowArea(v);
+                                    context.read<CaptureModel>().setShowArea(v);
                                   });
                             }))
                       ]),

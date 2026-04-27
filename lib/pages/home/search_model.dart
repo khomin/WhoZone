@@ -1,6 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:intl/intl.dart';
 
@@ -40,7 +40,7 @@ class SearchModel with ChangeNotifier {
         if (v != null && v.isNotEmpty) {
           try {
             var date = DateFormat('dd.MM.yyyy').parse(v);
-            var history = CameraRep().historyCache;
+            var history = getIt<CameraRep>().historyCache;
             for (var it in history) {
               if (it.date.year == date.year &&
                   it.date.month == date.month &&

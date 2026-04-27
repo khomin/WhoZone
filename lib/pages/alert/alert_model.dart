@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:loggy/loggy.dart';
@@ -15,11 +16,11 @@ class AlertModel with ChangeNotifier {
   String? packetToAddr;
   final tag = 'alertModel';
 
-  Future<void> initData() async {
+  Future<void> init() async {
     // whether sound used
     Sound? usedSound = await SettingsRep().getSoundUsed();
     // all system sounds
-    setSoundList(await CameraRep().getSounds());
+    setSoundList(await getIt<CameraRep>().getSounds());
     if (sounds.isNotEmpty) {
       if (usedSound != null) {
         // check if used is in system sounds

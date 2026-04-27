@@ -59,6 +59,8 @@ cd "$SOURCE_DIR"
 echo "Checking out version $CHECKOUT_TAG..."
 git checkout tags/$CHECKOUT_TAG
 
+git submodule update --init --recursive
+
 # 3. Build it
 echo "Building (this may take a minute)..."
 

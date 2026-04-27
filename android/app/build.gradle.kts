@@ -38,7 +38,7 @@ android {
     sourceSets {
         getByName("main") {
             java {
-                srcDirs("src/main/kotlin","build/generated/source/proto/main/java")
+                srcDirs("src/main/kotlin", "build/generated/source/proto/main/java")
             }
             proto {
                 srcDir("$projectDir/../../protobuf")
@@ -46,16 +46,29 @@ android {
         }
     }
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.who.zone"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
+        minSdk = 29
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        externalNativeBuild {
+            cmake {
+                arguments.addAll(listOf("-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang", "-DCMAKE_CXX_FLAGS=\"-llog\"", "-DANDROID_STL=c++_shared"))
+                cFlags.addAll(listOf("-D__STDC_FORMAT_MACROS -D__ANDROID__ -fPIC -Wl -Bsymbolic"))
+                cppFlags.addAll(listOf("-std=c++17", "-fPIC", "-frtti", "-fexceptions", "--build-id", "-Wl", "-Bsymbolic"))
+                version = "3.18.0+"
+            }
+        }
+        ndk {
+            ldLibs?.add("log")
+            abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
+        }
     }
-
+    externalNativeBuild {
+        cmake {
+            path = file("../../cpp/CMakeLists.txt")
+        }
+    }
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
@@ -70,15 +83,12 @@ flutter {
 }
 
 protobuf {
-//    protoc {
-//        "com.google.protobuf:protoc:3.8.0"
-//    }
     protoc {
-        artifact = "com.google.protobuf:protoc:3.25.3"
+        artifact = "com.google.protobuf:protoc:25.3"
     }
     plugins {
         register("javalite") {
-            "com.google.protobuf:protoc-gen-javalite:3.8.0"
+            "com.google.protobuf:protoc-gen-javalite:25.3"
         }
     }
     generateProtoTasks {
@@ -94,7 +104,6 @@ protobuf {
 
 dependencies {
     implementation("com.elvishew:xlog:1.11.1")
-    implementation("com.google.code.gson:gson:2.14.0")
     implementation("androidx.fragment:fragment-ktx:1.8.9")
     implementation("com.google.protobuf:protobuf-javalite:3.8.0")
 }

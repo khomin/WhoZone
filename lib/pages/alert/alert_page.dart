@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/alert/alert_addr_page.dart';
 import 'package:flutter_demo/pages/alert/alert_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
@@ -29,7 +30,7 @@ class AlertPageState extends State<AlertPage> {
     super.initState();
 
     Future.microtask(() async {
-      _model.initData();
+      _model.init();
     });
   }
 
@@ -76,16 +77,16 @@ class AlertPageState extends State<AlertPage> {
           top: 0,
           left: 0,
           right: 0,
-          // right: 0,
           child: Container(
               color: Theme.of(context).colorScheme.colorBar,
-              // color: Colors.blueAccent,
               height: kToolbarHeight,
               child: Row(children: [
                 Container(
-                    width: 100,
-                    margin: const EdgeInsets.only(left: 25),
-                    child: const Text('Alert', style: TextStyle(fontSize: 25))),
+                  width: 100,
+                  margin: const EdgeInsets.only(left: 25),
+                  child: Text('Alert',
+                      style: Theme.of(context).colorScheme.homeCardH1Style),
+                ),
                 const Spacer()
               ])))
     ]);
@@ -239,7 +240,8 @@ class AlertPageState extends State<AlertPage> {
                                     var sound =
                                         context.read<AlertModel>().sound;
                                     if (sound == null) return;
-                                    CameraRep().playSound(sound: sound.uri);
+                                    getIt<CameraRep>()
+                                        .playSound(sound: sound.uri);
                                   }),
                               Expanded(
                                   flex: 2,

@@ -2,12 +2,16 @@ package com.who.zone
 
 import android.Manifest
 import android.content.Context
+import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.params.OutputConfiguration
+import android.hardware.camera2.params.SessionConfiguration
+import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Range
@@ -16,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.RequiresPermission
 import app.App
 import com.elvishew.xlog.XLog
+import java.util.concurrent.Executor
 import kotlin.math.abs
 
 class CameraSession(val context: Context) {
@@ -23,28 +28,29 @@ class CameraSession(val context: Context) {
     private var session: CameraCaptureSession? = null
     private var bgThread: HandlerThread = HandlerThread("CameraBackground")
     private var bgHandler: Handler
+    private var executor: Executor
+    private var imageReader: ImageReader
     init {
         bgThread.start()
         bgHandler = Handler(bgThread.looper)
+        executor = Executor { command -> bgHandler.post(command) }
+
+        imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 3)
+        nativeInitImageReader(imageReader)
     }
 
     fun dispose() {
         bgThread.quitSafely()
     }
 
-//    private val cameraId: String,
-//    private val fpsRange: Range<Int>,
-//    private val previewTexture: TextureProvider?,
-//    private val codecSurface: Surface
-
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun startCamera(cameraId: String, codecSurface: Surface) {
+    fun startCamera(cameraId: String, viewSurface: Surface) {
         val manager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onOpened: id=${camera.id}")
                 cameraDevice = camera
-                startSession(camera, codecSurface)
+                startSession(camera, viewSurface, imageReader.surface)
             }
             override fun onDisconnected(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onDisconnected: id=${cameraDevice?.id}")
@@ -80,17 +86,24 @@ class CameraSession(val context: Context) {
         }
     }
 
-    private fun startSession(device: CameraDevice, codecSurface: Surface) {
+    private fun startSession(device: CameraDevice, viewSurface: Surface, codecSurface: Surface) {
         try {
             val info = getCameraInfo(device.id) ?: return
-            val range = info.fpsRangesList.first()
+            val range = info.fpsRangesList.last()
             val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+            builder.addTarget(viewSurface)
             builder.addTarget(codecSurface)
             builder.set(
                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                 Range(range.lower, range.upper)
             )
-            device.createCaptureSession(listOf(codecSurface),object : CameraCaptureSession.StateCallback() {
+            val viewConfig = OutputConfiguration(viewSurface)
+            val codecConfig = OutputConfiguration(codecSurface)
+            val sessionConfig = SessionConfiguration(
+                SessionConfiguration.SESSION_REGULAR,
+                listOf(viewConfig, codecConfig),
+                executor,
+                object : CameraCaptureSession.StateCallback() {
                     override fun onConfigured(session: CameraCaptureSession) {
                         this@CameraSession.session = session
                         try {
@@ -100,59 +113,17 @@ class CameraSession(val context: Context) {
                                 bgHandler
                             )
                         } catch (e: Exception) {
-                            XLog.tag(TAG).i( "exception: ${e.message}")
+                            XLog.tag(TAG).i("exception: ${e.message}")
                         }
                     }
                     override fun onConfigureFailed(session: CameraCaptureSession) {
-                        XLog.tag(TAG).i( "failed: ${session.device}")
+                        XLog.tag(TAG).i("failed: ${session.device}")
                     }
-                }, bgHandler
+                }
             )
+            device.createCaptureSession(sessionConfig)
         } catch (e: Exception) {
             XLog.tag(TAG).i( "exception: ${e.message}")
-        }
-    }
-
-    fun findBestResolution(cameraSizes: Array<Size>?, encodeWidth: Int, encodeHeight: Int): Size? {
-        var resultSize: Size ?= null
-        if(cameraSizes == null) return null
-        var w = 0
-        var h = 0
-        for (size in cameraSizes) {
-            if(((size.width == encodeWidth) && (size.height == encodeHeight))||
-                ((size.width == encodeHeight) && (size.height == encodeWidth))) {
-                w = size.width
-                h = size.height
-                resultSize = size
-                break
-            } else {
-                // TODO: this is wrong
-                if (((abs(size.width - encodeWidth) < abs(w - encodeWidth)) &&
-                            (abs(size.height - encodeHeight) < abs(h - encodeHeight)))
-                    || (w == 0)) {
-                    resultSize = size
-                }
-            }
-        }
-        return resultSize
-    }
-
-    fun findBestFps(fpsRanges: Array<Range<Int>>, targetFps: Int): Range<Int>? {
-        if(fpsRanges.isEmpty()) {
-            return null
-        }
-        // TODO: test this
-        for (i in fpsRanges.indices) {
-            val range = fpsRanges[i]
-            if (range.lower <= targetFps && range.upper >= targetFps) {
-                return range
-            }
-        }
-        val fpsId = fpsRanges.size - 1
-        return if(fpsRanges[fpsId].upper > targetFps) {
-            fpsRanges[fpsId]
-        } else {
-            fpsRanges[fpsId]
         }
     }
 
@@ -201,13 +172,13 @@ class CameraSession(val context: Context) {
                 this.sensorRotation = sensorRotation
                 this.isFront = isFront
                 for(size in cameraSizes) {
-                    this.cameraSizesList.add(App.Size.newBuilder().apply {
+                    this.addCameraSizes(App.Size.newBuilder().apply {
                         this.width = size.width
                         this.height = size.height
                     }.build())
                 }
                 for(range in fpsRanges) {
-                    this.fpsRangesList.add(
+                    this.addFpsRanges(
                         App.Range.newBuilder().apply {
                             this.lower = range.lower
                             this.upper = range.upper

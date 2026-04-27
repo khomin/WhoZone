@@ -242,14 +242,15 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
                                 const SizedBox(width: 4),
                                 //
                                 // count of photos
-                                Text('${history.items.length}',
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .colorTextSecond,
-                                        fontSize: 12,
-                                        // fontFamily: 'Salsa',
-                                        fontWeight: FontWeight.bold)),
+                                Text(
+                                  '${history.items.length}',
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .colorTextSecond,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold),
+                                ),
                               ]))
                         ])),
                     Padding(

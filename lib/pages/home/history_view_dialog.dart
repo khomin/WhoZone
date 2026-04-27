@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_demo/components/circle_button.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:provider/provider.dart';
@@ -169,7 +170,7 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
-                await CameraRep().deleteHistory2([_current.model]);
+                await getIt<CameraRep>().deleteHistory([_current.model]);
                 if (!mounted) return;
                 Navigator.of(context).pop();
               }),
@@ -188,7 +189,7 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.share,
               onPressed: (_) {
-                CameraRep().share([_current.model]);
+                getIt<CameraRep>().share([_current.model]);
               })
         ]));
   }

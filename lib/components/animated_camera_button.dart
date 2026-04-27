@@ -1,23 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
 import 'package:flutter_demo/components/circle_button.dart';
-import 'package:flutter_demo/components/hover_click.dart';
-import 'package:flutter_demo/components/my_cliper.dart';
-import 'package:flutter_demo/pages/app_model.dart';
-import 'package:flutter_demo/pages/home/record_model.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
-import 'package:flutter_demo/repository/nav_rep.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
-import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ExpandModel with ChangeNotifier {
@@ -31,12 +21,13 @@ class ExpandModel with ChangeNotifier {
 }
 
 class AnimatedCameraButton extends StatefulWidget {
-  const AnimatedCameraButton(
-      {required this.onCapture,
-      required this.onStop,
-      required this.onStopOutsideStream,
-      this.activeDefault = false,
-      super.key});
+  const AnimatedCameraButton({
+    required this.onCapture,
+    required this.onStop,
+    required this.onStopOutsideStream,
+    this.activeDefault = false,
+    super.key,
+  });
   final Function() onCapture;
   final Function() onStop;
   final bool activeDefault;
@@ -46,57 +37,29 @@ class AnimatedCameraButton extends StatefulWidget {
 }
 
 class TabInfo {
-  const TabInfo({required this.icon /*, required this.label*/});
+  const TabInfo({required this.icon});
   final IconData icon;
-  // final String label;
 }
 
 class AnimatedCameraButtonState extends State<AnimatedCameraButton>
     with TickerProviderStateMixin {
-  // final _dispStream = DisposableStream();
-  // late RecordModel _model;
-  final tag = 'animCameraButton';
   final _expandModel = ExpandModel();
   late final Animation<double> _opacity1;
   late final Animation<double> _opacity2;
   late final Animation<double> _width;
-  // late final Animation<double> _height;
-  // late final Animation<double> _widthIconStart;
   late final Animation<double> _widthIconExpand;
-  // late final Animation<double> _borderRadius;
-  // late final Animation<double> _leftOffset;
   late AnimationController _controller;
   final _dispStream = DisposableStream();
 
   final List<TabInfo> tabs = [
     const TabInfo(icon: Icons.info_outline),
     const TabInfo(icon: Icons.palette_outlined),
-    // const TabInfo(
-    //     icon: Icons.format_list_bulleted,
-    //     label: 'Adapters',
-    //     description: 'Animations'),
-    // const TabInfo(
-    //     icon: Icons.grid_on_outlined,
-    //     label: 'Kitchen Sink',
-    //     description: 'Grid'),
-    // const TabInfo(
-    //     icon: Icons.science_outlined,
-    //     label: 'Playground',
-    //     description: 'A blank'),
   ];
-
-  // var tabInfoItems = <Widget>[];
+  final tag = 'animCameraButton';
 
   @override
   void initState() {
     super.initState();
-
-    // // Animate all of the info items in the list:
-    // tabInfoItems = tabInfoItems
-    //     .animate(interval: 100.ms)
-    //     .fadeIn(duration: 200.ms, delay: 300.ms)
-    //     .shimmer(blendMode: BlendMode.srcOver, color: Colors.white12)
-    //     .move(begin: const Offset(-16, 0), curve: Curves.easeOutQuad);
 
     _controller = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -289,7 +252,8 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                               topLeft: Radius.circular(90),
                                               bottomLeft: Radius.circular(90)),
                                           onPressed: () {
-                                            CameraRep().captureOneFrame();
+                                            getIt<CameraRep>()
+                                                .captureOneFrame();
                                           }));
                                 })),
                             Opacity(

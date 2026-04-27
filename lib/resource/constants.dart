@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 enum FlavorType { google }
 
 class AppConfig {
@@ -35,7 +33,7 @@ class Constants {
   static const appLink =
       'https://play.google.com/store/apps/details?id=com.who.zone';
 
-  static const defaultCamera = 'Back';
+  static const isDefaultFront = true;
 
   static const duration = Duration(milliseconds: 200);
   static const durationPanel = Duration(milliseconds: 100);

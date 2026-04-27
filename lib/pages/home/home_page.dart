@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/round_box.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/home/grid_dialog.dart';
 import 'package:flutter_demo/pages/home/search_page.dart';
 import 'package:flutter_demo/pages/home/view_item1.dart';
@@ -91,18 +92,17 @@ class HomePagePageState extends State<HomePagePage>
       });
     });
 
-    _dispStream.add(CameraRep().onHistory.listen((history) {
+    _dispStream.add(getIt<CameraRep>().onHistory.listen((history) {
       if (!mounted) return;
       context.read<AppModel>().setHistory(history);
     }));
 
     Timer(const Duration(milliseconds: 100), () async {
-      var history = await CameraRep().getHistory();
+      var history = await getIt<CameraRep>().getHistory();
       if (!mounted) return;
       var model = context.read<AppModel>();
       model.setHistory(history);
       if (model.history.isEmpty) {
-        logInfo('$tag: no history');
         Timer(const Duration(milliseconds: 200), () {
           if (!mounted) return;
           if (_ctrShakeIcon.isForwardOrCompleted) {
@@ -117,6 +117,8 @@ class HomePagePageState extends State<HomePagePage>
 
   @override
   void dispose() {
+    _ctrSlideTop.dispose();
+    _ctrShakeIcon.dispose();
     _scrollCtr.dispose();
     _dispStream.dispose();
     _onCloseSlide.close();
@@ -125,7 +127,7 @@ class HomePagePageState extends State<HomePagePage>
   }
 
   void _handleOnSlide() {
-    if (CameraRep().onCaptureTime.valueOrNull == null) return;
+    if (getIt<CameraRep>().onCaptureTime.valueOrNull == null) return;
     if (_ctrSlideTop.isForwardOrCompleted) {
       _ctrSlideTop.reverse().orCancel;
     } else {
@@ -245,9 +247,10 @@ class HomePagePageState extends State<HomePagePage>
                                   bottom: 0,
                                   top: 0,
                                   child: StreamBuilder(
-                                      stream: CameraRep().onHistory,
-                                      initialData:
-                                          CameraRep().onHistory.valueOrNull,
+                                      stream: getIt<CameraRep>().onHistory,
+                                      initialData: getIt<CameraRep>()
+                                          .onHistory
+                                          .valueOrNull,
                                       builder: (context, snapshot) {
                                         var data = snapshot.data ?? [];
                                         var countDay =
@@ -354,7 +357,7 @@ class HomePagePageState extends State<HomePagePage>
                                 .then((value) {});
                           },
                           onDelete: () async {
-                            await CameraRep().deleteHistoryRoot([model]);
+                            await getIt<CameraRep>().deleteHistoryRoot([model]);
                           });
                     })
               ]));
@@ -389,8 +392,8 @@ class HomePagePageState extends State<HomePagePage>
                             iconData: Icons.stop_circle_sharp,
                             onPressed: (v) async {
                               _handleOnSlide();
-                              await CameraRep().setCaptureActive(false);
-                              CameraRep().stopCamera();
+                              await getIt<CameraRep>().setCaptureActive(false);
+                              getIt<CameraRep>().stopCamera();
                             }),
                         const SizedBox(width: 15),
                         RoundButton(
@@ -421,7 +424,10 @@ class HomePagePageState extends State<HomePagePage>
                 Container(
                     width: 100,
                     margin: const EdgeInsets.only(left: 25),
-                    child: const Text('Home', style: TextStyle(fontSize: 25))),
+                    child: Text(
+                      'Home',
+                      style: Theme.of(context).colorScheme.homeCardH1Style,
+                    )),
                 //
                 // duration
                 HoverClick(
@@ -435,9 +441,9 @@ class HomePagePageState extends State<HomePagePage>
                             child:
                                 Stack(alignment: Alignment.center, children: [
                           StreamBuilder(
-                              stream: CameraRep().onCaptureTime,
+                              stream: getIt<CameraRep>().onCaptureTime,
                               initialData:
-                                  CameraRep().onCaptureTime.valueOrNull,
+                                  getIt<CameraRep>().onCaptureTime.valueOrNull,
                               builder: (context, snapshot) {
                                 var duration = snapshot.data;
                                 return AnimatedContainer(

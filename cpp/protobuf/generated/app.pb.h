@@ -47,7 +47,7 @@ struct TableStruct_app_2eproto {
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::AuxiliaryParseTableField aux[]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
-  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[4]
+  static const ::PROTOBUF_NAMESPACE_ID::internal::ParseTable schema[5]
     PROTOBUF_SECTION_VARIABLE(protodesc_cold);
   static const ::PROTOBUF_NAMESPACE_ID::internal::FieldMetadata field_metadata[];
   static const ::PROTOBUF_NAMESPACE_ID::internal::SerializationTable serialization_table[];
@@ -55,6 +55,9 @@ struct TableStruct_app_2eproto {
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_app_2eproto;
 namespace app {
+class Camera;
+class CameraDefaultTypeInternal;
+extern CameraDefaultTypeInternal _Camera_default_instance_;
 class CameraInfo;
 class CameraInfoDefaultTypeInternal;
 extern CameraInfoDefaultTypeInternal _CameraInfo_default_instance_;
@@ -69,6 +72,7 @@ class StartLibParamDefaultTypeInternal;
 extern StartLibParamDefaultTypeInternal _StartLibParam_default_instance_;
 }  // namespace app
 PROTOBUF_NAMESPACE_OPEN
+template<> ::app::Camera* Arena::CreateMaybeMessage<::app::Camera>(Arena*);
 template<> ::app::CameraInfo* Arena::CreateMaybeMessage<::app::CameraInfo>(Arena*);
 template<> ::app::Range* Arena::CreateMaybeMessage<::app::Range>(Arena*);
 template<> ::app::Size* Arena::CreateMaybeMessage<::app::Size>(Arena*);
@@ -586,6 +590,212 @@ class CameraInfo PROTOBUF_FINAL :
 };
 // -------------------------------------------------------------------
 
+class Camera PROTOBUF_FINAL :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:app.Camera) */ {
+ public:
+  inline Camera() : Camera(nullptr) {}
+  virtual ~Camera();
+
+  Camera(const Camera& from);
+  Camera(Camera&& from) noexcept
+    : Camera() {
+    *this = ::std::move(from);
+  }
+
+  inline Camera& operator=(const Camera& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Camera& operator=(Camera&& from) noexcept {
+    if (GetArena() == from.GetArena()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  inline const ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance);
+  }
+  inline ::PROTOBUF_NAMESPACE_ID::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return GetMetadataStatic().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return GetMetadataStatic().reflection;
+  }
+  static const Camera& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Camera* internal_default_instance() {
+    return reinterpret_cast<const Camera*>(
+               &_Camera_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(Camera& a, Camera& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Camera* other) {
+    if (other == this) return;
+    if (GetArena() == other->GetArena()) {
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Camera* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Camera* New() const final {
+    return CreateMaybeMessage<Camera>(nullptr);
+  }
+
+  Camera* New(::PROTOBUF_NAMESPACE_ID::Arena* arena) const final {
+    return CreateMaybeMessage<Camera>(arena);
+  }
+  void CopyFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void MergeFrom(const ::PROTOBUF_NAMESPACE_ID::Message& from) final;
+  void CopyFrom(const Camera& from);
+  void MergeFrom(const Camera& from);
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  ::PROTOBUF_NAMESPACE_ID::uint8* _InternalSerialize(
+      ::PROTOBUF_NAMESPACE_ID::uint8* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  inline void SharedCtor();
+  inline void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Camera* other);
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "app.Camera";
+  }
+  protected:
+  explicit Camera(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  private:
+  static void ArenaDtor(void* object);
+  inline void RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena);
+  public:
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+  private:
+  static ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadataStatic() {
+    ::PROTOBUF_NAMESPACE_ID::internal::AssignDescriptors(&::descriptor_table_app_2eproto);
+    return ::descriptor_table_app_2eproto.file_level_metadata[kIndexInFileMessages];
+  }
+
+  public:
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kIdFieldNumber = 1,
+    kSizeFieldNumber = 4,
+    kIsFrontFieldNumber = 2,
+    kSensorFieldNumber = 3,
+  };
+  // optional string id = 1;
+  bool has_id() const;
+  private:
+  bool _internal_has_id() const;
+  public:
+  void clear_id();
+  const std::string& id() const;
+  void set_id(const std::string& value);
+  void set_id(std::string&& value);
+  void set_id(const char* value);
+  void set_id(const char* value, size_t size);
+  std::string* mutable_id();
+  std::string* release_id();
+  void set_allocated_id(std::string* id);
+  private:
+  const std::string& _internal_id() const;
+  void _internal_set_id(const std::string& value);
+  std::string* _internal_mutable_id();
+  public:
+
+  // optional .app.Size size = 4;
+  bool has_size() const;
+  private:
+  bool _internal_has_size() const;
+  public:
+  void clear_size();
+  const ::app::Size& size() const;
+  ::app::Size* release_size();
+  ::app::Size* mutable_size();
+  void set_allocated_size(::app::Size* size);
+  private:
+  const ::app::Size& _internal_size() const;
+  ::app::Size* _internal_mutable_size();
+  public:
+  void unsafe_arena_set_allocated_size(
+      ::app::Size* size);
+  ::app::Size* unsafe_arena_release_size();
+
+  // optional bool is_front = 2;
+  bool has_is_front() const;
+  private:
+  bool _internal_has_is_front() const;
+  public:
+  void clear_is_front();
+  bool is_front() const;
+  void set_is_front(bool value);
+  private:
+  bool _internal_is_front() const;
+  void _internal_set_is_front(bool value);
+  public:
+
+  // optional uint32 sensor = 3;
+  bool has_sensor() const;
+  private:
+  bool _internal_has_sensor() const;
+  public:
+  void clear_sensor();
+  ::PROTOBUF_NAMESPACE_ID::uint32 sensor() const;
+  void set_sensor(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  private:
+  ::PROTOBUF_NAMESPACE_ID::uint32 _internal_sensor() const;
+  void _internal_set_sensor(::PROTOBUF_NAMESPACE_ID::uint32 value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:app.Camera)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  ::PROTOBUF_NAMESPACE_ID::internal::HasBits<1> _has_bits_;
+  mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr id_;
+  ::app::Size* size_;
+  bool is_front_;
+  ::PROTOBUF_NAMESPACE_ID::uint32 sensor_;
+  friend struct ::TableStruct_app_2eproto;
+};
+// -------------------------------------------------------------------
+
 class Range PROTOBUF_FINAL :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:app.Range) */ {
  public:
@@ -635,7 +845,7 @@ class Range PROTOBUF_FINAL :
                &_Range_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(Range& a, Range& b) {
     a.Swap(&b);
@@ -799,7 +1009,7 @@ class Size PROTOBUF_FINAL :
                &_Size_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    4;
 
   friend void swap(Size& a, Size& b) {
     a.Swap(&b);
@@ -1545,6 +1755,223 @@ CameraInfo::fps_ranges() const {
 
 // -------------------------------------------------------------------
 
+// Camera
+
+// optional string id = 1;
+inline bool Camera::_internal_has_id() const {
+  bool value = (_has_bits_[0] & 0x00000001u) != 0;
+  return value;
+}
+inline bool Camera::has_id() const {
+  return _internal_has_id();
+}
+inline void Camera::clear_id() {
+  id_.ClearToEmpty(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline const std::string& Camera::id() const {
+  // @@protoc_insertion_point(field_get:app.Camera.id)
+  return _internal_id();
+}
+inline void Camera::set_id(const std::string& value) {
+  _internal_set_id(value);
+  // @@protoc_insertion_point(field_set:app.Camera.id)
+}
+inline std::string* Camera::mutable_id() {
+  // @@protoc_insertion_point(field_mutable:app.Camera.id)
+  return _internal_mutable_id();
+}
+inline const std::string& Camera::_internal_id() const {
+  return id_.Get();
+}
+inline void Camera::_internal_set_id(const std::string& value) {
+  _has_bits_[0] |= 0x00000001u;
+  id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), value, GetArena());
+}
+inline void Camera::set_id(std::string&& value) {
+  _has_bits_[0] |= 0x00000001u;
+  id_.Set(
+    &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::move(value), GetArena());
+  // @@protoc_insertion_point(field_set_rvalue:app.Camera.id)
+}
+inline void Camera::set_id(const char* value) {
+  GOOGLE_DCHECK(value != nullptr);
+  _has_bits_[0] |= 0x00000001u;
+  id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(value),
+              GetArena());
+  // @@protoc_insertion_point(field_set_char:app.Camera.id)
+}
+inline void Camera::set_id(const char* value,
+    size_t size) {
+  _has_bits_[0] |= 0x00000001u;
+  id_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), ::std::string(
+      reinterpret_cast<const char*>(value), size), GetArena());
+  // @@protoc_insertion_point(field_set_pointer:app.Camera.id)
+}
+inline std::string* Camera::_internal_mutable_id() {
+  _has_bits_[0] |= 0x00000001u;
+  return id_.Mutable(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline std::string* Camera::release_id() {
+  // @@protoc_insertion_point(field_release:app.Camera.id)
+  if (!_internal_has_id()) {
+    return nullptr;
+  }
+  _has_bits_[0] &= ~0x00000001u;
+  return id_.ReleaseNonDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), GetArena());
+}
+inline void Camera::set_allocated_id(std::string* id) {
+  if (id != nullptr) {
+    _has_bits_[0] |= 0x00000001u;
+  } else {
+    _has_bits_[0] &= ~0x00000001u;
+  }
+  id_.SetAllocated(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), id,
+      GetArena());
+  // @@protoc_insertion_point(field_set_allocated:app.Camera.id)
+}
+
+// optional bool is_front = 2;
+inline bool Camera::_internal_has_is_front() const {
+  bool value = (_has_bits_[0] & 0x00000004u) != 0;
+  return value;
+}
+inline bool Camera::has_is_front() const {
+  return _internal_has_is_front();
+}
+inline void Camera::clear_is_front() {
+  is_front_ = false;
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline bool Camera::_internal_is_front() const {
+  return is_front_;
+}
+inline bool Camera::is_front() const {
+  // @@protoc_insertion_point(field_get:app.Camera.is_front)
+  return _internal_is_front();
+}
+inline void Camera::_internal_set_is_front(bool value) {
+  _has_bits_[0] |= 0x00000004u;
+  is_front_ = value;
+}
+inline void Camera::set_is_front(bool value) {
+  _internal_set_is_front(value);
+  // @@protoc_insertion_point(field_set:app.Camera.is_front)
+}
+
+// optional uint32 sensor = 3;
+inline bool Camera::_internal_has_sensor() const {
+  bool value = (_has_bits_[0] & 0x00000008u) != 0;
+  return value;
+}
+inline bool Camera::has_sensor() const {
+  return _internal_has_sensor();
+}
+inline void Camera::clear_sensor() {
+  sensor_ = 0u;
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Camera::_internal_sensor() const {
+  return sensor_;
+}
+inline ::PROTOBUF_NAMESPACE_ID::uint32 Camera::sensor() const {
+  // @@protoc_insertion_point(field_get:app.Camera.sensor)
+  return _internal_sensor();
+}
+inline void Camera::_internal_set_sensor(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _has_bits_[0] |= 0x00000008u;
+  sensor_ = value;
+}
+inline void Camera::set_sensor(::PROTOBUF_NAMESPACE_ID::uint32 value) {
+  _internal_set_sensor(value);
+  // @@protoc_insertion_point(field_set:app.Camera.sensor)
+}
+
+// optional .app.Size size = 4;
+inline bool Camera::_internal_has_size() const {
+  bool value = (_has_bits_[0] & 0x00000002u) != 0;
+  PROTOBUF_ASSUME(!value || size_ != nullptr);
+  return value;
+}
+inline bool Camera::has_size() const {
+  return _internal_has_size();
+}
+inline void Camera::clear_size() {
+  if (size_ != nullptr) size_->Clear();
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline const ::app::Size& Camera::_internal_size() const {
+  const ::app::Size* p = size_;
+  return p != nullptr ? *p : *reinterpret_cast<const ::app::Size*>(
+      &::app::_Size_default_instance_);
+}
+inline const ::app::Size& Camera::size() const {
+  // @@protoc_insertion_point(field_get:app.Camera.size)
+  return _internal_size();
+}
+inline void Camera::unsafe_arena_set_allocated_size(
+    ::app::Size* size) {
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(size_);
+  }
+  size_ = size;
+  if (size) {
+    _has_bits_[0] |= 0x00000002u;
+  } else {
+    _has_bits_[0] &= ~0x00000002u;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:app.Camera.size)
+}
+inline ::app::Size* Camera::release_size() {
+  _has_bits_[0] &= ~0x00000002u;
+  ::app::Size* temp = size_;
+  size_ = nullptr;
+  if (GetArena() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+  return temp;
+}
+inline ::app::Size* Camera::unsafe_arena_release_size() {
+  // @@protoc_insertion_point(field_release:app.Camera.size)
+  _has_bits_[0] &= ~0x00000002u;
+  ::app::Size* temp = size_;
+  size_ = nullptr;
+  return temp;
+}
+inline ::app::Size* Camera::_internal_mutable_size() {
+  _has_bits_[0] |= 0x00000002u;
+  if (size_ == nullptr) {
+    auto* p = CreateMaybeMessage<::app::Size>(GetArena());
+    size_ = p;
+  }
+  return size_;
+}
+inline ::app::Size* Camera::mutable_size() {
+  // @@protoc_insertion_point(field_mutable:app.Camera.size)
+  return _internal_mutable_size();
+}
+inline void Camera::set_allocated_size(::app::Size* size) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArena();
+  if (message_arena == nullptr) {
+    delete size_;
+  }
+  if (size) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+      ::PROTOBUF_NAMESPACE_ID::Arena::GetArena(size);
+    if (message_arena != submessage_arena) {
+      size = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, size, submessage_arena);
+    }
+    _has_bits_[0] |= 0x00000002u;
+  } else {
+    _has_bits_[0] &= ~0x00000002u;
+  }
+  size_ = size;
+  // @@protoc_insertion_point(field_set_allocated:app.Camera.size)
+}
+
+// -------------------------------------------------------------------
+
 // Range
 
 // optional uint32 lower = 1;
@@ -1666,6 +2093,8 @@ inline void Size::set_height(::PROTOBUF_NAMESPACE_ID::uint32 value) {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

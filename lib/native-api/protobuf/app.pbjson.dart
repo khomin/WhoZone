@@ -84,6 +84,22 @@ final $typed_data.Uint8List cameraInfoDescriptor = $convert.base64Decode(
     'GAQgAygLMgkuYXBwLlNpemVSC2NhbWVyYVNpemVzEikKCmZwc19yYW5nZXMYBSADKAsyCi5hcH'
     'AuUmFuZ2VSCWZwc1Jhbmdlcw==');
 
+@$core.Deprecated('Use cameraDescriptor instead')
+const Camera$json = {
+  '1': 'Camera',
+  '2': [
+    {'1': 'id', '3': 1, '4': 1, '5': 9, '10': 'id'},
+    {'1': 'is_front', '3': 2, '4': 1, '5': 8, '10': 'isFront'},
+    {'1': 'sensor', '3': 3, '4': 1, '5': 13, '10': 'sensor'},
+    {'1': 'size', '3': 4, '4': 1, '5': 11, '6': '.app.Size', '10': 'size'},
+  ],
+};
+
+/// Descriptor for `Camera`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List cameraDescriptor = $convert.base64Decode(
+    'CgZDYW1lcmESDgoCaWQYASABKAlSAmlkEhkKCGlzX2Zyb250GAIgASgIUgdpc0Zyb250EhYKBn'
+    'NlbnNvchgDIAEoDVIGc2Vuc29yEh0KBHNpemUYBCABKAsyCS5hcHAuU2l6ZVIEc2l6ZQ==');
+
 @$core.Deprecated('Use rangeDescriptor instead')
 const Range$json = {
   '1': 'Range',

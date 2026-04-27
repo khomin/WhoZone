@@ -21,6 +21,13 @@ message CameraInfo {
     repeated Range fps_ranges = 5;
 }
 
+message Camera {
+  optional string id = 1;
+  optional bool is_front = 2;
+  optional uint32 sensor = 3;
+  optional Size size = 4;
+}
+
 message Range {
     optional uint32 lower = 1;
     optional uint32 upper = 2;

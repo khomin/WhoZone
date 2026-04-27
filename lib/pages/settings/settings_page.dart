@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/alert/alert_model.dart';
 import 'package:flutter_demo/pages/settings/settings_about.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
@@ -28,7 +29,7 @@ class SettingsPageState extends State<SettingsPage> {
     super.initState();
 
     Future.microtask(() async {
-      _model.initData();
+      _model.init();
     });
   }
 
@@ -80,10 +81,11 @@ class SettingsPageState extends State<SettingsPage> {
               height: kToolbarHeight,
               child: Row(children: [
                 Container(
-                    width: 100,
-                    margin: const EdgeInsets.only(left: 25),
-                    child:
-                        const Text('Settings', style: TextStyle(fontSize: 25))),
+                  width: 100,
+                  margin: const EdgeInsets.only(left: 25),
+                  child: Text('Settings',
+                      style: Theme.of(context).colorScheme.homeCardH1Style),
+                ),
                 const Spacer()
               ])))
     ]);
@@ -178,7 +180,7 @@ class SettingsPageState extends State<SettingsPage> {
                                             iconData: Icons.delete,
                                             onPressed: (v) async {
                                               Navigator.of(context).pop();
-                                              CameraRep().freeData();
+                                              getIt<CameraRep>().freeData();
                                             }),
                                         const SizedBox(width: 15),
                                         RoundButton(
@@ -217,8 +219,9 @@ class SettingsPageState extends State<SettingsPage> {
                   const Spacer(),
                   const SizedBox(width: 20),
                   StreamBuilder(
-                      stream: CameraRep().onHistoryDataSize,
-                      initialData: CameraRep().onHistoryDataSize.valueOrNull,
+                      stream: getIt<CameraRep>().onHistoryDataSize,
+                      initialData:
+                          getIt<CameraRep>().onHistoryDataSize.valueOrNull,
                       builder: (context, snapshot) {
                         var size = snapshot.data ?? Int64.ZERO;
                         return Text(' ${Converter.convertBytesToKbMbGb(size)}',
@@ -255,7 +258,7 @@ class SettingsPageState extends State<SettingsPage> {
             useBorderTop: true,
             useBorderBot: false,
             onClicked: () {
-              CameraRep().shareApp();
+              getIt<CameraRep>().shareApp();
             },
             height: _itemHeight,
             child: Row(children: [

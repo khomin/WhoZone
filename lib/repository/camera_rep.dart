@@ -5,6 +5,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/components/semaphore.dart';
+import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/common.dart';
@@ -40,18 +41,6 @@ class HistoryRecord with ChangeNotifier {
   bool _selection = false;
 }
 
-class Camera {
-  Camera(
-      {required this.id,
-      required this.facing,
-      required this.sensor,
-      required this.size});
-  final String id;
-  final String facing;
-  final int sensor;
-  final Size size;
-}
-
 class CaptureTime {
   CaptureTime({required this.duration, required this.isFirstEv});
   Duration duration;
@@ -59,7 +48,7 @@ class CaptureTime {
 }
 
 class CameraRep {
-  var cameraMap = <String, Camera>{};
+  var cameras = <String, app.CameraInfo>{};
   final onCameraChanged = BehaviorSubject<void>();
   bool captureActive = false;
   final onFrameSize = BehaviorSubject<Size>.seeded(const Size(0, 0));
@@ -74,124 +63,133 @@ class CameraRep {
   Timer? _captureTm;
   DateTime? _captureStart;
   Completer<String>? _complCaptOneFrame;
-  static const _mainChannel = MethodChannel('main/cmd');
-  static const _surfaceChannel = MethodChannel('camera/cmd');
+  static const _channelCmd = MethodChannel('channel_cmd');
+  // static const _surfaceChannel = MethodChannel('camera/cmd');
   var _inited = false;
   final tag = 'myRep';
 
   void init() {
     if (_inited) return;
-    _mainChannel.setMethodCallHandler((call) async {
-      switch (call.method) {
-        case 'onCapture':
-          var path = call.arguments['path'] as String;
-          logDebug('BTEST_onCapture: $path');
-          if (path.contains('/service/')) {
-            _complCaptOneFrame?.complete(path);
-            _complCaptOneFrame = null;
-          } else {
-            onCapture?.call(path);
-            // handle if sound enabled
-            var sound = await SettingsRep().getSoundUsed();
-            if (sound != null) {
-              playSound(sound: sound.uri);
-            }
-            // handle if packet sending enabled
-            var packet = await SettingsRep().getPacketUriUsed();
-            if (packet != null) {
-              sendPacket(packet);
-            }
-          }
-          // getHistory();
-          break;
-        case 'onMovement':
-          logDebug('BTEST_onMovement');
-          break;
-        case 'onFirstFrameNotify':
-          logDebug('BTEST_onFirstFrameNotify');
-          onFirstFrame?.call();
-          break;
-      }
-    });
+    // _mainChannel.setMethodCallHandler((call) async {
+    //   switch (call.method) {
+    //     case 'onCapture':
+    //       var path = call.arguments['path'] as String;
+    //       logDebug('BTEST_onCapture: $path');
+    //       if (path.contains('/service/')) {
+    //         _complCaptOneFrame?.complete(path);
+    //         _complCaptOneFrame = null;
+    //       } else {
+    //         onCapture?.call(path);
+    //         // handle if sound enabled
+    //         var sound = await SettingsRep().getSoundUsed();
+    //         if (sound != null) {
+    //           playSound(sound: sound.uri);
+    //         }
+    //         // handle if packet sending enabled
+    //         var packet = await SettingsRep().getPacketUriUsed();
+    //         if (packet != null) {
+    //           sendPacket(packet);
+    //         }
+    //       }
+    //       // getHistory();
+    //       break;
+    //     case 'onMovement':
+    //       logDebug('BTEST_onMovement');
+    //       break;
+    //     case 'onFirstFrameNotify':
+    //       logDebug('BTEST_onFirstFrameNotify');
+    //       onFirstFrame?.call();
+    //       break;
+    //   }
+    // });
     _inited = true;
+  }
+
+  void dispose() {
+    //
   }
 
   Future<void> registerView() async {
     try {
-      await _mainChannel.invokeMethod('register_view', <String, dynamic>{});
+      await _channelCmd.invokeMethod('register_view', <String, dynamic>{});
     } catch (e) {
       logError('$tag: error: $e');
     }
   }
 
-  Future<Map<String, Camera>> getCameras() async {
+  Future<Map<String, app.CameraInfo>> getCameras() async {
     try {
-      var r =
-          await _mainChannel.invokeMethod('get_cameras', <String, dynamic>{});
-      // for(var camera in r.)
-      //   var camera = Camera(
-      //       id: value['id'],
-      //       facing: value['facing'],
-      //       sensor: value['sensor'],
-      //       size: Size((value['width'] as int).toDouble(),
-      //           (value['height'] as int).toDouble()));
-      //   if (value['facing'] == 'Back') {
-      //     cameraMap['back'] = camera;
-      //   } else if (value['facing'] == 'Front') {
-      //     cameraMap['front'] = camera;
-      //   }
-      // });
+      var res =
+          await _channelCmd.invokeMethod('get_cameras', <String, dynamic>{});
+      res as Map;
+      for (var key in res.keys) {
+        var camera = app.CameraInfo.fromBuffer(res[key]);
+        cameras[key] = camera;
+      }
       onCameraChanged.add(null);
-      return cameraMap;
+      return cameras;
     } catch (e) {
       logError('$tag: error: $e');
     }
-    return cameraMap;
+    return cameras;
   }
 
-  Future<void> initRender() async {
-    try {
-      await _surfaceChannel.invokeMethod('init_render', <String, dynamic>{});
-    } on PlatformException catch (e) {
-      logError('$tag: error: ${e.message}');
-    }
-  }
-
-  Future<void> startCamera({
+  Future<bool> startCamera({
     required String id,
     required int minArea,
     required int captureIntervalSec,
     required bool showAreaOnCapture,
   }) async {
+    // permissions
+    var r = await _channelCmd
+        .invokeMethod('request_camera_permissions', <String, dynamic>{});
+    if (!r) {
+      return false;
+    }
+    var camera = cameras[id];
+    if (camera == null) {
+      return false;
+    }
+    for (var i in camera.cameraSizes) {
+      logDebug('$tag: start camera, size: [${i.width}x${i.height}]');
+    }
+    for (var i in camera.fpsRanges) {
+      logDebug('$tag: start camera, fps: [lower=${i.lower},upper=${i.upper}]');
+    }
+    // camera
     try {
-      var r = await _mainChannel.invokeMethod('start_camera', <String, dynamic>{
-        'id': id,
-        'minArea': minArea,
-        'captureIntervalSec': captureIntervalSec,
-        'showAreaOnCapture': showAreaOnCapture
+      var r = await _channelCmd.invokeMethod('start_camera', <String, dynamic>{
+        'camera_id': id,
+        // 'texture_id': textureId,
+        // 'minArea': minArea,
+        // 'captureIntervalSec': captureIntervalSec,
+        // 'showAreaOnCapture': showAreaOnCapture
       });
       _frameSize = Size((r['size_width'] as int).toDouble(),
           (r['size_height'] as int).toDouble());
       onFrameSize.add(_frameSize);
+      return true;
+    } on PlatformException catch (e) {
+      logError('$tag: error: ${e.message}');
+    }
+    return false;
+  }
+
+  Future<void> stopCamera() async {
+    try {
+      await _channelCmd.invokeMethod('stop_camera', <String, dynamic>{});
     } on PlatformException catch (e) {
       logError('$tag: error: ${e.message}');
     }
   }
 
-  Future stopCamera() async {
+  Future<void> updateConfiguration({
+    required int minArea,
+    required int captureIntervalSec,
+    required bool showAreaOnCapture,
+  }) async {
     try {
-      await _mainChannel.invokeMethod('stop_camera', <String, dynamic>{});
-    } on PlatformException catch (e) {
-      logError('$tag: error: ${e.message}');
-    }
-  }
-
-  Future<void> updateConfiguration(
-      {required int minArea,
-      required int captureIntervalSec,
-      required bool showAreaOnCapture}) async {
-    try {
-      await _mainChannel.invokeMethod('update_configuration', <String, dynamic>{
+      await _channelCmd.invokeMethod('update_configuration', <String, dynamic>{
         'minArea': minArea,
         'captureIntervalSec': captureIntervalSec,
         'showAreaOnCapture': showAreaOnCapture
@@ -203,7 +201,7 @@ class CameraRep {
 
   Future<int> getDeviceSensor() async {
     try {
-      var rotation = await _mainChannel
+      var rotation = await _channelCmd
           .invokeMethod('get_device_sensor', <String, dynamic>{});
       return rotation;
     } catch (e) {
@@ -230,7 +228,7 @@ class CameraRep {
         onCaptureTime.add(null);
       }
       try {
-        await _mainChannel.invokeMethod(
+        await _channelCmd.invokeMethod(
             'set_capture_active', <String, dynamic>{'active': captureActive});
       } catch (e) {
         logError('$tag: set capture active ex: $e');
@@ -270,8 +268,6 @@ class CameraRep {
         var dateJiffy = Jiffy.parseFromDateTime(date);
         var jiffyNow = Jiffy.parseFromDateTime(now);
         // same year & month & day:
-        //   header = Monday
-        //   sub    = Today
         if (dateJiffy.year == jiffyNow.year &&
             dateJiffy.dayOfYear == jiffyNow.dayOfYear) {
           header = Common().dayOfWeekString(dateJiffy.dayOfWeek);
@@ -279,15 +275,11 @@ class CameraRep {
         } else if (dateJiffy.year == jiffyNow.year &&
             dateJiffy.month == jiffyNow.month) {
           // same year & month:
-          //   header = Monday
-          //   sub    = x days ago
           header = Common().dayOfWeekString(dateJiffy.dayOfWeek);
           var dayAgo = jiffyNow.dateTime.day - date.day;
           sub = dayAgo == 1 ? '$dayAgo day ago' : '$dayAgo days ago';
         } else {
           // other year:
-          //   header = Monday
-          //   sub    = year
           header = Common().dayOfWeekString(dateJiffy.dayOfWeek);
           sub = dateJiffy.year.toString();
         }
@@ -334,7 +326,7 @@ class CameraRep {
   Future<String> captureOneFrame({bool serviceFrame = false}) async {
     var completer = Completer<String>();
     try {
-      await _mainChannel.invokeMethod('capture_one_frame',
+      await _channelCmd.invokeMethod('capture_one_frame',
           <String, dynamic>{'service_frame': serviceFrame});
     } catch (e) {
       logError('$tag: capture one frame ex: $e');
@@ -371,7 +363,7 @@ class CameraRep {
     onHistory.add(historyCache);
   }
 
-  Future<void> deleteHistory2(List<HistoryRecord> list) async {
+  Future<void> deleteHistory(List<HistoryRecord> list) async {
     if (list.isEmpty) return;
     for (var it in list) {
       var v = historyCache.firstWhereOrNull((element) {
@@ -405,7 +397,7 @@ class CameraRep {
   Future<List<Sound>> getSounds() async {
     var list = <Sound>[];
     try {
-      var r = await _mainChannel
+      var r = await _channelCmd
           .invokeMethod('get_system_sounds', <String, dynamic>{});
       r.forEach((key, value) {
         list.add(Sound(name: value['name'], uri: value['uri']));
@@ -418,7 +410,7 @@ class CameraRep {
 
   Future<bool> playSound({required String sound}) async {
     try {
-      var r = await _mainChannel.invokeMethod(
+      var r = await _channelCmd.invokeMethod(
           'play_system_sound', <String, dynamic>{'id': sound}) as bool;
       return r;
     } catch (e) {

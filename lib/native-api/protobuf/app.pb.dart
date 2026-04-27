@@ -247,6 +247,97 @@ class CameraInfo extends $pb.GeneratedMessage {
   $pb.PbList<Range> get fpsRanges => $_getList(4);
 }
 
+class Camera extends $pb.GeneratedMessage {
+  factory Camera({
+    $core.String? id,
+    $core.bool? isFront,
+    $core.int? sensor,
+    Size? size,
+  }) {
+    final result = create();
+    if (id != null) result.id = id;
+    if (isFront != null) result.isFront = isFront;
+    if (sensor != null) result.sensor = sensor;
+    if (size != null) result.size = size;
+    return result;
+  }
+
+  Camera._();
+
+  factory Camera.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Camera.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Camera',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'id')
+    ..aOB(2, _omitFieldNames ? '' : 'isFront')
+    ..aI(3, _omitFieldNames ? '' : 'sensor', fieldType: $pb.PbFieldType.OU3)
+    ..aOM<Size>(4, _omitFieldNames ? '' : 'size', subBuilder: Size.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Camera clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Camera copyWith(void Function(Camera) updates) =>
+      super.copyWith((message) => updates(message as Camera)) as Camera;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Camera create() => Camera._();
+  @$core.override
+  Camera createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Camera getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Camera>(create);
+  static Camera? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get id => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set id($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasId() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearId() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.bool get isFront => $_getBF(1);
+  @$pb.TagNumber(2)
+  set isFront($core.bool value) => $_setBool(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasIsFront() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearIsFront() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get sensor => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set sensor($core.int value) => $_setUnsignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasSensor() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearSensor() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  Size get size => $_getN(3);
+  @$pb.TagNumber(4)
+  set size(Size value) => $_setField(4, value);
+  @$pb.TagNumber(4)
+  $core.bool hasSize() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearSize() => $_clearField(4);
+  @$pb.TagNumber(4)
+  Size ensureSize() => $_ensure(3);
+}
+
 class Range extends $pb.GeneratedMessage {
   factory Range({
     $core.int? lower,
