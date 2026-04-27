@@ -4,8 +4,8 @@ set -e
 PROJECT_DIR=$PWD
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INSTALL_DIR="$PROJECT_DIR/.lib_pack/android/protobuf"
-SOURCE_DIR="$SCRIPT_DIR/.protobuf"
-CHECKOUT_BRANCH="4.0.x"
+SOURCE_DIR="$SCRIPT_DIR/.protobuf_android"
+CHECKOUT_BRANCH_TAG="v4.30.0"
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
     export ANDROID_HOME="$HOME/Library/Android/sdk"
@@ -52,8 +52,8 @@ else
 fi
 
 cd "$SOURCE_DIR"
-echo "Checking out version $CHECKOUT_BRANCH..."
-git checkout $CHECKOUT_BRANCH
+echo "Checking out version $CHECKOUT_BRANCH_TAG..."
+git checkout tags/$CHECKOUT_BRANCH_TAG
 
 git submodule update --init --recursive
 
@@ -71,14 +71,13 @@ if [ ! -d "aarch64" ]; then
     mkdir aarch64
 fi
 cd ./aarch64
-cmake ../../cmake \
+cmake ../../ \
     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
     -DANDROID_ABI=arm64-v8a \
     -DANDROID_PLATFORM=android-26 \
     -DCMAKE_BUILD_TYPE=Release \
     -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DCMAKE_CXX_FLAGS="-llog"
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 make -j32
 cmake --install . --prefix ${INSTALL_DIR}/arm64-v8a
 cd ../
@@ -88,14 +87,13 @@ if [ ! -d "x86_64" ]; then
     mkdir x86_64
 fi
 cd ./x86_64
-cmake ../../cmake \
+cmake ../../ \
     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
     -DANDROID_ABI=x86_64 \
     -DANDROID_PLATFORM=android-26 \
     -DCMAKE_BUILD_TYPE=Release \
     -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DCMAKE_CXX_FLAGS="-llog"
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 make -j32
 cmake --install . --prefix ${INSTALL_DIR}/x86_64
 cd ../
@@ -105,18 +103,17 @@ if [ ! -d "x86" ]; then
     mkdir x86
 fi
 cd ./x86
-cmake ../../cmake \
+cmake ../../ \
     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
     -DANDROID_ABI=x86 \
     -DANDROID_PLATFORM=android-26 \
     -DCMAKE_BUILD_TYPE=Release \
     -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
-    -DCMAKE_CXX_FLAGS="-llog"
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 make -j32
 cmake --install . --prefix ${INSTALL_DIR}/x86
 
-rm -rf $SOURCE_DIR
+# rm -rf $SOURCE_DIR
 
 echo "------------------"
 echo "COMPLETED"

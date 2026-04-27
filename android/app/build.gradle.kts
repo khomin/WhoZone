@@ -84,11 +84,11 @@ flutter {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:25.3"
+        artifact = "com.google.protobuf:protoc:4.30.0"
     }
     plugins {
         register("javalite") {
-            "com.google.protobuf:protoc-gen-javalite:25.3"
+            "com.google.protobuf:protoc-gen-javalite:4.30.0"
         }
     }
     generateProtoTasks {
@@ -105,5 +105,5 @@ protobuf {
 dependencies {
     implementation("com.elvishew:xlog:1.11.1")
     implementation("androidx.fragment:fragment-ktx:1.8.9")
-    implementation("com.google.protobuf:protobuf-javalite:3.8.0")
+    implementation("com.google.protobuf:protobuf-javalite:4.30.0")
 }

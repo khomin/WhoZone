@@ -15,41 +15,19 @@ import 'dart:convert' as $convert;
 import 'dart:core' as $core;
 import 'dart:typed_data' as $typed_data;
 
-@$core.Deprecated('Use startLibParamDescriptor instead')
-const StartLibParam$json = {
-  '1': 'StartLibParam',
+@$core.Deprecated('Use initParamDescriptor instead')
+const InitParam$json = {
+  '1': 'InitParam',
   '2': [
-    {'1': 'cache_dir_path', '3': 1, '4': 1, '5': 9, '10': 'cacheDirPath'},
-    {'1': 'reg_serv_addr', '3': 2, '4': 1, '5': 9, '10': 'regServAddr'},
-    {'1': 'reg_serv_port', '3': 3, '4': 1, '5': 5, '10': 'regServPort'},
-    {'1': 'fcm', '3': 6, '4': 1, '5': 9, '10': 'fcm'},
-    {'1': 'native_log_path', '3': 7, '4': 1, '5': 9, '10': 'nativeLogPath'},
-    {
-      '1': 'use_mirror_cpp_log',
-      '3': 8,
-      '4': 1,
-      '5': 8,
-      '10': 'useMirrorCppLog'
-    },
-    {
-      '1': 'notification_show_data',
-      '3': 10,
-      '4': 1,
-      '5': 8,
-      '10': 'notificationShowData'
-    },
-    {'1': 'mtu_len', '3': 12, '4': 1, '5': 13, '10': 'mtuLen'},
+    {'1': 'coco_names', '3': 1, '4': 3, '5': 9, '10': 'cocoNames'},
+    {'1': 'model_path', '3': 2, '4': 1, '5': 9, '10': 'modelPath'},
   ],
 };
 
-/// Descriptor for `StartLibParam`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List startLibParamDescriptor = $convert.base64Decode(
-    'Cg1TdGFydExpYlBhcmFtEiQKDmNhY2hlX2Rpcl9wYXRoGAEgASgJUgxjYWNoZURpclBhdGgSIg'
-    'oNcmVnX3NlcnZfYWRkchgCIAEoCVILcmVnU2VydkFkZHISIgoNcmVnX3NlcnZfcG9ydBgDIAEo'
-    'BVILcmVnU2VydlBvcnQSEAoDZmNtGAYgASgJUgNmY20SJgoPbmF0aXZlX2xvZ19wYXRoGAcgAS'
-    'gJUg1uYXRpdmVMb2dQYXRoEisKEnVzZV9taXJyb3JfY3BwX2xvZxgIIAEoCFIPdXNlTWlycm9y'
-    'Q3BwTG9nEjQKFm5vdGlmaWNhdGlvbl9zaG93X2RhdGEYCiABKAhSFG5vdGlmaWNhdGlvblNob3'
-    'dEYXRhEhcKB210dV9sZW4YDCABKA1SBm10dUxlbg==');
+/// Descriptor for `InitParam`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List initParamDescriptor = $convert.base64Decode(
+    'CglJbml0UGFyYW0SHQoKY29jb19uYW1lcxgBIAMoCVIJY29jb05hbWVzEh0KCm1vZGVsX3BhdG'
+    'gYAiABKAlSCW1vZGVsUGF0aA==');
 
 @$core.Deprecated('Use cameraInfoDescriptor instead')
 const CameraInfo$json = {

@@ -34,6 +34,10 @@ class MainActivity : FlutterFragmentActivity() {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         val textureRep = TextureRepository(registry) {}
 
+//        val whoZoneRep = applicationContext.
+
+//        WhoZoneRep.initEngine()
+
         channel.setMethodCallHandler { call, result ->
             val args = call.arguments as HashMap<*, *>
             when (call.method) {

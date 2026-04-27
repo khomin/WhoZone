@@ -21,7 +21,6 @@ import androidx.annotation.RequiresPermission
 import app.App
 import com.elvishew.xlog.XLog
 import java.util.concurrent.Executor
-import kotlin.math.abs
 
 class CameraSession(val context: Context) {
     private var cameraDevice: CameraDevice? = null
@@ -34,9 +33,8 @@ class CameraSession(val context: Context) {
         bgThread.start()
         bgHandler = Handler(bgThread.looper)
         executor = Executor { command -> bgHandler.post(command) }
-
         imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 3)
-        nativeInitImageReader(imageReader)
+        WhoZoneRep.nativeInitImageReader(imageReader)
     }
 
     fun dispose() {

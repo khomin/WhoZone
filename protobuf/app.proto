@@ -2,15 +2,9 @@ syntax = "proto2";
 
 package app;
 
-message StartLibParam {
-    optional string cache_dir_path = 1;
-    optional string reg_serv_addr = 2;
-    optional int32 reg_serv_port = 3;
-    optional string fcm = 6;
-    optional string native_log_path = 7;
-    optional bool use_mirror_cpp_log = 8;
-    optional bool notification_show_data = 10;
-    optional uint32 mtu_len = 12;
+message InitParam {
+    repeated string coco_names = 1;
+    optional string model_path = 2;
 }
 
 message CameraInfo {

@@ -7,29 +7,36 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 project(${PROJECT} LANGUAGES CXX)
 
-add_executable(${PROJECT}
-    ./main.cpp
+add_library(${PROJECT}
+    ./jni_bridge.cpp
     ./detector.cpp
     ./detector.h
-    ./frame_source.cpp
-    ./frame_source.h
+#    ./frame_source.cpp
+#    ./frame_source.h
     ./detection_work_item.h
     ./safe_queue.h
     ./protobuf/generated/app.pb.cc
     ./protobuf/generated/app.pb.h
 )
+set(OPENCV_LIB_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/staticlibs/${CMAKE_ANDROID_ARCH_ABI})
+set(OPENCV_HEADER_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/jni/include)
 
 target_include_directories(${PROJECT} PUBLIC
     ${CMAKE_SOURCE_DIR}/../cpp/
-    /Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/arm64-v8a/sdk/native/jni/include
-    #${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/include/opencv4
+    ${OPENCV_HEADER_DIR}
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/include/
 )
 
+
 file(GLOB LIBRARIES
-    /Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/arm64-v8a/sdk/native/staticlibs/arm64-v8a/*.so
-#    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/lib/*.so
-    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libprotobuf.a
+    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/*.a
+    ${OPENCV_LIB_DIR}/libopencv_dnn.a
+    ${OPENCV_LIB_DIR}/libopencv_objdetect.a
+    ${OPENCV_LIB_DIR}/libopencv_imgproc.a
+    ${OPENCV_LIB_DIR}/libopencv_core.a
+    ${OPENCV_LIB_DIR}/libtegra_hal.a
+    ${OPENCV_LIB_DIR}/libippicv.a
+    ${OPENCV_LIB_DIR}/libopencv_video.a
 )
 
 target_link_libraries(${PROJECT} PUBLIC

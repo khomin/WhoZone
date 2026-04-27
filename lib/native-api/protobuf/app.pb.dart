@@ -16,143 +16,63 @@ import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
 
-class StartLibParam extends $pb.GeneratedMessage {
-  factory StartLibParam({
-    $core.String? cacheDirPath,
-    $core.String? regServAddr,
-    $core.int? regServPort,
-    $core.String? fcm,
-    $core.String? nativeLogPath,
-    $core.bool? useMirrorCppLog,
-    $core.bool? notificationShowData,
-    $core.int? mtuLen,
+class InitParam extends $pb.GeneratedMessage {
+  factory InitParam({
+    $core.Iterable<$core.String>? cocoNames,
+    $core.String? modelPath,
   }) {
     final result = create();
-    if (cacheDirPath != null) result.cacheDirPath = cacheDirPath;
-    if (regServAddr != null) result.regServAddr = regServAddr;
-    if (regServPort != null) result.regServPort = regServPort;
-    if (fcm != null) result.fcm = fcm;
-    if (nativeLogPath != null) result.nativeLogPath = nativeLogPath;
-    if (useMirrorCppLog != null) result.useMirrorCppLog = useMirrorCppLog;
-    if (notificationShowData != null)
-      result.notificationShowData = notificationShowData;
-    if (mtuLen != null) result.mtuLen = mtuLen;
+    if (cocoNames != null) result.cocoNames.addAll(cocoNames);
+    if (modelPath != null) result.modelPath = modelPath;
     return result;
   }
 
-  StartLibParam._();
+  InitParam._();
 
-  factory StartLibParam.fromBuffer($core.List<$core.int> data,
+  factory InitParam.fromBuffer($core.List<$core.int> data,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromBuffer(data, registry);
-  factory StartLibParam.fromJson($core.String json,
+  factory InitParam.fromJson($core.String json,
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'StartLibParam',
+      _omitMessageNames ? '' : 'InitParam',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
       createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'cacheDirPath')
-    ..aOS(2, _omitFieldNames ? '' : 'regServAddr')
-    ..aI(3, _omitFieldNames ? '' : 'regServPort')
-    ..aOS(6, _omitFieldNames ? '' : 'fcm')
-    ..aOS(7, _omitFieldNames ? '' : 'nativeLogPath')
-    ..aOB(8, _omitFieldNames ? '' : 'useMirrorCppLog')
-    ..aOB(10, _omitFieldNames ? '' : 'notificationShowData')
-    ..aI(12, _omitFieldNames ? '' : 'mtuLen', fieldType: $pb.PbFieldType.OU3)
+    ..pPS(1, _omitFieldNames ? '' : 'cocoNames')
+    ..aOS(2, _omitFieldNames ? '' : 'modelPath')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  StartLibParam clone() => deepCopy();
+  InitParam clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
-  StartLibParam copyWith(void Function(StartLibParam) updates) =>
-      super.copyWith((message) => updates(message as StartLibParam))
-          as StartLibParam;
+  InitParam copyWith(void Function(InitParam) updates) =>
+      super.copyWith((message) => updates(message as InitParam)) as InitParam;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
 
   @$core.pragma('dart2js:noInline')
-  static StartLibParam create() => StartLibParam._();
+  static InitParam create() => InitParam._();
   @$core.override
-  StartLibParam createEmptyInstance() => create();
+  InitParam createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static StartLibParam getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<StartLibParam>(create);
-  static StartLibParam? _defaultInstance;
+  static InitParam getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<InitParam>(create);
+  static InitParam? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.String get cacheDirPath => $_getSZ(0);
-  @$pb.TagNumber(1)
-  set cacheDirPath($core.String value) => $_setString(0, value);
-  @$pb.TagNumber(1)
-  $core.bool hasCacheDirPath() => $_has(0);
-  @$pb.TagNumber(1)
-  void clearCacheDirPath() => $_clearField(1);
+  $pb.PbList<$core.String> get cocoNames => $_getList(0);
 
   @$pb.TagNumber(2)
-  $core.String get regServAddr => $_getSZ(1);
+  $core.String get modelPath => $_getSZ(1);
   @$pb.TagNumber(2)
-  set regServAddr($core.String value) => $_setString(1, value);
+  set modelPath($core.String value) => $_setString(1, value);
   @$pb.TagNumber(2)
-  $core.bool hasRegServAddr() => $_has(1);
+  $core.bool hasModelPath() => $_has(1);
   @$pb.TagNumber(2)
-  void clearRegServAddr() => $_clearField(2);
-
-  @$pb.TagNumber(3)
-  $core.int get regServPort => $_getIZ(2);
-  @$pb.TagNumber(3)
-  set regServPort($core.int value) => $_setSignedInt32(2, value);
-  @$pb.TagNumber(3)
-  $core.bool hasRegServPort() => $_has(2);
-  @$pb.TagNumber(3)
-  void clearRegServPort() => $_clearField(3);
-
-  @$pb.TagNumber(6)
-  $core.String get fcm => $_getSZ(3);
-  @$pb.TagNumber(6)
-  set fcm($core.String value) => $_setString(3, value);
-  @$pb.TagNumber(6)
-  $core.bool hasFcm() => $_has(3);
-  @$pb.TagNumber(6)
-  void clearFcm() => $_clearField(6);
-
-  @$pb.TagNumber(7)
-  $core.String get nativeLogPath => $_getSZ(4);
-  @$pb.TagNumber(7)
-  set nativeLogPath($core.String value) => $_setString(4, value);
-  @$pb.TagNumber(7)
-  $core.bool hasNativeLogPath() => $_has(4);
-  @$pb.TagNumber(7)
-  void clearNativeLogPath() => $_clearField(7);
-
-  @$pb.TagNumber(8)
-  $core.bool get useMirrorCppLog => $_getBF(5);
-  @$pb.TagNumber(8)
-  set useMirrorCppLog($core.bool value) => $_setBool(5, value);
-  @$pb.TagNumber(8)
-  $core.bool hasUseMirrorCppLog() => $_has(5);
-  @$pb.TagNumber(8)
-  void clearUseMirrorCppLog() => $_clearField(8);
-
-  @$pb.TagNumber(10)
-  $core.bool get notificationShowData => $_getBF(6);
-  @$pb.TagNumber(10)
-  set notificationShowData($core.bool value) => $_setBool(6, value);
-  @$pb.TagNumber(10)
-  $core.bool hasNotificationShowData() => $_has(6);
-  @$pb.TagNumber(10)
-  void clearNotificationShowData() => $_clearField(10);
-
-  @$pb.TagNumber(12)
-  $core.int get mtuLen => $_getIZ(7);
-  @$pb.TagNumber(12)
-  set mtuLen($core.int value) => $_setUnsignedInt32(7, value);
-  @$pb.TagNumber(12)
-  $core.bool hasMtuLen() => $_has(7);
-  @$pb.TagNumber(12)
-  void clearMtuLen() => $_clearField(12);
+  void clearModelPath() => $_clearField(2);
 }
 
 class CameraInfo extends $pb.GeneratedMessage {

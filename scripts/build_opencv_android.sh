@@ -75,24 +75,26 @@ if [ ! -d "aarch64" ]; then
     mkdir aarch64
 fi
 cd ./aarch64
-cmake ../../ -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
--DCMAKE_POSITION_INDEPENDENT_CODE=ON \
--DBUILD_SAMPLES=OFF \
--DCMAKE_BUILD_TYPE=Release \
--Dprotobuf_BUILD_TESTS=OFF \
--DCMAKE_SYSTEM_NAME=Android \
--DCMAKE_SYSTEM_PROCESSOR=aarch64 \
--DANDROID_ABI=arm64-v8a \
--DANDROID_NDK=${NDK} \
--DANDROID_PLATFORM=android-26 \
--DCMAKE_ANDROID_ARCH_ABI=arm64-v8a  \
--DCMAKE_ANDROID_NDK=${NDK} \
--DBUILD_opencv_java=OFF \
--DBUILD_ANDROID_PROJECTS=OFF \
--DBUILD_ANDROID_EXAMPLES=OFF \
--DCMAKE_CXX_FLAGS="-llog"
+cmake ../../ \
+    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+    -DBUILD_SAMPLES=OFF \
+    -DCMAKE_BUILD_TYPE=Release \
+    -Dprotobuf_BUILD_TESTS=OFF \
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+    -DANDROID_ABI=arm64-v8a \
+    -DANDROID_NDK=${NDK} \
+    -DANDROID_PLATFORM=android-26 \
+    -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a  \
+    -DCMAKE_ANDROID_NDK=${NDK} \
+    -DBUILD_opencv_java=OFF \
+    -DBUILD_opencv_video=ON \
+    -DBUILD_ANDROID_PROJECTS=OFF \
+    -DBUILD_ANDROID_EXAMPLES=OFF \
+    -DBUILD_opencv_dnn=ON
 make -j32
-cmake --install . --prefix ${INSTALL_DIR}/arm64-v8a
+cmake --install . --prefix ${INSTALL_DIR}/
 cd ../
 
 # # x86_64

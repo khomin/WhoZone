@@ -31,11 +31,7 @@ class MainApplication : Application() {
         XLog.init(config, AndroidPrinter(), filePrinter)
         setupCrashHandler()
 
-        try {
-            System.loadLibrary("WhoZone")
-        } catch (e: Exception) {
-            XLog.e("Failed to open library", e.toString())
-        }
+        WhoZoneRep.initEngine()
     }
 
     private fun setupCrashHandler() {
