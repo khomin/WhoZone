@@ -88,14 +88,18 @@ cmake ../../ \
     -DANDROID_PLATFORM=android-26 \
     -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a  \
     -DCMAKE_ANDROID_NDK=${NDK} \
-    -DBUILD_opencv_java=OFF \
-    -DBUILD_opencv_video=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_opencv_java=ON \
+    -DBUILD_opencv_dnn=ON \
+    -DBUILD_opencv_world=OFF \
     -DBUILD_ANDROID_PROJECTS=OFF \
-    -DBUILD_ANDROID_EXAMPLES=OFF \
     -DBUILD_opencv_dnn=ON
 make -j32
 cmake --install . --prefix ${INSTALL_DIR}/
 cd ../
+
+    # -DBUILD_opencv_java=OFF \
+    # -DBUILD_opencv_video=ON \
 
 # # x86_64
 # mkdir x86_64

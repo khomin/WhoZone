@@ -19,8 +19,7 @@ struct Tracker {
     Tracker() : id(-1), class_id(-1), last_confidence(0.0f), missed_frames(0) {}
 };
 
-class Detector
-{
+class Detector {
 public:
     Detector(std::vector<std::string> class_names, std::string module_path);
     ~Detector();

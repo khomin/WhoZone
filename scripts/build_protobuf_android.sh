@@ -72,46 +72,59 @@ if [ ! -d "aarch64" ]; then
 fi
 cd ./aarch64
 cmake ../../ \
-    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
-    -DANDROID_ABI=arm64-v8a \
-    -DANDROID_PLATFORM=android-26 \
-    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
     -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+    -DCMAKE_SYSTEM_NAME=Android \
+    -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+    -DANDROID_ABI=arm64-v8a \
+    -DANDROID_NDK=${NDK} \
+    -DANDROID_PLATFORM=android-23 \
+    -DCMAKE_ANDROID_ARCH_ABI=arm64-v8a  \
+    -DCMAKE_ANDROID_NDK=${NDK} \
+    -DCMAKE_CXX_FLAGS="-llog"
 make -j32
 cmake --install . --prefix ${INSTALL_DIR}/arm64-v8a
 cd ../
+    # -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+    # -DANDROID_ABI=arm64-v8a \
+    # -DANDROID_PLATFORM=android-26 \
+    # -DCMAKE_BUILD_TYPE=Release \
+    # -Dprotobuf_BUILD_TESTS=OFF \
+    # -Dprotobuf_ABSL_PROVIDER=module \
+    # -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 
-# x86_64
-if [ ! -d "x86_64" ]; then
-    mkdir x86_64
-fi
-cd ./x86_64
-cmake ../../ \
-    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
-    -DANDROID_ABI=x86_64 \
-    -DANDROID_PLATFORM=android-26 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-make -j32
-cmake --install . --prefix ${INSTALL_DIR}/x86_64
-cd ../
+# # x86_64
+# if [ ! -d "x86_64" ]; then
+#     mkdir x86_64
+# fi
+# cd ./x86_64
+# cmake ../../ \
+#     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+#     -DANDROID_ABI=x86_64 \
+#     -DANDROID_PLATFORM=android-26 \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -Dprotobuf_BUILD_TESTS=OFF \
+#     -Dprotobuf_ABSL_PROVIDER=module \
+#     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+# make -j32
+# cmake --install . --prefix ${INSTALL_DIR}/x86_64
+# cd ../
 
-# x86
-if [ ! -d "x86" ]; then
-    mkdir x86
-fi
-cd ./x86
-cmake ../../ \
-    -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
-    -DANDROID_ABI=x86 \
-    -DANDROID_PLATFORM=android-26 \
-    -DCMAKE_BUILD_TYPE=Release \
-    -Dprotobuf_BUILD_TESTS=OFF \
-    -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-make -j32
-cmake --install . --prefix ${INSTALL_DIR}/x86
+# # x86
+# if [ ! -d "x86" ]; then
+#     mkdir x86
+# fi
+# cd ./x86
+# cmake ../../ \
+#     -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN} \
+#     -DANDROID_ABI=x86 \
+#     -DANDROID_PLATFORM=android-26 \
+#     -DCMAKE_BUILD_TYPE=Release \
+#     -Dprotobuf_BUILD_TESTS=OFF \
+#     -Dprotobuf_ABSL_PROVIDER=module \
+#     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
+# make -j32
+# cmake --install . --prefix ${INSTALL_DIR}/x86
 
 # rm -rf $SOURCE_DIR
 
