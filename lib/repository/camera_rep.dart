@@ -47,6 +47,11 @@ class CaptureTime {
   bool isFirstEv;
 }
 
+class StartResult {
+  StartResult(this.textureId);
+  int? textureId;
+}
+
 class CameraRep {
   var cameras = <String, app.CameraInfo>{};
   final onCameraChanged = BehaviorSubject<void>();
@@ -54,6 +59,7 @@ class CameraRep {
   final onFrameSize = BehaviorSubject<Size>.seeded(const Size(0, 0));
   final onCaptureTime = BehaviorSubject<CaptureTime?>();
   final onHistory = BehaviorSubject<List<HistoryRecord>>();
+  final onTexture = BehaviorSubject<int>();
   var historyCache = <HistoryRecord>[];
   final onHistoryDataSize = BehaviorSubject<Int64>.seeded(Int64.ZERO);
   Function(String path)? onCapture;
@@ -134,45 +140,58 @@ class CameraRep {
     return cameras;
   }
 
-  Future<bool> startCamera({
+  Future<StartResult?> startCamera({
     required String id,
     required int minArea,
     required int captureIntervalSec,
     required bool showAreaOnCapture,
   }) async {
-    // permissions
-    var r = await _channelCmd
-        .invokeMethod('request_camera_permissions', <String, dynamic>{});
-    if (!r) {
-      return false;
-    }
-    var camera = cameras[id];
-    if (camera == null) {
-      return false;
-    }
-    for (var i in camera.cameraSizes) {
-      logDebug('$tag: start camera, size: [${i.width}x${i.height}]');
-    }
-    for (var i in camera.fpsRanges) {
-      logDebug('$tag: start camera, fps: [lower=${i.lower},upper=${i.upper}]');
-    }
-    // camera
     try {
-      var r = await _channelCmd.invokeMethod('start_camera', <String, dynamic>{
+      // permissions
+      var r = await _channelCmd
+          .invokeMethod('request_camera_permissions', <String, dynamic>{});
+      if (!r) {
+        return null;
+      }
+      var camera = cameras[id];
+      if (camera == null) {
+        return null;
+      }
+      var size = camera.cameraSizes.first;
+      for (var i in camera.cameraSizes) {
+        logDebug('$tag: start camera, size: [${i.width}x${i.height}]');
+      }
+      for (var i in camera.fpsRanges) {
+        logDebug(
+            '$tag: start camera, fps: [lower=${i.lower},upper=${i.upper}]');
+      }
+      // get texture
+      var textRes =
+          await _channelCmd.invokeMethod('register_texture', <String, dynamic>{
+        'width': size.width,
+        'height': size.height,
+      });
+      // start camera
+      var textureId = textRes['id'] as int;
+      await _channelCmd.invokeMethod('start_camera', <String, dynamic>{
         'camera_id': id,
-        // 'texture_id': textureId,
+        'texture_id': textureId,
         // 'minArea': minArea,
         // 'captureIntervalSec': captureIntervalSec,
         // 'showAreaOnCapture': showAreaOnCapture
       });
-      _frameSize = Size((r['size_width'] as int).toDouble(),
-          (r['size_height'] as int).toDouble());
+      // _frameSize = Size(
+      //   (r['size_width'] as int).toDouble(),
+      //   (r['size_height'] as int).toDouble(),
+      // );
+      _frameSize = Size(size.width.toDouble(), size.height.toDouble());
+      onTexture.add(textureId);
       onFrameSize.add(_frameSize);
-      return true;
+      return StartResult(textureId);
     } on PlatformException catch (e) {
       logError('$tag: error: ${e.message}');
     }
-    return false;
+    return null;
   }
 
   Future<void> stopCamera() async {

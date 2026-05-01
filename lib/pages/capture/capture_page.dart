@@ -33,7 +33,7 @@ class CapturePageState extends State<CapturePage>
   AppLifecycleListener? _listener;
   final _onStopRecordStream = PublishSubject<bool>();
   Timer? _updateLayoutTm;
-  int? _textureId;
+  // int? _textureId;
 
   late final Animation<double> _slideHeight;
   late AnimationController _ctrSlideTop;
@@ -305,24 +305,30 @@ class CapturePageState extends State<CapturePage>
                                 // fit: BoxFit.fitWidth,
                                 // fit: BoxFit.fill,
                                 child: SizedBox(
-                                  // width: 500, // Same as the container's width
-                                  // height: 500, // Same as the container's height
-                                  // width: NavigatorRep().size.width,
-                                  // // height: NavigatorRep().size.height,
-                                  // height:
-                                  //     (NavigatorRep().size.height + 20 / 3),
-                                  // width: 350 ?? 100,
-                                  // height: 350 ?? 100,
-                                  width: camera?.size.width.toDouble() ??
-                                      size.width,
-                                  height: camera?.size.height.toDouble() ??
-                                      size.height,
-                                  child: _textureId != null
-                                      ? Texture(
-                                          textureId: _textureId!,
-                                        )
-                                      : const SizedBox(),
-                                ))));
+                                    // width: 500, // Same as the container's width
+                                    // height: 500, // Same as the container's height
+                                    // width: NavigatorRep().size.width,
+                                    // // height: NavigatorRep().size.height,
+                                    // height:
+                                    //     (NavigatorRep().size.height + 20 / 3),
+                                    // width: 350 ?? 100,
+                                    // height: 350 ?? 100,
+                                    width: camera?.size.width.toDouble() ??
+                                        size.width,
+                                    height: camera?.size.height.toDouble() ??
+                                        size.height,
+                                    child: Builder(
+                                      builder: (context) {
+                                        var textureId =
+                                            context.select<CaptureModel, int?>(
+                                                (v) => v.textureId);
+                                        return textureId != null
+                                            ? Texture(
+                                                textureId: textureId,
+                                              )
+                                            : const SizedBox();
+                                      },
+                                    )))));
                   });
                 })),
             //

@@ -31,7 +31,7 @@ class MainApplication : Application() {
         XLog.init(config, AndroidPrinter(), filePrinter)
         setupCrashHandler()
 
-        WhoZoneRep.initEngine()
+        WhoZoneRep.initEngine(applicationContext)
     }
 
     private fun setupCrashHandler() {

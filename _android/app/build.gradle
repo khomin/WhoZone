@@ -90,6 +90,11 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             signingConfig signingConfigs.config
+            externalNativeBuild {
+                cmake {
+                    arguments "-DCMAKE_BUILD_TYPE=Debug"
+                }
+            }
         }
         profile {
             debuggable true

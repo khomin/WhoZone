@@ -28,13 +28,14 @@ class CameraSession(val context: Context) {
     private var bgThread: HandlerThread = HandlerThread("CameraBackground")
     private var bgHandler: Handler
     private var executor: Executor
-    private var imageReader: ImageReader
+//    private var imageReader: ImageReader
+    private var readerSurface: Surface
     init {
         bgThread.start()
         bgHandler = Handler(bgThread.looper)
         executor = Executor { command -> bgHandler.post(command) }
-        imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 3)
-        WhoZoneRep.nativeInitImageReader(imageReader)
+//        imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 3)
+       readerSurface = WhoZoneRep.nativeInitImageReader()//imageReader)
     }
 
     fun dispose() {
@@ -48,7 +49,7 @@ class CameraSession(val context: Context) {
             override fun onOpened(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onOpened: id=${camera.id}")
                 cameraDevice = camera
-                startSession(camera, viewSurface, imageReader.surface)
+                startSession(camera, viewSurface, readerSurface)
             }
             override fun onDisconnected(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onDisconnected: id=${cameraDevice?.id}")

@@ -45,8 +45,6 @@ int Detector::start() {
         std::cerr << "ERROR: Failed to load ONNX model!" << std::endl;
         return -1;
     }
-
-    // Set backend and target for performance optimization (Crucial for TBB/CPU)
     _net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
     _net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
 
@@ -186,7 +184,7 @@ int Detector::start() {
     return 0;
 }
 
-void Detector::setCallback(std::function<void(DetectionWorkItem& item)> v) {
+void Detector::setCallback(std::function<void(DetectionItem& item)> v) {
     _onFrame = v;
 }
 
@@ -299,14 +297,14 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
         std::cerr << "Error: Detection result vectors have mismatched sizes." << std::endl;
         return;
     }
-    DetectionWorkItem item;
-    item.frame = frame.clone(); // Take a copy so main thread can keep drawing
-    item.frame_count = _frame_count;
+    DetectionItem item;
+    auto now = std::chrono::steady_clock::now();
+    item.frame_count = _frame_count++;
+    item.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
     item.detections = detections;
     item.class_ids = det_class_ids;
     item.confidences = det_confidences;
     item.names = _class_names;
-
     if(_onFrame) {
         _onFrame(item);
     }

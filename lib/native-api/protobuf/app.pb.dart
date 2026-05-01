@@ -12,6 +12,7 @@
 
 import 'dart:core' as $core;
 
+import 'package:fixnum/fixnum.dart' as $fixnum;
 import 'package:protobuf/protobuf.dart' as $pb;
 
 export 'package:protobuf/protobuf.dart' show GeneratedMessageGenericExtensions;
@@ -20,10 +21,14 @@ class InitParam extends $pb.GeneratedMessage {
   factory InitParam({
     $core.Iterable<$core.String>? cocoNames,
     $core.String? modelPath,
+    $core.int? targetWidth,
+    $core.int? targetHeight,
   }) {
     final result = create();
     if (cocoNames != null) result.cocoNames.addAll(cocoNames);
     if (modelPath != null) result.modelPath = modelPath;
+    if (targetWidth != null) result.targetWidth = targetWidth;
+    if (targetHeight != null) result.targetHeight = targetHeight;
     return result;
   }
 
@@ -42,6 +47,8 @@ class InitParam extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'cocoNames')
     ..aOS(2, _omitFieldNames ? '' : 'modelPath')
+    ..aI(3, _omitFieldNames ? '' : 'targetWidth')
+    ..aI(4, _omitFieldNames ? '' : 'targetHeight')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -73,6 +80,24 @@ class InitParam extends $pb.GeneratedMessage {
   $core.bool hasModelPath() => $_has(1);
   @$pb.TagNumber(2)
   void clearModelPath() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get targetWidth => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set targetWidth($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasTargetWidth() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearTargetWidth() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get targetHeight => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set targetHeight($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasTargetHeight() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTargetHeight() => $_clearField(4);
 }
 
 class CameraInfo extends $pb.GeneratedMessage {
@@ -386,6 +411,249 @@ class Size extends $pb.GeneratedMessage {
   $core.bool hasHeight() => $_has(1);
   @$pb.TagNumber(2)
   void clearHeight() => $_clearField(2);
+}
+
+enum EventWrapper_Msg { detection, notSet }
+
+class EventWrapper extends $pb.GeneratedMessage {
+  factory EventWrapper({
+    DetectionItem? detection,
+  }) {
+    final result = create();
+    if (detection != null) result.detection = detection;
+    return result;
+  }
+
+  EventWrapper._();
+
+  factory EventWrapper.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory EventWrapper.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static const $core.Map<$core.int, EventWrapper_Msg> _EventWrapper_MsgByTag = {
+    1: EventWrapper_Msg.detection,
+    0: EventWrapper_Msg.notSet
+  };
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'EventWrapper',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..oo(0, [1])
+    ..aOM<DetectionItem>(1, _omitFieldNames ? '' : 'detection',
+        subBuilder: DetectionItem.create)
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  EventWrapper clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  EventWrapper copyWith(void Function(EventWrapper) updates) =>
+      super.copyWith((message) => updates(message as EventWrapper))
+          as EventWrapper;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static EventWrapper create() => EventWrapper._();
+  @$core.override
+  EventWrapper createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static EventWrapper getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<EventWrapper>(create);
+  static EventWrapper? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  EventWrapper_Msg whichMsg() => _EventWrapper_MsgByTag[$_whichOneof(0)]!;
+  @$pb.TagNumber(1)
+  void clearMsg() => $_clearField($_whichOneof(0));
+
+  @$pb.TagNumber(1)
+  DetectionItem get detection => $_getN(0);
+  @$pb.TagNumber(1)
+  set detection(DetectionItem value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDetection() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetection() => $_clearField(1);
+  @$pb.TagNumber(1)
+  DetectionItem ensureDetection() => $_ensure(0);
+}
+
+class DetectionItem extends $pb.GeneratedMessage {
+  factory DetectionItem({
+    $core.Iterable<Rect>? detections,
+    $core.Iterable<$core.int>? classIds,
+    $core.Iterable<$core.double>? confidences,
+    $core.int? frameCount,
+    $fixnum.Int64? timestampNs,
+  }) {
+    final result = create();
+    if (detections != null) result.detections.addAll(detections);
+    if (classIds != null) result.classIds.addAll(classIds);
+    if (confidences != null) result.confidences.addAll(confidences);
+    if (frameCount != null) result.frameCount = frameCount;
+    if (timestampNs != null) result.timestampNs = timestampNs;
+    return result;
+  }
+
+  DetectionItem._();
+
+  factory DetectionItem.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory DetectionItem.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'DetectionItem',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..pPM<Rect>(1, _omitFieldNames ? '' : 'detections', subBuilder: Rect.create)
+    ..p<$core.int>(2, _omitFieldNames ? '' : 'classIds', $pb.PbFieldType.P3)
+    ..p<$core.double>(
+        3, _omitFieldNames ? '' : 'confidences', $pb.PbFieldType.PF)
+    ..aI(4, _omitFieldNames ? '' : 'frameCount')
+    ..aInt64(5, _omitFieldNames ? '' : 'timestampNs')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DetectionItem clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  DetectionItem copyWith(void Function(DetectionItem) updates) =>
+      super.copyWith((message) => updates(message as DetectionItem))
+          as DetectionItem;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static DetectionItem create() => DetectionItem._();
+  @$core.override
+  DetectionItem createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static DetectionItem getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<DetectionItem>(create);
+  static DetectionItem? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<Rect> get detections => $_getList(0);
+
+  @$pb.TagNumber(2)
+  $pb.PbList<$core.int> get classIds => $_getList(1);
+
+  @$pb.TagNumber(3)
+  $pb.PbList<$core.double> get confidences => $_getList(2);
+
+  @$pb.TagNumber(4)
+  $core.int get frameCount => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set frameCount($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasFrameCount() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearFrameCount() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get timestampNs => $_getI64(4);
+  @$pb.TagNumber(5)
+  set timestampNs($fixnum.Int64 value) => $_setInt64(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasTimestampNs() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearTimestampNs() => $_clearField(5);
+}
+
+class Rect extends $pb.GeneratedMessage {
+  factory Rect({
+    $core.int? x,
+    $core.int? y,
+    $core.int? width,
+    $core.int? height,
+  }) {
+    final result = create();
+    if (x != null) result.x = x;
+    if (y != null) result.y = y;
+    if (width != null) result.width = width;
+    if (height != null) result.height = height;
+    return result;
+  }
+
+  Rect._();
+
+  factory Rect.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Rect.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Rect',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..aI(1, _omitFieldNames ? '' : 'x')
+    ..aI(2, _omitFieldNames ? '' : 'y')
+    ..aI(3, _omitFieldNames ? '' : 'width')
+    ..aI(4, _omitFieldNames ? '' : 'height')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Rect clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Rect copyWith(void Function(Rect) updates) =>
+      super.copyWith((message) => updates(message as Rect)) as Rect;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Rect create() => Rect._();
+  @$core.override
+  Rect createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Rect getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Rect>(create);
+  static Rect? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.int get x => $_getIZ(0);
+  @$pb.TagNumber(1)
+  set x($core.int value) => $_setSignedInt32(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasX() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearX() => $_clearField(1);
+
+  @$pb.TagNumber(2)
+  $core.int get y => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set y($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasY() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearY() => $_clearField(2);
+
+  @$pb.TagNumber(3)
+  $core.int get width => $_getIZ(2);
+  @$pb.TagNumber(3)
+  set width($core.int value) => $_setSignedInt32(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasWidth() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearWidth() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get height => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set height($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasHeight() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearHeight() => $_clearField(4);
 }
 
 const $core.bool _omitFieldNames =

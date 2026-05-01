@@ -34,8 +34,6 @@ class MainActivity : FlutterFragmentActivity() {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         val textureRep = TextureRepository(registry) {}
 
-//        val whoZoneRep = applicationContext.
-
 //        WhoZoneRep.initEngine()
 
         channel.setMethodCallHandler { call, result ->
@@ -48,6 +46,15 @@ class MainActivity : FlutterFragmentActivity() {
                         map[i.id] = i.toByteArray()
                     }
                     result.success(map)
+                    return@setMethodCallHandler
+                }
+                "request_camera_permissions" -> {
+                    try {
+                        cameraPermissionResult = result
+                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                    } catch (e: SecurityException) {
+                        result.error(TAG, e.message, e)
+                    }
                     return@setMethodCallHandler
                 }
                 "register_texture" -> {
@@ -64,19 +71,10 @@ class MainActivity : FlutterFragmentActivity() {
                     val id = args["id"] as Long
                     textureRep.unregisterTexture(id)
                 }
-                "request_camera_permissions" -> {
-                    try {
-                        cameraPermissionResult = result
-                        permissionLauncher.launch(android.Manifest.permission.CAMERA)
-                    } catch (e: SecurityException) {
-                        result.error(TAG, e.message, e)
-                    }
-                    return@setMethodCallHandler
-                }
                 "start_camera" -> {
                     try {
                         val cameraId = args["camera_id"] as String
-                        val textureId = args["texture_id"] as Long
+                        val textureId = (args["texture_id"] as Number).toLong()
                         val texture = textureRep.getTexture(textureId)
                         if(texture != null) {
                             cameraSession.startCamera(cameraId, texture.producer.surface)

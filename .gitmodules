@@ -1,0 +1,9 @@
+[submodule "cpp/submodule/libyuv"]
+	path = cpp/submodule/libyuv
+	url = https://chromium.googlesource.com/libyuv/libyuv
+[submodule "cpp/submodule/thread-pool"]
+	path = cpp/submodule/thread-pool
+	url = https://github.com/bshoshany/thread-pool.git
+[submodule "cpp/submodule/ios-cmake"]
+	path = cpp/submodule/ios-cmake
+	url = https://github.com/leetal/ios-cmake.git

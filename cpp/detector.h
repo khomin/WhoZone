@@ -5,7 +5,7 @@
 #include <functional>
 #include <opencv2/video/tracking.hpp>
 #include <thread>
-#include "detection_work_item.h"
+#include "detection_item.h"
 #include "safe_queue.h"
 #include "frame_item.h"
 
@@ -25,13 +25,10 @@ public:
     ~Detector();
 
     int start();
-
-    void setCallback(std::function<void(DetectionWorkItem& item)> v);
-
+    void setCallback(std::function<void(DetectionItem& item)> v);
     void pushFrame(FrameItem& frame);
 
 private:
-
     void send_result(
         std::vector<cv::Rect>& detections,
         std::vector<int>& det_class_ids,
@@ -56,7 +53,7 @@ private:
     cv::Mat state_from_rect(const cv::Rect& r); // rect -> state (x,y,w,h,0,0,0,0)
     cv::KalmanFilter create_kalman_for_rect(const cv::Rect& r);
 
-    std::function<void(DetectionWorkItem& item)> _onFrame;
+    std::function<void(DetectionItem& item)> _onFrame;
 
     std::thread _thread;
     std::atomic<bool> _running{false};

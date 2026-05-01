@@ -74,7 +74,7 @@ int main() {
 
 
 
-// detector.onFrame = [&](DetectionWorkItem& item) {
+// detector.onFrame = [&](DetectionItem& item) {
 //     // signal_client.queueUpdate(item);
 // };
 // detector.run();

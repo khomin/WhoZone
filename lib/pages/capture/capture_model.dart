@@ -23,6 +23,7 @@ class CaptureModel with ChangeNotifier {
   bool orientationpWait = false;
   double flipTurns = 0.0;
   Camera? camera;
+  int? textureId;
   SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
   SurfaceLayout oldLayout = SurfaceLayout(rotation: 0, ratio: 1);
   var _disposed = false;
@@ -82,9 +83,17 @@ class CaptureModel with ChangeNotifier {
       minArea: await SettingsRep().getCaptureMinArea(),
       showAreaOnCapture: await SettingsRep().getCaptureShowArea(),
     );
-    if (!res) {
+    if (res == null) {
       return false;
     }
+    textureId = res.textureId;
+    this.camera = Camera(
+      id: camera.id,
+      isFront: camera.isFront,
+      sensor: camera.sensorRotation,
+      size: camera.cameraSizes.first,
+    );
+    notify();
     updateRotation();
     await SettingsRep().setCameraUsed(camera.id);
     return true;
@@ -213,21 +222,23 @@ class CaptureModel with ChangeNotifier {
   }
 
   void updateRotation() {
-    // var camera2 = camera;
-    // if (camera2 == null) return;
-    // var sensorRotation = camera2.sensor;
-    // var rotation = _adjustRotation(
-    //     sensorRotation: sensorRotation,
-    //     deviceRotation: devRotation,
-    //     front: camera2.facing);
-    // var size = camera2.size;
-    // var ratio = 1.0;
-    // if (size != null) {
-    //   ratio = size.height / size.width;
-    //   ratio = size.height / size.width;
-    //   ratio = size.width / size.height;
-    // }
-    // setSurfaceLayout(SurfaceLayout(rotation: rotation, ratio: ratio));
+    var camera = this.camera;
+    if (camera == null) {
+      logWarning('$tag: update rotation - not camera');
+      return;
+    }
+    var sensorRotation = camera.sensor;
+    var rotation = _adjustRotation(
+      sensorRotation: sensorRotation,
+      deviceRotation: devRotation,
+      front: camera.isFront,
+    );
+    var size = camera.size;
+    var ratio = 1.0;
+    ratio = size.height / size.width;
+    ratio = size.height / size.width;
+    ratio = size.width / size.height;
+    setSurfaceLayout(SurfaceLayout(rotation: rotation, ratio: ratio));
     // logDebug(
     //     'BTEST:2 rotation=$rotation, devRotation=$devRotation, sensorRotation=$sensorRotation, cam=${camera?.sensor}, ratio=$ratio');
   }

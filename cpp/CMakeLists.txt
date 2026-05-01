@@ -5,15 +5,15 @@ set(BUILD_CONFIG_CXX_TESTS OFF)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# add_definitions(-DPROTOBUF_NO_THREADLOCAL=1)
+
 project(${PROJECT} LANGUAGES CXX)
 
 add_library(${PROJECT} SHARED
     ./jni_bridge.cpp
     ./detector.cpp
     ./detector.h
-#    ./frame_source.cpp
-#    ./frame_source.h
-    ./detection_work_item.h
+    ./detection_item.h
     ./safe_queue.h
     ./protobuf/generated/app.pb.cc
     ./protobuf/generated/app.pb.h
@@ -21,25 +21,22 @@ add_library(${PROJECT} SHARED
 set(OPENCV_LIB_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/libs/${CMAKE_ANDROID_ARCH_ABI})
 #set(OPENCV_HEADER_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/jni/include)
 set(OPENCV_HEADER_DIR /Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/sdk/native/jni/include)
-#/Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/sdk/native/staticlibs/arm64-v8a
 
-message("BTEST_OPENCV_LIB_DIR: ${OPENCV_LIB_DIR}")
+add_subdirectory(submodule/libyuv)
 
 target_include_directories(${PROJECT} PUBLIC
     ${CMAKE_SOURCE_DIR}/../cpp/
     ${OPENCV_HEADER_DIR}
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/include/
-    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/arm64-v8a/include/
+    ./submodule/libyuv/include
+#    ./submodule/thread-pool/include
 )
 
-file(GLOB LIBRARIES
-#    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/*.a
-    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/*.a
+file(GLOB PROTO_ABSL_LIBS
+    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libabsl_*.a
 )
 
-#/Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/sdk/native/libs/arm64-v8a/libopencv_dnn.so
-
-set(LIBRARIES ${LIBRARIES}
+set(OPENCV_LIBS
     ${OPENCV_LIB_DIR}/libopencv_calib3d.so
     ${OPENCV_LIB_DIR}/libopencv_core.so
     ${OPENCV_LIB_DIR}/libopencv_dnn.so
@@ -58,5 +55,16 @@ set(LIBRARIES ${LIBRARIES}
 )
 
 target_link_libraries(${PROJECT} PUBLIC
-    ${LIBRARIES}
+    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libprotobuf.a
+    ${PROTO_ABSL_LIBS}
+    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_validity.a
+    ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_range.a
+    ${OPENCV_LIBS}
+    mediandk
+    jnigraphics
+    nativewindow
+    android
+    yuv
+    z
+    log
 )
