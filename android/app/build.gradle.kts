@@ -48,7 +48,7 @@ android {
     defaultConfig {
         applicationId = "com.who.zone"
         targetSdk = flutter.targetSdkVersion
-        minSdk = 29
+        minSdk = 30
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         externalNativeBuild {

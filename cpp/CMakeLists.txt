@@ -18,9 +18,8 @@ add_library(${PROJECT} SHARED
     ./protobuf/generated/app.pb.cc
     ./protobuf/generated/app.pb.h
 )
-set(OPENCV_LIB_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/libs/${CMAKE_ANDROID_ARCH_ABI})
-#set(OPENCV_HEADER_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/sdk/native/jni/include)
-set(OPENCV_HEADER_DIR /Users/panic/Documents/PROJECTS/WhoZone/.lib_pack/android/opencv/sdk/native/jni/include)
+set(OPENCV_LIB_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/${CMAKE_ANDROID_ARCH_ABI}/sdk/native/libs/${CMAKE_ANDROID_ARCH_ABI})
+set(OPENCV_HEADER_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/${CMAKE_ANDROID_ARCH_ABI}/sdk/native/jni/include)
 
 add_subdirectory(submodule/libyuv)
 

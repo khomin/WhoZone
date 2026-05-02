@@ -76,10 +76,11 @@ class MainActivity : FlutterFragmentActivity() {
                         val cameraId = args["camera_id"] as String
                         val textureId = (args["texture_id"] as Number).toLong()
                         val texture = textureRep.getTexture(textureId)
+                        var success = false
                         if(texture != null) {
-                            cameraSession.startCamera(cameraId, texture.producer.surface)
+                            success = cameraSession.startCamera(cameraId, texture.producer.surface)
                         }
-                        result.success(texture != null)
+                        result.success(success)
                     } catch (e: SecurityException) {
                         result.error(TAG, e.message, e)
                     }
@@ -91,17 +92,13 @@ class MainActivity : FlutterFragmentActivity() {
                     return@setMethodCallHandler
                 }
                 "get_device_sensor" -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        applicationContext?.display?.rotation?.let {
-                            when (it) {
-                                Surface.ROTATION_0 -> result.success(0)
-                                Surface.ROTATION_90 -> result.success(90)
-                                Surface.ROTATION_180 -> result.success(180)
-                                Surface.ROTATION_270 -> result.success(270)
-                            }
+                    applicationContext?.display?.rotation?.let {
+                        when (it) {
+                            Surface.ROTATION_0 -> result.success(0)
+                            Surface.ROTATION_90 -> result.success(90)
+                            Surface.ROTATION_180 -> result.success(180)
+                            Surface.ROTATION_270 -> result.success(270)
                         }
-                    } else {
-                        result.success(0)
                     }
                     return@setMethodCallHandler
                 }

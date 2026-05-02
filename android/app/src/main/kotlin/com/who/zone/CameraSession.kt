@@ -28,14 +28,12 @@ class CameraSession(val context: Context) {
     private var bgThread: HandlerThread = HandlerThread("CameraBackground")
     private var bgHandler: Handler
     private var executor: Executor
-//    private var imageReader: ImageReader
     private var readerSurface: Surface
     init {
         bgThread.start()
         bgHandler = Handler(bgThread.looper)
         executor = Executor { command -> bgHandler.post(command) }
-//        imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 3)
-       readerSurface = WhoZoneRep.nativeInitImageReader()//imageReader)
+        readerSurface = WhoZoneRep.nativeInitImageReader()
     }
 
     fun dispose() {
@@ -43,8 +41,10 @@ class CameraSession(val context: Context) {
     }
 
     @RequiresPermission(Manifest.permission.CAMERA)
-    fun startCamera(cameraId: String, viewSurface: Surface) {
+    fun startCamera(cameraId: String, viewSurface: Surface) : Boolean {
         val manager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        val info = getCameraInfo(cameraId) ?: return false
+        WhoZoneRep.setCameraSensorRotation(info.sensorRotation)
         manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onOpened: id=${camera.id}")
@@ -68,6 +68,7 @@ class CameraSession(val context: Context) {
                 XLog.tag(TAG).i( "onError: id=${camera.id}, error=$errorMessage")
             }
         }, bgHandler)
+        return true
     }
 
     fun stopCamera() {

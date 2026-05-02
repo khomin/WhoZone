@@ -173,9 +173,11 @@ class CameraRep {
       });
       // start camera
       var textureId = textRes['id'] as int;
+      // var cameraSensorRotation = textRes['sensor'] as int;
       await _channelCmd.invokeMethod('start_camera', <String, dynamic>{
         'camera_id': id,
         'texture_id': textureId,
+        // 'camera_sensor_rotation': cameraSensorRotation
         // 'minArea': minArea,
         // 'captureIntervalSec': captureIntervalSec,
         // 'showAreaOnCapture': showAreaOnCapture

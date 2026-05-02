@@ -2,6 +2,7 @@ package com.who.zone
 
 import android.content.Context
 import android.media.ImageReader
+import android.os.Build
 import android.view.Surface
 import com.elvishew.xlog.XLog
 import java.io.File
@@ -31,6 +32,13 @@ object WhoZoneRep {
             }
             targetWidth = 640
             targetHeight = 480
+//            cameraSensorRotation = when(context.display.rotation) {
+//                Surface.ROTATION_0 -> 0
+//                Surface.ROTATION_90 -> 90
+//                Surface.ROTATION_180 -> 180
+//                Surface.ROTATION_270 -> 270
+//                else -> 0
+//            }
         }.build().toByteArray()
 
 
@@ -58,4 +66,5 @@ object WhoZoneRep {
     private external fun init(toByteArray: ByteArray, len: Int)
     external fun nativeInitImageReader(): Surface
     external fun nativeSetOutputWindow(surface: Surface)
+    external fun setCameraSensorRotation(rotation: Int)
 }

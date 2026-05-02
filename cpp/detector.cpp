@@ -66,121 +66,6 @@ int Detector::start() {
         }
         std::cerr << "INFO: Exiting loop." << std::endl;
     });
-
-    // cv::VideoCapture cap(_camera_id);
-    // cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
-    // cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-    // if (!cap.isOpened()) {
-    //     std::cerr << "ERROR: Could not open camera 0." << std::endl;
-    //     return -1;
-    // }
-
-
-    // cv::Mat frame;
-    // std::vector<cv::Scalar> colors;
-    // std::vector<Tracker> trackers;
-    // colors.push_back(cv::Scalar(0, 255, 0));
-    // colors.push_back(cv::Scalar(0, 255, 255));
-    // colors.push_back(cv::Scalar(255, 255, 0));
-    // colors.push_back(cv::Scalar(255, 0, 0));
-    // colors.push_back(cv::Scalar(0, 0, 255));
-
-    // while (cap.read(frame)) {
-    //     int64 time_start = cv::getTickCount();
-
-    //     // storage for detections this frame (only filled on inference frames)
-    //     std::vector<cv::Rect> detections;
-    //     std::vector<int> det_class_ids;
-    //     std::vector<float> det_confidences;
-
-    //     if (_frame_count % INFERENCE_SKIP == 0) {
-    //         std::vector<cv::Mat> outs;
-
-    //         // --- Pre-processing (Image to Blob) ---
-    //         cv::Mat blob;
-    //         cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(INPUT_WIDTH, INPUT_HEIGHT), cv::Scalar(), true, false);
-    //         net.setInput(blob);
-
-    //         // --- Inference (Forward Pass) ---
-    //         net.forward(outs, net.getUnconnectedOutLayersNames());
-
-    //         // --- Post-processing (NMS and prepare lists) ---
-    //         // Reused logic from your process_predictions, but we push into detections vector instead of drawing directly
-    //         cv::Mat outsMat = outs[0];
-    //         cv::Mat det_output(outsMat.size[1], outsMat.size[2], CV_32F, outsMat.ptr<float>());
-    //         for (int i = 0; i < det_output.rows; i++) {
-    //             float confidence = det_output.at<float>(i, 4);
-    //             if (confidence < 0.25f) continue;
-    //             cv::Mat classes_scores = det_output.row(i).colRange(5, outsMat.size[2]);
-    //             cv::Point class_id_point;
-    //             double score;
-    //             minMaxLoc(classes_scores, 0, &score, 0, &class_id_point);
-    //             if (score > 0.25) {
-    //                 float x_factor = frame.cols / 640.0f;
-    //                 float y_factor = frame.rows / 640.0f;
-    //                 float cx = det_output.at<float>(i, 0);
-    //                 float cy = det_output.at<float>(i, 1);
-    //                 float ow = det_output.at<float>(i, 2);
-    //                 float oh = det_output.at<float>(i, 3);
-    //                 int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
-    //                 int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
-    //                 int width = static_cast<int>(ow * x_factor);
-    //                 int height = static_cast<int>(oh * y_factor);
-    //                 cv::Rect box;
-    //                 box.x = x;
-    //                 box.y = y;
-    //                 box.width = width;
-    //                 box.height = height;
-    //                 detections.push_back(box);
-    //                 det_class_ids.push_back(class_id_point.x);
-    //                 det_confidences.push_back(static_cast<float>(score));
-    //             }
-    //         }
-
-    //         // NMS
-    //         std::vector<int> indexes;
-    //         cv::dnn::NMSBoxes(detections, det_confidences, 0.25f, 0.50f, indexes);
-
-    //         // keep only NMSed lists
-    //         std::vector<cv::Rect> nms_boxes;
-    //         std::vector<int> nms_class_ids;
-    //         std::vector<float> nms_confidences;
-    //         for (int idx : indexes) {
-    //             nms_boxes.push_back(detections[idx]);
-    //             nms_class_ids.push_back(det_class_ids[idx]);
-    //             nms_confidences.push_back(det_confidences[idx]);
-    //         }
-    //         detections.swap(nms_boxes);
-    //         det_class_ids.swap(nms_class_ids);
-    //         det_confidences.swap(nms_confidences);
-
-    //         // --- Update trackers with detections ---
-    //         process_predictions_and_update_trackers(frame, outs[0], colors, time_start,
-    //                                                 detections, det_class_ids, det_confidences,
-    //                                                 trackers);
-    //         outs.clear();
-    //     } else {
-    //         // no inference this frame: just predict and draw trackers
-    //         for (auto &tr : trackers) {
-    //             // predict step
-    //             cv::Mat prediction = tr.kf.predict();
-    //             // increase missed frames (we didn't see a detection to correct)
-    //             tr.missed_frames++;
-    //         }
-    //         draw_trackers(frame, colors, time_start, trackers);
-    //     }
-
-    //     _frame_count++;
-
-    //     send_result(detections, det_class_ids, det_confidences, frame);
-
-    //     // --- Display ---
-    //     imshow("YOLOv5 C++ Detection Kalman Smoothed", frame);
-    //     cv::waitKey(1);
-    // }
-
-    // cap.release();
-    // cv::destroyAllWindows();
     return 0;
 }
 
@@ -223,34 +108,74 @@ void Detector::processFrame(FrameItem& frameItem) {
 
         // --- Post-processing (NMS and prepare lists) ---
         // Reused logic from your process_predictions, but we push into detections vector instead of drawing directly
-        cv::Mat outsMat = outs[0];
-        cv::Mat det_output(outsMat.size[1], outsMat.size[2], CV_32F, outsMat.ptr<float>());
-        for (int i = 0; i < det_output.rows; i++) {
-            float confidence = det_output.at<float>(i, 4);
-            if (confidence < 0.25f) continue;
-            cv::Mat classes_scores = det_output.row(i).colRange(5, outsMat.size[2]);
+//        cv::Mat outsMat = outs[0];
+//        cv::Mat det_output(outsMat.size[1], outsMat.size[2], CV_32F, outsMat.ptr<float>());
+//        for (int i = 0; i < det_output.rows; i++) {
+//            float confidence = det_output.at<float>(i, 4);
+//            if (confidence < 0.25f) continue;
+//            cv::Mat classes_scores = det_output.row(i).colRange(5, outsMat.size[2]);
+//            cv::Point class_id_point;
+//            double score;
+//            minMaxLoc(classes_scores, 0, &score, 0, &class_id_point);
+//            if (score > 0.25) {
+//                float x_factor = frame.cols / 640.0f;
+//                float y_factor = frame.rows / 640.0f;
+//                float cx = det_output.at<float>(i, 0);
+//                float cy = det_output.at<float>(i, 1);
+//                float ow = det_output.at<float>(i, 2);
+//                float oh = det_output.at<float>(i, 3);
+//                int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
+//                int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
+//                int width = static_cast<int>(ow * x_factor);
+//                int height = static_cast<int>(oh * y_factor);
+//                cv::Rect box;
+//                box.x = x;
+//                box.y = y;
+//                box.width = width;
+//                box.height = height;
+//                detections.push_back(box);
+//                det_class_ids.push_back(class_id_point.x);
+//                det_confidences.push_back(static_cast<float>(score));
+//            }
+//        }
+// outs[0] is [1, 84, 8400]
+        cv::Mat output = outs[0];
+        if (output.dims == 3) {
+            // Reshape to [84, 8400]
+            output = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>());
+        }
+
+// Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
+        cv::Mat data = output.t();
+
+        for (int i = 0; i < data.rows; i++) {
+            // In YOLO11, there is no separate "Objectness" score.
+            // You find the max class score directly.
+            cv::Mat row = data.row(i);
+            cv::Mat scores = row.colRange(4, 84); // 80 class scores
+
             cv::Point class_id_point;
-            double score;
-            minMaxLoc(classes_scores, 0, &score, 0, &class_id_point);
-            if (score > 0.25) {
+            double max_score;
+            minMaxLoc(scores, 0, &max_score, 0, &class_id_point);
+
+            if (max_score > CONF_THRESHOLD) {
+                float cx = row.at<float>(0);
+                float cy = row.at<float>(1);
+                float ow = row.at<float>(2);
+                float oh = row.at<float>(3);
+
+                // Standard YOLO scaling
                 float x_factor = frame.cols / 640.0f;
                 float y_factor = frame.rows / 640.0f;
-                float cx = det_output.at<float>(i, 0);
-                float cy = det_output.at<float>(i, 1);
-                float ow = det_output.at<float>(i, 2);
-                float oh = det_output.at<float>(i, 3);
+
                 int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
                 int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
                 int width = static_cast<int>(ow * x_factor);
                 int height = static_cast<int>(oh * y_factor);
-                cv::Rect box;
-                box.x = x;
-                box.y = y;
-                box.width = width;
-                box.height = height;
-                detections.push_back(box);
+
+                detections.push_back(cv::Rect(x, y, width, height));
                 det_class_ids.push_back(class_id_point.x);
-                det_confidences.push_back(static_cast<float>(score));
+                det_confidences.push_back(static_cast<float>(max_score));
             }
         }
 
@@ -308,46 +233,6 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
     if(_onFrame) {
         _onFrame(item);
     }
-
-//    tracker::FrameUpdate frame_update;
-//    frame_update.set_frame_number(_frame_count);
-
-//    std::vector<uchar> buffer;
-//    std::vector<int> compression_params;
-//    // Optional: set JPEG quality (0-100), default is 95.
-//    // Lower quality saves bandwidth.
-//    compression_params.push_back(cv::IMWRITE_JPEG_QUALITY);
-//    compression_params.push_back(80);
-
-//    auto ok = cv::imencode(".jpeg", frame, buffer, compression_params);
-//    if(ok) {
-//        frame_update.set_encoded_frame(buffer.data(), buffer.size());
-//    }
-
-//    for (size_t i = 0; i < detections.size(); ++i) {
-//        const cv::Rect& rect = detections[i];
-
-//        // IMPORTANT: repeated fields have an 'Add()' method.
-//        // This creates a new 'TrackEvent' sub-message and returns a pointer to it.
-//        tracker::TrackEvent* event = frame_update.add_events();
-
-//        // --- Populate TrackEvent fields ---
-//        event->set_tracker_id(DETECTOR_NODE_ID);
-//        event->set_timestamp_ms(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-//        event->set_class_name(_class_names[i]);
-//        event->set_class_id(det_class_ids[i]);
-//        event->set_confidence(det_confidences[i]);
-
-//        // --- Populate the BoundingBox sub-message ---
-//        tracker::BoundingBox* bbox = event->mutable_box();
-//        bbox->set_x(rect.x);
-//        bbox->set_y(rect.y);
-//        bbox->set_width(rect.width);
-//        bbox->set_height(rect.height);
-//    }
-//    if(onFrameReady) {
-//        onFrameReady(frame_update);
-//    }
 }
 
 float Detector::iou(const cv::Rect& a, const cv::Rect& b) {
