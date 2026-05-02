@@ -6,6 +6,7 @@ import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/round_box.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/capture/capture_model.dart';
+import 'package:flutter_demo/pages/capture/detection_painter.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
@@ -263,9 +264,9 @@ class CapturePageState extends State<CapturePage>
     ]);
   }
 
+  // var collapse = context.select<AppModel, bool>((v) => v.collapse);
   Widget _camera() {
     return Builder(builder: (context) {
-      // var collapse = context.select<AppModel, bool>((v) => v.collapse);
       return Container(
           decoration: const BoxDecoration(
               color: Colors.black,
@@ -279,11 +280,6 @@ class CapturePageState extends State<CapturePage>
                 right: 0,
                 bottom: 0,
                 child: LayoutBuilder(builder: (context, constraints) {
-                  // () async {
-                  //   _model.devRotation =
-                  //       await getIt<CameraRep>().getDeviceSensor();
-                  //   _model.updateRotation();
-                  // }();
                   return Builder(builder: (context) {
                     var size = MediaQuery.sizeOf(context);
                     var camera = context
@@ -315,36 +311,15 @@ class CapturePageState extends State<CapturePage>
                                                   textureId: textureId,
                                                 )
                                               : const SizedBox(),
-                                          //
-                                          // overlay
-                                          StreamBuilder(
-                                              stream: _captureModel
-                                                  .onDetection.stream,
-                                              builder: (context, snapshot) {
-                                                var data = snapshot.data;
-                                                if (data == null) {
-                                                  return const SizedBox();
-                                                }
-                                                logDebug(
-                                                    'BTEST_CAP-1: model=${_captureModel.hashCode}, onDetection=${_captureModel.onDetection.hashCode},len=${data.length}');
-                                                return Text(
-                                                  'BOXES:' +
-                                                      data.length.toString(),
-                                                  key: ValueKey(
-                                                      'Boxes-key-${data.length}'),
-                                                  style: TextStyle(
-                                                    // color: Theme.of(context)
-                                                    //     .colorScheme
-                                                    //     .menuFontColor2,
-                                                    color: Colors.white30,
-                                                    fontSize: 150,
-                                                    fontWeight: FontWeight.w400,
-                                                  ),
-                                                );
-                                              }),
                                         ])))));
                   });
                 })),
+            //
+            // overlay
+            Positioned.fill(
+                child: CameraPreviewWithOverlay(
+                    boxes: _captureModel.onDetection.stream)),
+            //
             //
             // progress
             Positioned.fill(

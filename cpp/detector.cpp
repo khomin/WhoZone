@@ -17,6 +17,7 @@ const float INPUT_HEIGHT = 640.0;
 const float CONF_THRESHOLD = 0.50; // Minimum confidence to keep a box
 const float NMS_THRESHOLD = 0.50;  // IoU threshold for Non-Maximum Suppression
 const int INFERENCE_SKIP = 4;
+const int MAX_MISSED_FRAMES = 70;
 
 // --- Tracking Constants ---
 const float MATCH_IoU_THRESHOLD = 0.3f;
@@ -28,7 +29,11 @@ Detector::Detector(std::vector<std::string> class_names,
     _class_names(class_names),
     _module_path(module_path)
 {
-
+    _colors.push_back(cv::Scalar(0, 255, 0));
+    _colors.push_back(cv::Scalar(0, 255, 255));
+    _colors.push_back(cv::Scalar(255, 255, 0));
+    _colors.push_back(cv::Scalar(255, 0, 0));
+    _colors.push_back(cv::Scalar(0, 0, 255));
 }
 
 Detector::~Detector() {
@@ -78,14 +83,6 @@ void Detector::pushFrame(FrameItem& frame) {
 }
 
 void Detector::processFrame(FrameItem& frameItem) {
-    std::vector<cv::Scalar> colors;
-    std::vector<Tracker> trackers;
-    colors.push_back(cv::Scalar(0, 255, 0));
-    colors.push_back(cv::Scalar(0, 255, 255));
-    colors.push_back(cv::Scalar(255, 255, 0));
-    colors.push_back(cv::Scalar(255, 0, 0));
-    colors.push_back(cv::Scalar(0, 0, 255));
-
     int64 time_start = cv::getTickCount();
 
     // storage for detections this frame (only filled on inference frames)
@@ -163,21 +160,57 @@ void Detector::processFrame(FrameItem& frameItem) {
         det_confidences.swap(nms_confidences);
 
         // --- Update trackers with detections ---
-        process_predictions_and_update_trackers(frame, outs[0], colors, time_start,
+        process_predictions_and_update_trackers(frame, outs[0], _colors, time_start,
                                                 detections, det_class_ids, det_confidences,
-                                                trackers);
+                                                _trackers);
         outs.clear();
+        send_result(detections, det_class_ids, det_confidences, frame);
     } else {
-        // no inference this frame: just predict and draw trackers
-        for (auto &tr : trackers) {
-            // predict step
-            cv::Mat prediction = tr.kf.predict();
-            // increase missed frames (we didn't see a detection to correct)
+        // Predict-only frames
+        std::vector<cv::Rect> tracker_boxes;
+        std::vector<int> tracker_class_ids;
+        std::vector<float> tracker_confidences;
+
+        // Clean up dead trackers (optional but recommended)
+        _trackers.erase(
+                std::remove_if(_trackers.begin(), _trackers.end(),
+                               [](const Tracker& tr) {
+                                   return tr.missed_frames >= MAX_MISSED_FRAMES;
+                               }),
+                _trackers.end()
+        );
+        for (auto &tr : _trackers) {
+            tr.kf.predict();
             tr.missed_frames++;
+            // ✅ Only include ACTIVE trackers (not dead)
+            // A tracker needs MIN_HITS_BEFORE_CONFIRM detections AND
+            // less than MAX_MISSED_FRAMES consecutive misses
+            // Get predicted position
+            const float *prediction = tr.kf.statePre.ptr<float>();
+            float cx = prediction[0];
+            float cy = prediction[1];
+            float w = prediction[2];
+            float h = prediction[3];
+
+            int x = std::max(0, (int) (cx - w / 2));
+            int y = std::max(0, (int) (cy - h / 2));
+            int width = (int) w;
+            int height = (int) h;
+
+            // Clip to frame boundaries
+            width = std::min(frame.cols - x, width);
+            height = std::min(frame.rows - y, height);
+
+            if (width > 0 && height > 0) {
+                tracker_boxes.push_back(cv::Rect(x, y, width, height));
+                tracker_class_ids.push_back(tr.class_id);
+                tracker_confidences.push_back(tr.last_confidence);
+            }
         }
-        draw_trackers(frame, colors, time_start, trackers);
+        draw_trackers(frame, _colors, time_start, _trackers);
+        // ✅ SEND TRACKER PREDICTIONS
+        send_result(tracker_boxes, tracker_class_ids, tracker_confidences, frame);
     }
-    send_result(detections, det_class_ids, det_confidences, frame);
 }
 
 void Detector::send_result(std::vector<cv::Rect>& detections,

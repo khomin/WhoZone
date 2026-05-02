@@ -63,6 +63,8 @@ private:
     std::string _module_path;
     int _next_tracker_id = 0;
     int _frame_count = 0;
+    std::vector<cv::Scalar> _colors;
+    std::vector<Tracker> _trackers;
 };
 
 #endif // DETECTOR_H
