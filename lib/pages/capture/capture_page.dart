@@ -290,28 +290,74 @@ class CapturePageState extends State<CapturePage>
                         context.select<CaptureModel, int?>((v) => v.textureId);
                     logDebug(
                         'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
-                    return ClipRRect(
-                        borderRadius: BorderRadius.circular(20.0),
-                        child: RotatedBox(
-                            quarterTurns: layout.rotation,
-                            child: FittedBox(
-                                fit: BoxFit.cover,
-                                child: SizedBox(
-                                    width: camera?.size.width.toDouble() ??
-                                        size.width,
-                                    height: camera?.size.height.toDouble() ??
-                                        size.height,
-                                    child: Stack(
-                                        alignment: AlignmentGeometry.center,
-                                        children: [
-                                          //
-                                          // texture
-                                          textureId != null
-                                              ? Texture(
-                                                  textureId: textureId,
-                                                )
-                                              : const SizedBox(),
-                                        ])))));
+                    if (camera == null) {
+                      return const SizedBox();
+                    }
+                    // The exact dimensions the AI sees
+                    // final double aiWidth = 480;
+                    // final double aiHeight = 640;
+                    final double aiWidth = 640;
+                    final double aiHeight = 480;
+
+                    return Center(
+                      // child: AspectRatio(
+                      //   // 1. Force the painter to use the AI's 3:4 aspect ratio
+                      //   aspectRatio: aiWidth / aiHeight,
+                      child: Stack(
+                        children: [
+                          // --- VIDEO LAYER ---
+                          Positioned.fill(
+                            child: ClipRect(
+                              child: RotatedBox(
+                                // Your head is already upright, so this turn is likely correct
+                                quarterTurns: 3,
+                                child: FittedBox(
+                                  // 2. Cover handles the crop from 4128x3096 into 480x640
+                                  fit: BoxFit.cover,
+                                  child: SizedBox(
+                                    width: 1,
+                                    height: 1,
+                                    child: Texture(textureId: textureId!),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          // --- OVERLAY LAYER ---
+                          Positioned.fill(
+                            child: CameraPreviewWithOverlay(
+                              // 3. This Painter's 'size' will now be exactly 3:4.
+                              //    norm_x * size.width will now land exactly where it
+                              //    did in your C++ 'imwrite' dump.
+                              boxes: _captureModel.onDetection.stream,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // ),
+                    );
+                    // return ClipRRect(
+                    //     borderRadius: BorderRadius.circular(20.0),
+                    //     child: RotatedBox(
+                    //         quarterTurns: layout.rotation,
+                    //         child: FittedBox(
+                    //             // fit: BoxFit.cover,
+                    //             fit: BoxFit.contain,
+                    //             child: SizedBox(
+                    //                 width: cameraSize.height.toDouble(),
+                    //                 height: cameraSize.width.toDouble(),
+                    //                 child: Stack(
+                    //                     alignment: AlignmentGeometry.center,
+                    //                     children: [
+                    //                       //
+                    //                       // texture
+                    //                       textureId != null
+                    //                           ? Texture(
+                    //                               textureId: textureId,
+                    //                             )
+                    //                           : const SizedBox(),
+                    //                     ])))));
                   });
                 })),
             //

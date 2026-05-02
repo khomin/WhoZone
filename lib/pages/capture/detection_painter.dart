@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/capture/detection_box.dart';
+import 'package:loggy/loggy.dart';
 
 class CameraPreviewWithOverlay extends StatefulWidget {
   CameraPreviewWithOverlay({required this.boxes});
@@ -53,6 +54,10 @@ class DetectionPainter extends CustomPainter {
         rect.width * size.width, // Use rect.width, not box.w
         rect.height * size.height, // Use rect.height, not box.h
       );
+
+      logDebug(
+          'SCALED: left=${scaledRect.left}, top=${scaledRect.top}, right=${scaledRect.right}, bottom=${scaledRect.bottom}');
+      logDebug('SCREEN: width=${size.width}, height=${size.height}');
 
       canvas.drawRect(scaledRect, paint);
 

@@ -181,14 +181,14 @@ final $typed_data.Uint8List detectionItemDescriptor = $convert.base64Decode(
 const Rect$json = {
   '1': 'Rect',
   '2': [
-    {'1': 'x', '3': 1, '4': 1, '5': 5, '10': 'x'},
-    {'1': 'y', '3': 2, '4': 1, '5': 5, '10': 'y'},
-    {'1': 'width', '3': 3, '4': 1, '5': 5, '10': 'width'},
-    {'1': 'height', '3': 4, '4': 1, '5': 5, '10': 'height'},
+    {'1': 'x', '3': 1, '4': 1, '5': 1, '10': 'x'},
+    {'1': 'y', '3': 2, '4': 1, '5': 1, '10': 'y'},
+    {'1': 'width', '3': 3, '4': 1, '5': 1, '10': 'width'},
+    {'1': 'height', '3': 4, '4': 1, '5': 1, '10': 'height'},
   ],
 };
 
 /// Descriptor for `Rect`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List rectDescriptor = $convert.base64Decode(
-    'CgRSZWN0EgwKAXgYASABKAVSAXgSDAoBeRgCIAEoBVIBeRIUCgV3aWR0aBgDIAEoBVIFd2lkdG'
-    'gSFgoGaGVpZ2h0GAQgASgFUgZoZWlnaHQ=');
+    'CgRSZWN0EgwKAXgYASABKAFSAXgSDAoBeRgCIAEoAVIBeRIUCgV3aWR0aBgDIAEoAVIFd2lkdG'
+    'gSFgoGaGVpZ2h0GAQgASgBUgZoZWlnaHQ=');

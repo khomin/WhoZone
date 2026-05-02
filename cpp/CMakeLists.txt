@@ -57,6 +57,7 @@ set(OPENCV_LIBS
 
 add_library(${PROJECT} SHARED
     ${DART_API_DL_C}
+    ./log.h
     ./jni_bridge.cpp
     ./api_lib.cpp
     ./api_lib.h

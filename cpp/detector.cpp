@@ -1,6 +1,4 @@
 
-#include "detector.h"
-
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -10,6 +8,8 @@
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include "detector.h"
+#include "log.h"
 
 // --- Configuration Constants ---
 const float INPUT_WIDTH = 640.0;
@@ -221,17 +221,33 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
         std::cerr << "Error: Detection result vectors have mismatched sizes." << std::endl;
         return;
     }
+    LOGD("📊 FRAME: %dx%d", frame.cols, frame.rows);
     auto now = std::chrono::steady_clock::now();
     Detection detection;
     detection.frame_count = _frame_count++;
     detection.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-    for(int index=0; index<detections.size(); index++) {
-        DetectionItem detectionItem;
-        detectionItem.rect = detections[index];
-        detectionItem.class_id = det_class_ids[index];
-        detectionItem.confidence = det_confidences[index];
-        detection.detections.push_back(detectionItem);
+    for(int i=0; i<detections.size(); i++) {
+        LOGD("📦 RAW detection %d: x=%d, y=%d, w=%d, h=%d",
+             i, detections[i].x, detections[i].y,
+             detections[i].width, detections[i].height);
+        // NORMALIZE!
+        float norm_x = detections[i].x / (float)frame.cols;
+        float norm_y = detections[i].y / (float)frame.rows;
+        float norm_w = detections[i].width / (float)frame.cols;
+        float norm_h = detections[i].height / (float)frame.rows;
+
+        LOGD("📏 NORMALIZED %d: x=%.4f, y=%.4f, w=%.4f, h=%.4f",
+             i, norm_x, norm_y, norm_w, norm_h);
+        DetectionItem item;
+        item.x = norm_x;
+        item.y = norm_y;
+        item.width = norm_w;
+        item.height = norm_h;
+        item.class_id = det_class_ids[i];
+        item.confidence = det_confidences[i];
+        detection.detections.push_back(item);
     }
+//    auto res = cv::imwrite("/storage/emulated/0/Download/who-zone-temp/2.jpeg", frame);
     if(_onFrame) {
         _onFrame(detection);
     }

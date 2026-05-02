@@ -466,52 +466,52 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Rect final : public ::google::proto
     kWidthFieldNumber = 3,
     kHeightFieldNumber = 4,
   };
-  // optional int32 x = 1;
+  // optional double x = 1;
   [[nodiscard]] bool has_x()
       const;
   void clear_x() ;
-  [[nodiscard]] ::int32_t x() const;
-  void set_x(::int32_t value);
+  [[nodiscard]] double x() const;
+  void set_x(double value);
 
   private:
-  ::int32_t _internal_x() const;
-  void _internal_set_x(::int32_t value);
+  double _internal_x() const;
+  void _internal_set_x(double value);
 
   public:
-  // optional int32 y = 2;
+  // optional double y = 2;
   [[nodiscard]] bool has_y()
       const;
   void clear_y() ;
-  [[nodiscard]] ::int32_t y() const;
-  void set_y(::int32_t value);
+  [[nodiscard]] double y() const;
+  void set_y(double value);
 
   private:
-  ::int32_t _internal_y() const;
-  void _internal_set_y(::int32_t value);
+  double _internal_y() const;
+  void _internal_set_y(double value);
 
   public:
-  // optional int32 width = 3;
+  // optional double width = 3;
   [[nodiscard]] bool has_width()
       const;
   void clear_width() ;
-  [[nodiscard]] ::int32_t width() const;
-  void set_width(::int32_t value);
+  [[nodiscard]] double width() const;
+  void set_width(double value);
 
   private:
-  ::int32_t _internal_width() const;
-  void _internal_set_width(::int32_t value);
+  double _internal_width() const;
+  void _internal_set_width(double value);
 
   public:
-  // optional int32 height = 4;
+  // optional double height = 4;
   [[nodiscard]] bool has_height()
       const;
   void clear_height() ;
-  [[nodiscard]] ::int32_t height() const;
-  void set_height(::int32_t value);
+  [[nodiscard]] double height() const;
+  void set_height(double value);
 
   private:
-  ::int32_t _internal_height() const;
-  void _internal_set_height(::int32_t value);
+  double _internal_height() const;
+  void _internal_set_height(double value);
 
   public:
   // @@protoc_insertion_point(class_scope:app.Rect)
@@ -542,10 +542,10 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Rect final : public ::google::proto
         const Rect& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::int32_t x_;
-    ::int32_t y_;
-    ::int32_t width_;
-    ::int32_t height_;
+    double x_;
+    double y_;
+    double width_;
+    double height_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -3421,7 +3421,7 @@ inline void DetectionItem::_internal_set_confidence(float value) {
 
 // Rect
 
-// optional int32 x = 1;
+// optional double x = 1;
 inline bool Rect::has_x() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
   return value;
@@ -3432,25 +3432,25 @@ inline void Rect::clear_x() {
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000001U);
 }
-inline ::int32_t Rect::x() const {
+inline double Rect::x() const {
   // @@protoc_insertion_point(field_get:app.Rect.x)
   return _internal_x();
 }
-inline void Rect::set_x(::int32_t value) {
+inline void Rect::set_x(double value) {
   _internal_set_x(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000001U);
   // @@protoc_insertion_point(field_set:app.Rect.x)
 }
-inline ::int32_t Rect::_internal_x() const {
+inline double Rect::_internal_x() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.x_;
 }
-inline void Rect::_internal_set_x(::int32_t value) {
+inline void Rect::_internal_set_x(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.x_ = value;
 }
 
-// optional int32 y = 2;
+// optional double y = 2;
 inline bool Rect::has_y() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
   return value;
@@ -3461,25 +3461,25 @@ inline void Rect::clear_y() {
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000002U);
 }
-inline ::int32_t Rect::y() const {
+inline double Rect::y() const {
   // @@protoc_insertion_point(field_get:app.Rect.y)
   return _internal_y();
 }
-inline void Rect::set_y(::int32_t value) {
+inline void Rect::set_y(double value) {
   _internal_set_y(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000002U);
   // @@protoc_insertion_point(field_set:app.Rect.y)
 }
-inline ::int32_t Rect::_internal_y() const {
+inline double Rect::_internal_y() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.y_;
 }
-inline void Rect::_internal_set_y(::int32_t value) {
+inline void Rect::_internal_set_y(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.y_ = value;
 }
 
-// optional int32 width = 3;
+// optional double width = 3;
 inline bool Rect::has_width() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
@@ -3490,25 +3490,25 @@ inline void Rect::clear_width() {
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000004U);
 }
-inline ::int32_t Rect::width() const {
+inline double Rect::width() const {
   // @@protoc_insertion_point(field_get:app.Rect.width)
   return _internal_width();
 }
-inline void Rect::set_width(::int32_t value) {
+inline void Rect::set_width(double value) {
   _internal_set_width(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   // @@protoc_insertion_point(field_set:app.Rect.width)
 }
-inline ::int32_t Rect::_internal_width() const {
+inline double Rect::_internal_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.width_;
 }
-inline void Rect::_internal_set_width(::int32_t value) {
+inline void Rect::_internal_set_width(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.width_ = value;
 }
 
-// optional int32 height = 4;
+// optional double height = 4;
 inline bool Rect::has_height() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
   return value;
@@ -3519,20 +3519,20 @@ inline void Rect::clear_height() {
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000008U);
 }
-inline ::int32_t Rect::height() const {
+inline double Rect::height() const {
   // @@protoc_insertion_point(field_get:app.Rect.height)
   return _internal_height();
 }
-inline void Rect::set_height(::int32_t value) {
+inline void Rect::set_height(double value) {
   _internal_set_height(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000008U);
   // @@protoc_insertion_point(field_set:app.Rect.height)
 }
-inline ::int32_t Rect::_internal_height() const {
+inline double Rect::_internal_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.height_;
 }
-inline void Rect::_internal_set_height(::int32_t value) {
+inline void Rect::_internal_set_height(double value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.height_ = value;
 }

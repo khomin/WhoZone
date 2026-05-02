@@ -47,12 +47,10 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         appDetection->set_timestamp_ns(detection.timestamp_ns);
         for(auto it: detection.detections) {
             auto p = appDetection->add_item();
-            auto rect = new app::Rect();
-            rect->set_x(it.rect.x);
-            rect->set_y(it.rect.y);
-            rect->set_width(it.rect.width);
-            rect->set_height(it.rect.height);
-            p->set_allocated_detection(rect);
+            p->mutable_detection()->set_x(it.x);
+            p->mutable_detection()->set_y(it.y);
+            p->mutable_detection()->set_width(it.width);
+            p->mutable_detection()->set_height(it.height);
             p->set_class_id(it.class_id);
             p->set_confidence(it.confidence);
         }

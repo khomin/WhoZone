@@ -8,7 +8,7 @@
 #include <opencv2/highgui.hpp>
 
 struct DetectionItem {
-    cv::Rect rect;
+    float x, y, width, height;
     int class_id;
     float confidence;
 };

@@ -636,10 +636,10 @@ class DetectionItem extends $pb.GeneratedMessage {
 
 class Rect extends $pb.GeneratedMessage {
   factory Rect({
-    $core.int? x,
-    $core.int? y,
-    $core.int? width,
-    $core.int? height,
+    $core.double? x,
+    $core.double? y,
+    $core.double? width,
+    $core.double? height,
   }) {
     final result = create();
     if (x != null) result.x = x;
@@ -662,10 +662,10 @@ class Rect extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'Rect',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
       createEmptyInstance: create)
-    ..aI(1, _omitFieldNames ? '' : 'x')
-    ..aI(2, _omitFieldNames ? '' : 'y')
-    ..aI(3, _omitFieldNames ? '' : 'width')
-    ..aI(4, _omitFieldNames ? '' : 'height')
+    ..aD(1, _omitFieldNames ? '' : 'x')
+    ..aD(2, _omitFieldNames ? '' : 'y')
+    ..aD(3, _omitFieldNames ? '' : 'width')
+    ..aD(4, _omitFieldNames ? '' : 'height')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -687,36 +687,36 @@ class Rect extends $pb.GeneratedMessage {
   static Rect? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $core.int get x => $_getIZ(0);
+  $core.double get x => $_getN(0);
   @$pb.TagNumber(1)
-  set x($core.int value) => $_setSignedInt32(0, value);
+  set x($core.double value) => $_setDouble(0, value);
   @$pb.TagNumber(1)
   $core.bool hasX() => $_has(0);
   @$pb.TagNumber(1)
   void clearX() => $_clearField(1);
 
   @$pb.TagNumber(2)
-  $core.int get y => $_getIZ(1);
+  $core.double get y => $_getN(1);
   @$pb.TagNumber(2)
-  set y($core.int value) => $_setSignedInt32(1, value);
+  set y($core.double value) => $_setDouble(1, value);
   @$pb.TagNumber(2)
   $core.bool hasY() => $_has(1);
   @$pb.TagNumber(2)
   void clearY() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $core.int get width => $_getIZ(2);
+  $core.double get width => $_getN(2);
   @$pb.TagNumber(3)
-  set width($core.int value) => $_setSignedInt32(2, value);
+  set width($core.double value) => $_setDouble(2, value);
   @$pb.TagNumber(3)
   $core.bool hasWidth() => $_has(2);
   @$pb.TagNumber(3)
   void clearWidth() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get height => $_getIZ(3);
+  $core.double get height => $_getN(3);
   @$pb.TagNumber(4)
-  set height($core.int value) => $_setSignedInt32(3, value);
+  set height($core.double value) => $_setDouble(3, value);
   @$pb.TagNumber(4)
   $core.bool hasHeight() => $_has(3);
   @$pb.TagNumber(4)

@@ -451,8 +451,8 @@ const char descriptor_table_protodef_app_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIAB
     "ame_count\030\004 \001(\005\022\024\n\014timestamp_ns\030\005 \001(\003\"S\n"
     "\rDetectionItem\022\034\n\tdetection\030\001 \001(\0132\t.app."
     "Rect\022\020\n\010class_id\030\002 \001(\005\022\022\n\nconfidence\030\003 \001"
-    "(\002\";\n\004Rect\022\t\n\001x\030\001 \001(\005\022\t\n\001y\030\002 \001(\005\022\r\n\005widt"
-    "h\030\003 \001(\005\022\016\n\006height\030\004 \001(\005"
+    "(\002\";\n\004Rect\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\r\n\005widt"
+    "h\030\003 \001(\001\022\016\n\006height\030\004 \001(\001"
 };
 static ::absl::once_flag descriptor_table_app_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_app_2eproto = {
@@ -3398,33 +3398,33 @@ Rect::_table_ = {
     ::_pbi::TcParser::GetTable<::app::Rect>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // optional int32 height = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Rect, _impl_.height_), 3>(),
-     {32, 3, 0,
+    // optional double height = 4;
+    {::_pbi::TcParser::FastF64S1,
+     {33, 3, 0,
       PROTOBUF_FIELD_OFFSET(Rect, _impl_.height_)}},
-    // optional int32 x = 1;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Rect, _impl_.x_), 0>(),
-     {8, 0, 0,
+    // optional double x = 1;
+    {::_pbi::TcParser::FastF64S1,
+     {9, 0, 0,
       PROTOBUF_FIELD_OFFSET(Rect, _impl_.x_)}},
-    // optional int32 y = 2;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Rect, _impl_.y_), 1>(),
-     {16, 1, 0,
+    // optional double y = 2;
+    {::_pbi::TcParser::FastF64S1,
+     {17, 1, 0,
       PROTOBUF_FIELD_OFFSET(Rect, _impl_.y_)}},
-    // optional int32 width = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(Rect, _impl_.width_), 2>(),
-     {24, 2, 0,
+    // optional double width = 3;
+    {::_pbi::TcParser::FastF64S1,
+     {25, 2, 0,
       PROTOBUF_FIELD_OFFSET(Rect, _impl_.width_)}},
   }}, {{
     65535, 65535
   }}, {{
-    // optional int32 x = 1;
-    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.x_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 y = 2;
-    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.y_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 width = 3;
-    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.width_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 height = 4;
-    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.height_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional double x = 1;
+    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.x_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
+    // optional double y = 2;
+    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.y_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
+    // optional double width = 3;
+    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.width_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
+    // optional double height = 4;
+    {PROTOBUF_FIELD_OFFSET(Rect, _impl_.height_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kDouble)},
   }},
   // no aux_entries
   {{
@@ -3466,32 +3466,32 @@ PROTOBUF_NOINLINE void Rect::Clear() {
   (void)cached_has_bits;
 
   cached_has_bits = this_._impl_._has_bits_[0];
-  // optional int32 x = 1;
+  // optional double x = 1;
   if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-    target =
-        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<1>(
-            stream, this_._internal_x(), target);
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+        1, this_._internal_x(), target);
   }
 
-  // optional int32 y = 2;
+  // optional double y = 2;
   if (CheckHasBit(cached_has_bits, 0x00000002U)) {
-    target =
-        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<2>(
-            stream, this_._internal_y(), target);
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+        2, this_._internal_y(), target);
   }
 
-  // optional int32 width = 3;
+  // optional double width = 3;
   if (CheckHasBit(cached_has_bits, 0x00000004U)) {
-    target =
-        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<3>(
-            stream, this_._internal_width(), target);
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+        3, this_._internal_width(), target);
   }
 
-  // optional int32 height = 4;
+  // optional double height = 4;
   if (CheckHasBit(cached_has_bits, 0x00000008U)) {
-    target =
-        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<4>(
-            stream, this_._internal_height(), target);
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteDoubleToArray(
+        4, this_._internal_height(), target);
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -3519,28 +3519,7 @@ PROTOBUF_NOINLINE void Rect::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
-    // optional int32 x = 1;
-    if (CheckHasBit(cached_has_bits, 0x00000001U)) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_x());
-    }
-    // optional int32 y = 2;
-    if (CheckHasBit(cached_has_bits, 0x00000002U)) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_y());
-    }
-    // optional int32 width = 3;
-    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_width());
-    }
-    // optional int32 height = 4;
-    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
-      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_height());
-    }
-  }
+  total_size += ::absl::popcount(0x0000000fU & cached_has_bits) * 9;
   return this_.MaybeComputeUnknownFieldsSize(total_size,
                                              &this_._impl_._cached_size_);
 }
