@@ -2,7 +2,6 @@ package com.who.zone
 
 import android.Manifest
 import android.content.Context
-import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
@@ -11,11 +10,9 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
-import android.media.ImageReader
 import android.os.Handler
 import android.os.HandlerThread
 import android.util.Range
-import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresPermission
 import app.App

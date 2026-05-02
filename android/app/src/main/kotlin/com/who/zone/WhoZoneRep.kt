@@ -32,16 +32,7 @@ object WhoZoneRep {
             }
             targetWidth = 640
             targetHeight = 480
-//            cameraSensorRotation = when(context.display.rotation) {
-//                Surface.ROTATION_0 -> 0
-//                Surface.ROTATION_90 -> 90
-//                Surface.ROTATION_180 -> 180
-//                Surface.ROTATION_270 -> 270
-//                else -> 0
-//            }
         }.build().toByteArray()
-
-
         init(propertyArray, propertyArray.size)
     }
 

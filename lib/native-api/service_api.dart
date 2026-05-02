@@ -1,19 +1,21 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
 import 'package:loggy/loggy.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:ffi/ffi.dart';
 import 'package:fixnum/fixnum.dart' as fixnum;
 
 class ServiceApi {
-  static late Function _init;
+  static late Function _initApi;
   static late Function _initializeApi;
-  static late Function _executeCallback;
+  static late Function _registerEventPort;
+  static late Function _unregisterEventPort;
   static late Function _testMethod;
+  int _nativePort = -1;
   static late DynamicLibrary _dylib;
 
   static late Pointer<NativeFunction<NativeEventPtr>> cbPtr;
@@ -34,42 +36,36 @@ class ServiceApi {
     logInfo('$tag: -init');
     try {
       logInfo('$tag: -init [about to open lib]');
-      if (Platform.isIOS) {
-        _dylib = DynamicLibrary.process();
-      } else {
-        final libraryPath = 'libWhoZone.so';
-        _dylib = DynamicLibrary.open(libraryPath);
-      }
+      final libraryPath = 'libWhoZone.so';
+      _dylib = DynamicLibrary.open(libraryPath);
       logInfo('$tag: -init [lib opened]');
-
-      _init = _dylib.lookupFunction<
-          Int Function(Uint32, Pointer<Uint8>, Uint32),
-          int Function(int, Pointer<Uint8>, int)>("init");
 
       _initializeApi = _dylib.lookupFunction<IntPtr Function(Pointer<Void>),
           int Function(Pointer<Void>)>("initDartApiDL");
+
+      _registerEventPort =
+          _dylib.lookupFunction<IntPtr Function(Int), int Function(int)>(
+              "register_event_port");
+      _unregisterEventPort =
+          _dylib.lookupFunction<IntPtr Function(Int), int Function(int)>(
+              "unregister_event_port");
+      _initApi = _dylib
+          .lookupFunction<Int Function(Uint32), int Function(int)>("initApi");
       //
       // service callback
-      _executeCallback = _dylib.lookupFunction<Void Function(Pointer<Work>),
-          void Function(Pointer<Work>)>('dartExecuteCallback');
-      //
-      // callback
-      final interactiveCppRequests = ReceivePort()
-        ..listen(requestExecuteCallback);
-      //
-      // event bus
-      {
-        Pointer<NativeFunction<NativeEventCbType>> cbRef =
-            _dylib.lookup("onEventCb");
-        cbPtr = Pointer.fromFunction(_eventCb);
-        StatusCbType cb = cbRef.asFunction();
-        final int nativePort = interactiveCppRequests.sendPort.nativePort;
-        cb(nativePort, cbPtr);
-      }
+      final interactiveCppRequests = ReceivePort()..listen(_handleNativeEvent);
+      final int nativePort = interactiveCppRequests.sendPort.nativePort;
+      _registerEventPort(nativePort);
+      _nativePort = interactiveCppRequests.sendPort.nativePort;
       _initializeApi(NativeApi.initializeApiDLData);
-      await init();
-      logInfo('$tag: -init success');
-      completer.complete(null);
+
+      var out = registerCall(
+          cb: (data) {
+            logInfo('$tag: -init success');
+            completer.complete(null);
+          },
+          description: 'init');
+      _initApi(out.taskId, out.data, out.len);
     } catch (ex) {
       logInfo('$tag: -init failed: ${ex.toString()}');
       completer.complete("Error while starting:\n${ex.toString()}");
@@ -77,14 +73,8 @@ class ServiceApi {
     return completer.future;
   }
 
-  Future init() async {
-    Completer completer = Completer();
-    var out = registerCall(
-        cb: (data) {
-          completer.complete(true);
-        },
-        description: 'init');
-    _init(out.taskId, out.data, out.len);
+  void dispose() {
+    _unregisterEventPort(_nativePort);
   }
 
   Future<void> testMethod() async {
@@ -98,7 +88,7 @@ class ServiceApi {
     return completer.future;
   }
 
-  @pragma('vm:entry-point')
+  // @pragma('vm:entry-point')
   static void _handleNativeEvent(dynamic message) {
     var taskId = message[0];
     var buf = message[1] as Uint8List;
@@ -119,14 +109,12 @@ class ServiceApi {
     } else {
       // events
       try {
-        var ev = EventMsgWrapper.fromBuffer(buf);
-        // proxy for ios
-        if (Platform.isIOS) {
-          channelCmd.invokeMethod('event', <String, dynamic>{'data': buf});
-        }
-        switch (ev.type) {
-          case EventType.EVENT_CLIENT_STATE:
-            RegRep().setClientStatus(ev.clientState);
+        var ev = EventWrapper.fromBuffer(buf);
+        switch (ev.whichMsg()) {
+          case EventWrapper_Msg.detection:
+            logDebug('$tag: detection [${ev.detection}');
+            break;
+          case EventWrapper_Msg.notSet:
             break;
         }
       } catch (ex) {
@@ -171,12 +159,6 @@ class ServiceApi {
       logDebug('$tag: task: key=$key, description=${value.description}');
     });
     logDebug('$tag: tasks: ${i.length} END |||||||||||||||||||||||||||');
-  }
-
-  void requestExecuteCallback(dynamic message) {
-    final int workAddress = message;
-    final work = Pointer<Work>.fromAddress(workAddress);
-    _executeCallback(work);
   }
 }
 

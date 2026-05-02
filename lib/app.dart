@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/camera_settings_page.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/splash.dart';
 import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/native-api/service_api.dart';
 import 'package:flutter_demo/pages/alert/alert_model.dart';
 import 'package:flutter_demo/pages/alert/alert_page.dart';
 import 'package:flutter_demo/pages/capture/capture_page.dart';
@@ -50,6 +53,8 @@ class AppState extends State<App> {
     await FileUtils.init();
     // init log
     Loggy.initLoggy(logPrinter: LogPrinter());
+    // init cpp
+    await ServiceApi().initLib();
     // preload history
     _appModel.setHistory(await getIt<CameraRep>().getHistory());
     // hide splash screen

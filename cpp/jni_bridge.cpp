@@ -1,11 +1,11 @@
 #include <vector>
 #include <condition_variable>
 #include <csignal>
-#include "detector.h"
-#include "protobuf/generated/app.pb.h"
-#include <jni.h>
 #include <media/NdkImageReader.h>
 #include <android/native_window_jni.h>
+#include <jni.h>
+#include "detector.h"
+#include "dart_lib.h"
 #include "libyuv/version.h"
 #include "libyuv/convert.h"
 #include "libyuv/basic_types.h"
@@ -14,6 +14,7 @@
 #include "libyuv/convert_from.h"
 #include "libyuv/convert_from_argb.h"
 #include "libyuv/rotate.h"
+#include "protobuf/generated/app.pb.h"
 
 AImageReader* g_reader = nullptr;
 Detector* detector = nullptr;
@@ -40,7 +41,28 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
     );
     detector->start();
     detector->setCallback([&] (const auto& detection) {
-//        detection.
+        auto item = new app::DetectionItem();
+        item->set_frame_count(detection.frame_count);
+        item->set_timestamp_ns(detection.timestamp_ns);
+        // rect
+        for(auto& rect : detection.detections) {
+            auto* p = item->add_detections();
+            p->set_x(rect.x);
+            p->set_y(rect.y);
+            p->set_width(rect.width);
+            p->set_height(rect.height);
+        }
+        // ids
+        for(auto& class_id : detection.class_ids) {
+            item->add_class_ids(class_id);
+        }
+        // confidences
+        for(auto& confidence : detection.confidences) {
+            item->add_confidences(confidence);
+        }
+        app::EventWrapper event;
+        event.set_allocated_detection(item);
+        sendToDart(&event);
     });
 
     env->ReleaseByteArrayElements(byte_array, data_byte, 0);
@@ -62,20 +84,24 @@ void onFrame(void* context, AImageReader* reader) {
         }
         AImage_getPlaneRowStride(image, 0, &yStride);
         AImage_getPlanePixelStride(image, 1, &uvPixelStride);
+        AImage_getPlaneData(image, 1, &uData, &uLen);
+        AImage_getPlaneRowStride(image, 1, &uStride);
+        AImage_getPlaneData(image, 2, &vData, &vLen);
+        AImage_getPlaneRowStride(image, 2, &vStride);
 
         // OpenCV uses BGR by default, not RGB!
         // If you use imwrite, you want BGR.
         cv::Mat frame(height, width, CV_8UC3);
 
         if (uvPixelStride == 2) {
-            // This is interleaved (NV12 or NV21)
-            // Most Androids are NV21 (V-U-V-U)
-            libyuv::NV21ToRGB24(
-                    yData, yStride,
-                    uData, uStride, // Points to the start of interleaved UV
-                    frame.data, width * 3,
-                    width, height
-            );
+            // INTERLEAVED FORMAT (NV12 or NV21)
+            if (vData < uData) {
+                // V-U interleaved
+                libyuv::NV21ToRGB24(yData, yStride, vData, vStride, frame.data, width * 3, width, height);
+            } else {
+                // U-V interleaved
+                libyuv::NV12ToRGB24(yData, yStride, uData, uStride, frame.data, width * 3, width, height);
+            }
         } else {
             // True Planar (Rare on modern Android, but keep as fallback)
             libyuv::I420ToRGB24(
@@ -95,8 +121,8 @@ void onFrame(void* context, AImageReader* reader) {
             else if (camera_sensor_rotation == 270)
                 cv::rotate(frame, frame, cv::ROTATE_90_COUNTERCLOCKWISE);
         }
-
-        auto res = cv::imwrite("/storage/emulated/0/Download/who-zone-temp/1.jpeg", frame);
+//        cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
+//        auto res = cv::imwrite("/storage/emulated/0/Download/who-zone-temp/1.jpeg", frame);
         AImage_delete(image);
 
         auto frame_item = FrameItem{
