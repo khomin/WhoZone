@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/animated_camera_button.dart';
 import 'package:flutter_demo/components/circle_button.dart';
@@ -9,7 +8,6 @@ import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:loggy/loggy.dart';
@@ -267,7 +265,7 @@ class CapturePageState extends State<CapturePage>
 
   Widget _camera() {
     return Builder(builder: (context) {
-      var collapse = context.select<AppModel, bool>((v) => v.collapse);
+      // var collapse = context.select<AppModel, bool>((v) => v.collapse);
       return Container(
           decoration: const BoxDecoration(
               color: Colors.black,
@@ -275,7 +273,6 @@ class CapturePageState extends State<CapturePage>
                   topLeft: Radius.circular(20), topRight: Radius.circular(20))),
           height: double.infinity,
           child: Stack(alignment: Alignment.center, children: [
-            // surface
             Positioned(
                 top: 0,
                 left: 0,
@@ -288,11 +285,13 @@ class CapturePageState extends State<CapturePage>
                   //   _model.updateRotation();
                   // }();
                   return Builder(builder: (context) {
-                    var size = MediaQuery.of(context).size;
+                    var size = MediaQuery.sizeOf(context);
                     var camera = context
                         .select<CaptureModel, app.Camera?>((v) => v.camera);
                     var layout = context
                         .select<CaptureModel, SurfaceLayout>((v) => v.layout);
+                    var textureId =
+                        context.select<CaptureModel, int?>((v) => v.textureId);
                     logDebug(
                         'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
                     return ClipRRect(
@@ -301,34 +300,49 @@ class CapturePageState extends State<CapturePage>
                             quarterTurns: layout.rotation,
                             child: FittedBox(
                                 fit: BoxFit.cover,
-                                // fit: BoxFit.fitHeight,
-                                // fit: BoxFit.fitWidth,
-                                // fit: BoxFit.fill,
                                 child: SizedBox(
-                                    // width: 500, // Same as the container's width
-                                    // height: 500, // Same as the container's height
-                                    // width: NavigatorRep().size.width,
-                                    // // height: NavigatorRep().size.height,
-                                    // height:
-                                    //     (NavigatorRep().size.height + 20 / 3),
-                                    // width: 350 ?? 100,
-                                    // height: 350 ?? 100,
                                     width: camera?.size.width.toDouble() ??
                                         size.width,
                                     height: camera?.size.height.toDouble() ??
                                         size.height,
-                                    child: Builder(
-                                      builder: (context) {
-                                        var textureId =
-                                            context.select<CaptureModel, int?>(
-                                                (v) => v.textureId);
-                                        return textureId != null
-                                            ? Texture(
-                                                textureId: textureId,
-                                              )
-                                            : const SizedBox();
-                                      },
-                                    )))));
+                                    child: Stack(
+                                        alignment: AlignmentGeometry.center,
+                                        children: [
+                                          //
+                                          // texture
+                                          textureId != null
+                                              ? Texture(
+                                                  textureId: textureId,
+                                                )
+                                              : const SizedBox(),
+                                          //
+                                          // overlay
+                                          StreamBuilder(
+                                              stream: _captureModel
+                                                  .onDetection.stream,
+                                              builder: (context, snapshot) {
+                                                var data = snapshot.data;
+                                                if (data == null) {
+                                                  return const SizedBox();
+                                                }
+                                                logDebug(
+                                                    'BTEST_CAP-1: model=${_captureModel.hashCode}, onDetection=${_captureModel.onDetection.hashCode},len=${data.length}');
+                                                return Text(
+                                                  'BOXES:' +
+                                                      data.length.toString(),
+                                                  key: ValueKey(
+                                                      'Boxes-key-${data.length}'),
+                                                  style: TextStyle(
+                                                    // color: Theme.of(context)
+                                                    //     .colorScheme
+                                                    //     .menuFontColor2,
+                                                    color: Colors.white30,
+                                                    fontSize: 150,
+                                                    fontWeight: FontWeight.w400,
+                                                  ),
+                                                );
+                                              }),
+                                        ])))));
                   });
                 })),
             //

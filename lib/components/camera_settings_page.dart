@@ -24,9 +24,10 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
     super.initState();
     Future.microtask(() async {
       _model.init(
-          captureIntervalSec: await SettingsRep().getCaptureIntervalSec(),
-          minArea: await SettingsRep().getCaptureMinArea(),
-          showAreaOnCapture: await SettingsRep().getCaptureShowArea());
+        captureIntervalSec: await SettingsRep().getCaptureIntervalSec(),
+        minArea: await SettingsRep().getCaptureMinArea(),
+        showAreaOnCapture: await SettingsRep().getCaptureShowArea(),
+      );
     });
   }
 

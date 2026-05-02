@@ -32,18 +32,16 @@ class App extends StatefulWidget {
 
 class AppState extends State<App> {
   late AppModel _appModel;
-  late AlertModel _alertModel;
+  late final AlertModel _alertModel;
+  late final CaptureModel _captureModel;
 
   @override
   void initState() {
     super.initState();
 
     _alertModel = AlertModel();
+    _captureModel = CaptureModel();
     _init();
-
-    Future.microtask(() {
-      NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
-    });
   }
 
   void _init() async {
@@ -62,6 +60,14 @@ class AppState extends State<App> {
     // preload alert
     _alertModel.init();
     getIt<CameraRep>().init();
+
+    ServiceApi.onDetection = (ev) {
+      _captureModel.detection(ev);
+    };
+
+    Future.microtask(() {
+      NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
+    });
   }
 
   @override
@@ -73,6 +79,7 @@ class AppState extends State<App> {
   @override
   void dispose() {
     _alertModel.dispose();
+    _captureModel.dispose();
     super.dispose();
   }
 
@@ -80,10 +87,7 @@ class AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<AppModel>.value(value: _appModel),
-          ChangeNotifierProvider<CaptureModel>(
-            create: (context) => CaptureModel(),
-          ),
+          ChangeNotifierProvider<CaptureModel>.value(value: _captureModel),
           ChangeNotifierProvider<AlertModel>.value(value: _alertModel)
         ],
         builder: (context, child) {

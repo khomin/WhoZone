@@ -40,28 +40,24 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         initial_params.model_path()
     );
     detector->start();
-    detector->setCallback([&] (const auto& detection) {
+    detector->setCallback([&] (Detection & detection) {
+        auto appDetection = new app::Detection();
         auto item = new app::DetectionItem();
-        item->set_frame_count(detection.frame_count);
-        item->set_timestamp_ns(detection.timestamp_ns);
-        // rect
-        for(auto& rect : detection.detections) {
-            auto* p = item->add_detections();
-            p->set_x(rect.x);
-            p->set_y(rect.y);
-            p->set_width(rect.width);
-            p->set_height(rect.height);
-        }
-        // ids
-        for(auto& class_id : detection.class_ids) {
-            item->add_class_ids(class_id);
-        }
-        // confidences
-        for(auto& confidence : detection.confidences) {
-            item->add_confidences(confidence);
+        appDetection->set_frame_count(detection.frame_count);
+        appDetection->set_timestamp_ns(detection.timestamp_ns);
+        for(auto it: detection.detections) {
+            auto p = appDetection->add_item();
+            auto rect = new app::Rect();
+            rect->set_x(it.rect.x);
+            rect->set_y(it.rect.y);
+            rect->set_width(it.rect.width);
+            rect->set_height(it.rect.height);
+            p->set_allocated_detection(rect);
+            p->set_class_id(it.class_id);
+            p->set_confidence(it.confidence);
         }
         app::EventWrapper event;
-        event.set_allocated_detection(item);
+        event.set_allocated_detection(appDetection);
         sendToDart(&event);
     });
 

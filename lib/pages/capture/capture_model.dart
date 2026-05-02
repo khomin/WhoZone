@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
+import 'package:flutter_demo/pages/capture/detection_box.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/utils/file_utils.dart';
 import 'package:loggy/loggy.dart';
+import 'package:rxdart/rxdart.dart';
 
 class SurfaceLayout {
   SurfaceLayout({required this.rotation, required this.ratio});
@@ -24,10 +30,19 @@ class CaptureModel with ChangeNotifier {
   double flipTurns = 0.0;
   Camera? camera;
   int? textureId;
+  var onDetection = StreamController<List<DetectionBox>>.broadcast();
   SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
   SurfaceLayout oldLayout = SurfaceLayout(rotation: 0, ratio: 1);
+  List<String> _classNames = [];
   var _disposed = false;
   final tag = 'captureModel';
+
+  CaptureModel() {
+    Future.microtask(() async {
+      final data = await rootBundle.loadString('assets/coco.names');
+      _classNames = data.split('\n');
+    });
+  }
 
   void init({
     required int minArea,
@@ -241,6 +256,20 @@ class CaptureModel with ChangeNotifier {
     setSurfaceLayout(SurfaceLayout(rotation: rotation, ratio: ratio));
     // logDebug(
     //     'BTEST:2 rotation=$rotation, devRotation=$devRotation, sensorRotation=$sensorRotation, cam=${camera?.sensor}, ratio=$ratio');
+  }
+
+  void detection(Detection ev) {
+    final boxes = <DetectionBox>[];
+    for (var item in ev.item) {
+      boxes.add(DetectionBox.fromProto(item, _classNames));
+    }
+    if (boxes.isNotEmpty) {
+      logDebug('$tag: detection: [${boxes.length}]');
+    }
+    // var v = boxes.toList();
+    logDebug(
+        'BTEST_CAP-2: model=${hashCode}, onDetection=${onDetection.hashCode},len=${boxes.length}');
+    onDetection.add(boxes);
   }
 
   int _adjustRotation({

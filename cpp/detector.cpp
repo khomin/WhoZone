@@ -69,7 +69,7 @@ int Detector::start() {
     return 0;
 }
 
-void Detector::setCallback(std::function<void(DetectionItem& item)> v) {
+void Detector::setCallback(std::function<void(Detection& detection)> v) {
     _onFrame = v;
 }
 
@@ -106,46 +106,13 @@ void Detector::processFrame(FrameItem& frameItem) {
         // --- Inference (Forward Pass) ---
         _net.forward(outs, _net.getUnconnectedOutLayersNames());
 
-        // --- Post-processing (NMS and prepare lists) ---
-        // Reused logic from your process_predictions, but we push into detections vector instead of drawing directly
-//        cv::Mat outsMat = outs[0];
-//        cv::Mat det_output(outsMat.size[1], outsMat.size[2], CV_32F, outsMat.ptr<float>());
-//        for (int i = 0; i < det_output.rows; i++) {
-//            float confidence = det_output.at<float>(i, 4);
-//            if (confidence < 0.25f) continue;
-//            cv::Mat classes_scores = det_output.row(i).colRange(5, outsMat.size[2]);
-//            cv::Point class_id_point;
-//            double score;
-//            minMaxLoc(classes_scores, 0, &score, 0, &class_id_point);
-//            if (score > 0.25) {
-//                float x_factor = frame.cols / 640.0f;
-//                float y_factor = frame.rows / 640.0f;
-//                float cx = det_output.at<float>(i, 0);
-//                float cy = det_output.at<float>(i, 1);
-//                float ow = det_output.at<float>(i, 2);
-//                float oh = det_output.at<float>(i, 3);
-//                int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
-//                int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
-//                int width = static_cast<int>(ow * x_factor);
-//                int height = static_cast<int>(oh * y_factor);
-//                cv::Rect box;
-//                box.x = x;
-//                box.y = y;
-//                box.width = width;
-//                box.height = height;
-//                detections.push_back(box);
-//                det_class_ids.push_back(class_id_point.x);
-//                det_confidences.push_back(static_cast<float>(score));
-//            }
-//        }
-// outs[0] is [1, 84, 8400]
+        // outs[0] is [1, 84, 8400]
         cv::Mat output = outs[0];
         if (output.dims == 3) {
             // Reshape to [84, 8400]
             output = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>());
         }
-
-// Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
+        // Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
         cv::Mat data = output.t();
 
         for (int i = 0; i < data.rows; i++) {
@@ -178,7 +145,6 @@ void Detector::processFrame(FrameItem& frameItem) {
                 det_confidences.push_back(static_cast<float>(max_score));
             }
         }
-
         // NMS
         std::vector<int> indexes;
         cv::dnn::NMSBoxes(detections, det_confidences, 0.25f, 0.50f, indexes);
@@ -222,16 +188,19 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
         std::cerr << "Error: Detection result vectors have mismatched sizes." << std::endl;
         return;
     }
-    DetectionItem item;
     auto now = std::chrono::steady_clock::now();
-    item.frame_count = _frame_count++;
-    item.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-    item.detections = detections;
-    item.class_ids = det_class_ids;
-    item.confidences = det_confidences;
-    item.names = _class_names;
+    Detection detection;
+    detection.frame_count = _frame_count++;
+    detection.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
+    for(int index=0; index<detections.size(); index++) {
+        DetectionItem detectionItem;
+        detectionItem.rect = detections[index];
+        detectionItem.class_id = det_class_ids[index];
+        detectionItem.confidence = det_confidences[index];
+        detection.detections.push_back(detectionItem);
+    }
     if(_onFrame) {
-        _onFrame(item);
+        _onFrame(detection);
     }
 }
 

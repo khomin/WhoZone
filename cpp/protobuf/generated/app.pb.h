@@ -62,6 +62,10 @@ class CameraInfo;
 struct CameraInfoDefaultTypeInternal;
 extern CameraInfoDefaultTypeInternal _CameraInfo_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull CameraInfo_class_data_;
+class Detection;
+struct DetectionDefaultTypeInternal;
+extern DetectionDefaultTypeInternal _Detection_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull Detection_class_data_;
 class DetectionItem;
 struct DetectionItemDefaultTypeInternal;
 extern DetectionItemDefaultTypeInternal _DetectionItem_default_instance_;
@@ -367,7 +371,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Rect final : public ::google::proto
     return *reinterpret_cast<const Rect*>(
         &_Rect_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 7;
+  static constexpr int kIndexInFileMessages = 8;
   friend void swap(Rect& a, Rect& b) { a.Swap(&b); }
   inline void Swap(Rect* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1077,7 +1081,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
     return *reinterpret_cast<const DetectionItem*>(
         &_DetectionItem_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 6;
+  static constexpr int kIndexInFileMessages = 7;
   friend void swap(DetectionItem& a, DetectionItem& b) { a.Swap(&b); }
   inline void Swap(DetectionItem* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1167,99 +1171,55 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
 
   // accessors -------------------------------------------------------
   enum : int {
-    kDetectionsFieldNumber = 1,
-    kClassIdsFieldNumber = 2,
-    kConfidencesFieldNumber = 3,
-    kTimestampNsFieldNumber = 5,
-    kFrameCountFieldNumber = 4,
+    kDetectionFieldNumber = 1,
+    kClassIdFieldNumber = 2,
+    kConfidenceFieldNumber = 3,
   };
-  // repeated .app.Rect detections = 1;
-  [[nodiscard]] int detections_size()
+  // optional .app.Rect detection = 1;
+  [[nodiscard]] bool has_detection()
       const;
+  void clear_detection() ;
+  [[nodiscard]] const ::app::Rect& detection() const;
+  [[nodiscard]] ::app::Rect* PROTOBUF_NULLABLE release_detection();
+  ::app::Rect* PROTOBUF_NONNULL mutable_detection();
+  void set_allocated_detection(::app::Rect* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_detection(::app::Rect* PROTOBUF_NULLABLE value);
+  ::app::Rect* PROTOBUF_NULLABLE unsafe_arena_release_detection();
+
   private:
-  int _internal_detections_size() const;
+  const ::app::Rect& _internal_detection() const;
+  ::app::Rect* PROTOBUF_NONNULL _internal_mutable_detection();
 
   public:
-  void clear_detections() ;
-  [[nodiscard]] ::app::Rect* PROTOBUF_NONNULL mutable_detections(int index);
-  [[nodiscard]] ::google::protobuf::RepeatedPtrField<::app::Rect>* PROTOBUF_NONNULL
-  mutable_detections();
-
-  private:
-  const ::google::protobuf::RepeatedPtrField<::app::Rect>& _internal_detections() const;
-  ::google::protobuf::RepeatedPtrField<::app::Rect>* PROTOBUF_NONNULL _internal_mutable_detections();
-  public:
-  [[nodiscard]] const ::app::Rect& detections(int index) const;
-  ::app::Rect* PROTOBUF_NONNULL add_detections();
-  [[nodiscard]] const ::google::protobuf::RepeatedPtrField<::app::Rect>& detections()
+  // optional int32 class_id = 2;
+  [[nodiscard]] bool has_class_id()
       const;
-  // repeated int32 class_ids = 2;
-  [[nodiscard]] int class_ids_size()
+  void clear_class_id() ;
+  [[nodiscard]] ::int32_t class_id() const;
+  void set_class_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_class_id() const;
+  void _internal_set_class_id(::int32_t value);
+
+  public:
+  // optional float confidence = 3;
+  [[nodiscard]] bool has_confidence()
       const;
-  private:
-  int _internal_class_ids_size() const;
-
-  public:
-  void clear_class_ids() ;
-  [[nodiscard]] ::int32_t class_ids(int index) const;
-  void set_class_ids(int index, ::int32_t value);
-  void add_class_ids(::int32_t value);
-  [[nodiscard]] const ::google::protobuf::RepeatedField<::int32_t>& class_ids() const;
-  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL mutable_class_ids();
+  void clear_confidence() ;
+  [[nodiscard]] float confidence() const;
+  void set_confidence(float value);
 
   private:
-  const ::google::protobuf::RepeatedField<::int32_t>& _internal_class_ids() const;
-  ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL _internal_mutable_class_ids();
-
-  public:
-  // repeated float confidences = 3;
-  [[nodiscard]] int confidences_size()
-      const;
-  private:
-  int _internal_confidences_size() const;
-
-  public:
-  void clear_confidences() ;
-  [[nodiscard]] float confidences(int index) const;
-  void set_confidences(int index, float value);
-  void add_confidences(float value);
-  [[nodiscard]] const ::google::protobuf::RepeatedField<float>& confidences() const;
-  ::google::protobuf::RepeatedField<float>* PROTOBUF_NONNULL mutable_confidences();
-
-  private:
-  const ::google::protobuf::RepeatedField<float>& _internal_confidences() const;
-  ::google::protobuf::RepeatedField<float>* PROTOBUF_NONNULL _internal_mutable_confidences();
-
-  public:
-  // optional int64 timestamp_ns = 5;
-  [[nodiscard]] bool has_timestamp_ns()
-      const;
-  void clear_timestamp_ns() ;
-  [[nodiscard]] ::int64_t timestamp_ns() const;
-  void set_timestamp_ns(::int64_t value);
-
-  private:
-  ::int64_t _internal_timestamp_ns() const;
-  void _internal_set_timestamp_ns(::int64_t value);
-
-  public:
-  // optional int32 frame_count = 4;
-  [[nodiscard]] bool has_frame_count()
-      const;
-  void clear_frame_count() ;
-  [[nodiscard]] ::int32_t frame_count() const;
-  void set_frame_count(::int32_t value);
-
-  private:
-  ::int32_t _internal_frame_count() const;
-  void _internal_set_frame_count(::int32_t value);
+  float _internal_confidence() const;
+  void _internal_set_confidence(float value);
 
   public:
   // @@protoc_insertion_point(class_scope:app.DetectionItem)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<3, 5,
+  static const ::google::protobuf::internal::TcParseTable<2, 3,
                                    1, 0,
                                    2>
       _table_;
@@ -1283,11 +1243,9 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
         const DetectionItem& from_msg);
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
-    ::google::protobuf::RepeatedPtrField< ::app::Rect > detections_;
-    ::google::protobuf::RepeatedField<::int32_t> class_ids_;
-    ::google::protobuf::RepeatedField<float> confidences_;
-    ::int64_t timestamp_ns_;
-    ::int32_t frame_count_;
+    ::app::Rect* PROTOBUF_NULLABLE detection_;
+    ::int32_t class_id_;
+    float confidence_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -1821,6 +1779,240 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Camera final : public ::google::pro
 extern const ::google::protobuf::internal::ClassDataFull Camera_class_data_;
 // -------------------------------------------------------------------
 
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Detection final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:app.Detection) */ {
+ public:
+  inline Detection() : Detection(nullptr) {}
+  ~Detection() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(Detection* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(Detection));
+  }
+#endif
+
+  template <typename = void>
+  explicit constexpr Detection(::google::protobuf::internal::ConstantInitialized);
+
+  inline Detection(const Detection& from) : Detection(nullptr, from) {}
+  inline Detection(Detection&& from) noexcept
+      : Detection(nullptr, ::std::move(from)) {}
+  inline Detection& operator=(const Detection& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Detection& operator=(Detection&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
+  mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  [[nodiscard]] static const Detection& default_instance() {
+    return *reinterpret_cast<const Detection*>(
+        &_Detection_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 6;
+  friend void swap(Detection& a, Detection& b) { a.Swap(&b); }
+  inline void Swap(Detection* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Detection* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  [[nodiscard]] Detection* PROTOBUF_NONNULL
+  New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<Detection>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const Detection& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const Detection& from) { Detection::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  [[nodiscard]] bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  [[nodiscard]] static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  [[nodiscard]] static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  [[nodiscard]] ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  [[nodiscard]] ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  [[nodiscard]] ::size_t ByteSizeLong() const final;
+  [[nodiscard]] ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  [[nodiscard]] int GetCachedSize() const {
+    return _impl_._cached_size_.Get();
+  }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(Detection* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "app.Detection"; }
+
+  explicit Detection(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  Detection(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Detection& from);
+  Detection(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, Detection&& from) noexcept
+      : Detection(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kItemFieldNumber = 1,
+    kTimestampNsFieldNumber = 5,
+    kFrameCountFieldNumber = 4,
+  };
+  // repeated .app.DetectionItem item = 1;
+  [[nodiscard]] int item_size()
+      const;
+  private:
+  int _internal_item_size() const;
+
+  public:
+  void clear_item() ;
+  [[nodiscard]] ::app::DetectionItem* PROTOBUF_NONNULL mutable_item(int index);
+  [[nodiscard]] ::google::protobuf::RepeatedPtrField<::app::DetectionItem>* PROTOBUF_NONNULL
+  mutable_item();
+
+  private:
+  const ::google::protobuf::RepeatedPtrField<::app::DetectionItem>& _internal_item() const;
+  ::google::protobuf::RepeatedPtrField<::app::DetectionItem>* PROTOBUF_NONNULL _internal_mutable_item();
+  public:
+  [[nodiscard]] const ::app::DetectionItem& item(int index) const;
+  ::app::DetectionItem* PROTOBUF_NONNULL add_item();
+  [[nodiscard]] const ::google::protobuf::RepeatedPtrField<::app::DetectionItem>& item()
+      const;
+  // optional int64 timestamp_ns = 5;
+  [[nodiscard]] bool has_timestamp_ns()
+      const;
+  void clear_timestamp_ns() ;
+  [[nodiscard]] ::int64_t timestamp_ns() const;
+  void set_timestamp_ns(::int64_t value);
+
+  private:
+  ::int64_t _internal_timestamp_ns() const;
+  void _internal_set_timestamp_ns(::int64_t value);
+
+  public:
+  // optional int32 frame_count = 4;
+  [[nodiscard]] bool has_frame_count()
+      const;
+  void clear_frame_count() ;
+  [[nodiscard]] ::int32_t frame_count() const;
+  void set_frame_count(::int32_t value);
+
+  private:
+  ::int32_t _internal_frame_count() const;
+  void _internal_set_frame_count(::int32_t value);
+
+  public:
+  // @@protoc_insertion_point(class_scope:app.Detection)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<1, 3,
+                                   1, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  friend ::google::protobuf::internal::PrivateAccess;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                                    ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const Detection& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::RepeatedPtrField< ::app::DetectionItem > item_;
+    ::int64_t timestamp_ns_;
+    ::int32_t frame_count_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_app_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull Detection_class_data_;
+// -------------------------------------------------------------------
+
 class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:app.EventWrapper) */ {
  public:
@@ -1973,7 +2165,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
   enum : int {
     kDetectionFieldNumber = 1,
   };
-  // .app.DetectionItem detection = 1;
+  // .app.Detection detection = 1;
   [[nodiscard]] bool has_detection()
       const;
   private:
@@ -1981,16 +2173,16 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
 
   public:
   void clear_detection() ;
-  [[nodiscard]] const ::app::DetectionItem& detection() const;
-  [[nodiscard]] ::app::DetectionItem* PROTOBUF_NULLABLE release_detection();
-  ::app::DetectionItem* PROTOBUF_NONNULL mutable_detection();
-  void set_allocated_detection(::app::DetectionItem* PROTOBUF_NULLABLE value);
-  void unsafe_arena_set_allocated_detection(::app::DetectionItem* PROTOBUF_NULLABLE value);
-  ::app::DetectionItem* PROTOBUF_NULLABLE unsafe_arena_release_detection();
+  [[nodiscard]] const ::app::Detection& detection() const;
+  [[nodiscard]] ::app::Detection* PROTOBUF_NULLABLE release_detection();
+  ::app::Detection* PROTOBUF_NONNULL mutable_detection();
+  void set_allocated_detection(::app::Detection* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_detection(::app::Detection* PROTOBUF_NULLABLE value);
+  ::app::Detection* PROTOBUF_NULLABLE unsafe_arena_release_detection();
 
   private:
-  const ::app::DetectionItem& _internal_detection() const;
-  ::app::DetectionItem* PROTOBUF_NONNULL _internal_mutable_detection();
+  const ::app::Detection& _internal_detection() const;
+  ::app::Detection* PROTOBUF_NONNULL _internal_mutable_detection();
 
   public:
   void clear_msg();
@@ -2027,7 +2219,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
     union MsgUnion {
       constexpr MsgUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
-      ::app::DetectionItem* PROTOBUF_NULLABLE detection_;
+      ::app::Detection* PROTOBUF_NULLABLE detection_;
     } msg_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -2855,7 +3047,7 @@ inline void Size::_internal_set_height(::uint32_t value) {
 
 // EventWrapper
 
-// .app.DetectionItem detection = 1;
+// .app.Detection detection = 1;
 inline bool EventWrapper::has_detection() const {
   return msg_case() == kDetection;
 }
@@ -2876,7 +3068,7 @@ inline void EventWrapper::clear_detection() {
     clear_has_msg();
   }
 }
-inline ::app::DetectionItem* PROTOBUF_NULLABLE EventWrapper::release_detection() {
+inline ::app::Detection* PROTOBUF_NULLABLE EventWrapper::release_detection() {
   // @@protoc_insertion_point(field_release:app.EventWrapper.detection)
   if (msg_case() == kDetection) {
     clear_has_msg();
@@ -2890,15 +3082,15 @@ inline ::app::DetectionItem* PROTOBUF_NULLABLE EventWrapper::release_detection()
     return nullptr;
   }
 }
-inline const ::app::DetectionItem& EventWrapper::_internal_detection() const {
-  return msg_case() == kDetection ? static_cast<const ::app::DetectionItem&>(*_impl_.msg_.detection_)
-                     : reinterpret_cast<const ::app::DetectionItem&>(::app::_DetectionItem_default_instance_);
+inline const ::app::Detection& EventWrapper::_internal_detection() const {
+  return msg_case() == kDetection ? static_cast<const ::app::Detection&>(*_impl_.msg_.detection_)
+                     : reinterpret_cast<const ::app::Detection&>(::app::_Detection_default_instance_);
 }
-inline const ::app::DetectionItem& EventWrapper::detection() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+inline const ::app::Detection& EventWrapper::detection() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
   // @@protoc_insertion_point(field_get:app.EventWrapper.detection)
   return _internal_detection();
 }
-inline ::app::DetectionItem* PROTOBUF_NULLABLE EventWrapper::unsafe_arena_release_detection() {
+inline ::app::Detection* PROTOBUF_NULLABLE EventWrapper::unsafe_arena_release_detection() {
   // @@protoc_insertion_point(field_unsafe_arena_release:app.EventWrapper.detection)
   if (msg_case() == kDetection) {
     clear_has_msg();
@@ -2910,7 +3102,7 @@ inline ::app::DetectionItem* PROTOBUF_NULLABLE EventWrapper::unsafe_arena_releas
   }
 }
 inline void EventWrapper::unsafe_arena_set_allocated_detection(
-    ::app::DetectionItem* PROTOBUF_NULLABLE value) {
+    ::app::Detection* PROTOBUF_NULLABLE value) {
   // We rely on the oneof clear method to free the earlier contents
   // of this oneof. We can directly use the pointer we're given to
   // set the new value.
@@ -2921,18 +3113,18 @@ inline void EventWrapper::unsafe_arena_set_allocated_detection(
   }
   // @@protoc_insertion_point(field_unsafe_arena_set_allocated:app.EventWrapper.detection)
 }
-inline ::app::DetectionItem* PROTOBUF_NONNULL EventWrapper::_internal_mutable_detection() {
+inline ::app::Detection* PROTOBUF_NONNULL EventWrapper::_internal_mutable_detection() {
   if (msg_case() != kDetection) {
     clear_msg();
     set_has_detection();
     _impl_.msg_.detection_ = 
-        ::google::protobuf::Message::DefaultConstruct<::app::DetectionItem>(GetArena());
+        ::google::protobuf::Message::DefaultConstruct<::app::Detection>(GetArena());
   }
   return _impl_.msg_.detection_;
 }
-inline ::app::DetectionItem* PROTOBUF_NONNULL EventWrapper::mutable_detection()
+inline ::app::Detection* PROTOBUF_NONNULL EventWrapper::mutable_detection()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  ::app::DetectionItem* _msg = _internal_mutable_detection();
+  ::app::Detection* _msg = _internal_mutable_detection();
   // @@protoc_insertion_point(field_mutable:app.EventWrapper.detection)
   return _msg;
 }
@@ -2948,222 +3140,281 @@ inline EventWrapper::MsgCase EventWrapper::msg_case() const {
 }
 // -------------------------------------------------------------------
 
-// DetectionItem
+// Detection
 
-// repeated .app.Rect detections = 1;
-inline int DetectionItem::_internal_detections_size() const {
-  return _internal_detections().size();
+// repeated .app.DetectionItem item = 1;
+inline int Detection::_internal_item_size() const {
+  return _internal_item().size();
 }
-inline int DetectionItem::detections_size() const {
-  return _internal_detections_size();
+inline int Detection::item_size() const {
+  return _internal_item_size();
 }
-inline void DetectionItem::clear_detections() {
+inline void Detection::clear_item() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.detections_.Clear();
+  _impl_.item_.Clear();
   ClearHasBitForRepeated(_impl_._has_bits_[0],
                   0x00000001U);
 }
-inline ::app::Rect* PROTOBUF_NONNULL DetectionItem::mutable_detections(int index)
+inline ::app::DetectionItem* PROTOBUF_NONNULL Detection::mutable_item(int index)
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_mutable:app.DetectionItem.detections)
-  return _internal_mutable_detections()->Mutable(index);
+  // @@protoc_insertion_point(field_mutable:app.Detection.item)
+  return _internal_mutable_item()->Mutable(index);
 }
-inline ::google::protobuf::RepeatedPtrField<::app::Rect>* PROTOBUF_NONNULL DetectionItem::mutable_detections()
+inline ::google::protobuf::RepeatedPtrField<::app::DetectionItem>* PROTOBUF_NONNULL Detection::mutable_item()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_mutable_list:app.DetectionItem.detections)
+  // @@protoc_insertion_point(field_mutable_list:app.Detection.item)
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_detections();
+  return _internal_mutable_item();
 }
-inline const ::app::Rect& DetectionItem::detections(int index) const
+inline const ::app::DetectionItem& Detection::item(int index) const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_get:app.DetectionItem.detections)
-  return _internal_detections().Get(index);
+  // @@protoc_insertion_point(field_get:app.Detection.item)
+  return _internal_item().Get(index);
 }
-inline ::app::Rect* PROTOBUF_NONNULL DetectionItem::add_detections()
+inline ::app::DetectionItem* PROTOBUF_NONNULL Detection::add_item()
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  ::app::Rect* _add =
-      _internal_mutable_detections()->InternalAddWithArena(
+  ::app::DetectionItem* _add =
+      _internal_mutable_item()->InternalAddWithArena(
           ::google::protobuf::MessageLite::internal_visibility(), GetArena());
   SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000001U);
-  // @@protoc_insertion_point(field_add:app.DetectionItem.detections)
+  // @@protoc_insertion_point(field_add:app.Detection.item)
   return _add;
 }
-inline const ::google::protobuf::RepeatedPtrField<::app::Rect>& DetectionItem::detections() const
+inline const ::google::protobuf::RepeatedPtrField<::app::DetectionItem>& Detection::item() const
     ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:app.DetectionItem.detections)
-  return _internal_detections();
+  // @@protoc_insertion_point(field_list:app.Detection.item)
+  return _internal_item();
 }
-inline const ::google::protobuf::RepeatedPtrField<::app::Rect>&
-DetectionItem::_internal_detections() const {
+inline const ::google::protobuf::RepeatedPtrField<::app::DetectionItem>&
+Detection::_internal_item() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.detections_;
+  return _impl_.item_;
 }
-inline ::google::protobuf::RepeatedPtrField<::app::Rect>* PROTOBUF_NONNULL
-DetectionItem::_internal_mutable_detections() {
+inline ::google::protobuf::RepeatedPtrField<::app::DetectionItem>* PROTOBUF_NONNULL
+Detection::_internal_mutable_item() {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.detections_;
-}
-
-// repeated int32 class_ids = 2;
-inline int DetectionItem::_internal_class_ids_size() const {
-  return _internal_class_ids().size();
-}
-inline int DetectionItem::class_ids_size() const {
-  return _internal_class_ids_size();
-}
-inline void DetectionItem::clear_class_ids() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.class_ids_.Clear();
-  ClearHasBitForRepeated(_impl_._has_bits_[0],
-                  0x00000002U);
-}
-inline ::int32_t DetectionItem::class_ids(int index) const {
-  // @@protoc_insertion_point(field_get:app.DetectionItem.class_ids)
-  return _internal_class_ids().Get(index);
-}
-inline void DetectionItem::set_class_ids(int index, ::int32_t value) {
-  _internal_mutable_class_ids()->Set(index, value);
-  // @@protoc_insertion_point(field_set:app.DetectionItem.class_ids)
-}
-inline void DetectionItem::add_class_ids(::int32_t value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _internal_mutable_class_ids()->InternalAddWithArena(
-      internal_visibility(), GetArena(), value);
-  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000002U);
-  // @@protoc_insertion_point(field_add:app.DetectionItem.class_ids)
-}
-inline const ::google::protobuf::RepeatedField<::int32_t>& DetectionItem::class_ids() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:app.DetectionItem.class_ids)
-  return _internal_class_ids();
-}
-inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL DetectionItem::mutable_class_ids()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000002U);
-  // @@protoc_insertion_point(field_mutable_list:app.DetectionItem.class_ids)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_class_ids();
-}
-inline const ::google::protobuf::RepeatedField<::int32_t>&
-DetectionItem::_internal_class_ids() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.class_ids_;
-}
-inline ::google::protobuf::RepeatedField<::int32_t>* PROTOBUF_NONNULL
-DetectionItem::_internal_mutable_class_ids() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.class_ids_;
-}
-
-// repeated float confidences = 3;
-inline int DetectionItem::_internal_confidences_size() const {
-  return _internal_confidences().size();
-}
-inline int DetectionItem::confidences_size() const {
-  return _internal_confidences_size();
-}
-inline void DetectionItem::clear_confidences() {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.confidences_.Clear();
-  ClearHasBitForRepeated(_impl_._has_bits_[0],
-                  0x00000004U);
-}
-inline float DetectionItem::confidences(int index) const {
-  // @@protoc_insertion_point(field_get:app.DetectionItem.confidences)
-  return _internal_confidences().Get(index);
-}
-inline void DetectionItem::set_confidences(int index, float value) {
-  _internal_mutable_confidences()->Set(index, value);
-  // @@protoc_insertion_point(field_set:app.DetectionItem.confidences)
-}
-inline void DetectionItem::add_confidences(float value) {
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  _internal_mutable_confidences()->InternalAddWithArena(
-      internal_visibility(), GetArena(), value);
-  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000004U);
-  // @@protoc_insertion_point(field_add:app.DetectionItem.confidences)
-}
-inline const ::google::protobuf::RepeatedField<float>& DetectionItem::confidences() const
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  // @@protoc_insertion_point(field_list:app.DetectionItem.confidences)
-  return _internal_confidences();
-}
-inline ::google::protobuf::RepeatedField<float>* PROTOBUF_NONNULL DetectionItem::mutable_confidences()
-    ABSL_ATTRIBUTE_LIFETIME_BOUND {
-  SetHasBitForRepeated(_impl_._has_bits_[0], 0x00000004U);
-  // @@protoc_insertion_point(field_mutable_list:app.DetectionItem.confidences)
-  ::google::protobuf::internal::TSanWrite(&_impl_);
-  return _internal_mutable_confidences();
-}
-inline const ::google::protobuf::RepeatedField<float>&
-DetectionItem::_internal_confidences() const {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.confidences_;
-}
-inline ::google::protobuf::RepeatedField<float>* PROTOBUF_NONNULL
-DetectionItem::_internal_mutable_confidences() {
-  ::google::protobuf::internal::TSanRead(&_impl_);
-  return &_impl_.confidences_;
+  return &_impl_.item_;
 }
 
 // optional int32 frame_count = 4;
-inline bool DetectionItem::has_frame_count() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+inline bool Detection::has_frame_count() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
 }
-inline void DetectionItem::clear_frame_count() {
+inline void Detection::clear_frame_count() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.frame_count_ = 0;
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000010U);
+                  0x00000004U);
 }
-inline ::int32_t DetectionItem::frame_count() const {
-  // @@protoc_insertion_point(field_get:app.DetectionItem.frame_count)
+inline ::int32_t Detection::frame_count() const {
+  // @@protoc_insertion_point(field_get:app.Detection.frame_count)
   return _internal_frame_count();
 }
-inline void DetectionItem::set_frame_count(::int32_t value) {
+inline void Detection::set_frame_count(::int32_t value) {
   _internal_set_frame_count(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
-  // @@protoc_insertion_point(field_set:app.DetectionItem.frame_count)
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_set:app.Detection.frame_count)
 }
-inline ::int32_t DetectionItem::_internal_frame_count() const {
+inline ::int32_t Detection::_internal_frame_count() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.frame_count_;
 }
-inline void DetectionItem::_internal_set_frame_count(::int32_t value) {
+inline void Detection::_internal_set_frame_count(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.frame_count_ = value;
 }
 
 // optional int64 timestamp_ns = 5;
-inline bool DetectionItem::has_timestamp_ns() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+inline bool Detection::has_timestamp_ns() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
   return value;
 }
-inline void DetectionItem::clear_timestamp_ns() {
+inline void Detection::clear_timestamp_ns() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.timestamp_ns_ = ::int64_t{0};
   ClearHasBit(_impl_._has_bits_[0],
-                  0x00000008U);
+                  0x00000002U);
 }
-inline ::int64_t DetectionItem::timestamp_ns() const {
-  // @@protoc_insertion_point(field_get:app.DetectionItem.timestamp_ns)
+inline ::int64_t Detection::timestamp_ns() const {
+  // @@protoc_insertion_point(field_get:app.Detection.timestamp_ns)
   return _internal_timestamp_ns();
 }
-inline void DetectionItem::set_timestamp_ns(::int64_t value) {
+inline void Detection::set_timestamp_ns(::int64_t value) {
   _internal_set_timestamp_ns(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
-  // @@protoc_insertion_point(field_set:app.DetectionItem.timestamp_ns)
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:app.Detection.timestamp_ns)
 }
-inline ::int64_t DetectionItem::_internal_timestamp_ns() const {
+inline ::int64_t Detection::_internal_timestamp_ns() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
   return _impl_.timestamp_ns_;
 }
-inline void DetectionItem::_internal_set_timestamp_ns(::int64_t value) {
+inline void Detection::_internal_set_timestamp_ns(::int64_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.timestamp_ns_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// DetectionItem
+
+// optional .app.Rect detection = 1;
+inline bool DetectionItem::has_detection() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  PROTOBUF_ASSUME(!value || _impl_.detection_ != nullptr);
+  return value;
+}
+inline void DetectionItem::clear_detection() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.detection_ != nullptr) _impl_.detection_->Clear();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::app::Rect& DetectionItem::_internal_detection() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  const ::app::Rect* p = _impl_.detection_;
+  return p != nullptr ? *p : reinterpret_cast<const ::app::Rect&>(::app::_Rect_default_instance_);
+}
+inline const ::app::Rect& DetectionItem::detection() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.detection)
+  return _internal_detection();
+}
+inline void DetectionItem::unsafe_arena_set_allocated_detection(
+    ::app::Rect* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (GetArena() == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.detection_);
+  }
+  _impl_.detection_ = reinterpret_cast<::app::Rect*>(value);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:app.DetectionItem.detection)
+}
+inline ::app::Rect* PROTOBUF_NULLABLE DetectionItem::release_detection() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::app::Rect* released = _impl_.detection_;
+  _impl_.detection_ = nullptr;
+  if (::google::protobuf::internal::DebugHardenForceCopyInRelease()) {
+    auto* old = reinterpret_cast<::google::protobuf::MessageLite*>(released);
+    released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    if (GetArena() == nullptr) {
+      delete old;
+    }
+  } else {
+    if (GetArena() != nullptr) {
+      released = ::google::protobuf::internal::DuplicateIfNonNull(released);
+    }
+  }
+  return released;
+}
+inline ::app::Rect* PROTOBUF_NULLABLE DetectionItem::unsafe_arena_release_detection() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:app.DetectionItem.detection)
+
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::app::Rect* temp = _impl_.detection_;
+  _impl_.detection_ = nullptr;
+  return temp;
+}
+inline ::app::Rect* PROTOBUF_NONNULL DetectionItem::_internal_mutable_detection() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (_impl_.detection_ == nullptr) {
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::app::Rect>(GetArena());
+    _impl_.detection_ = reinterpret_cast<::app::Rect*>(p);
+  }
+  return _impl_.detection_;
+}
+inline ::app::Rect* PROTOBUF_NONNULL DetectionItem::mutable_detection()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::app::Rect* _msg = _internal_mutable_detection();
+  // @@protoc_insertion_point(field_mutable:app.DetectionItem.detection)
+  return _msg;
+}
+inline void DetectionItem::set_allocated_detection(::app::Rect* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::Arena* message_arena = GetArena();
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (message_arena == nullptr) {
+    delete reinterpret_cast<::google::protobuf::MessageLite*>(_impl_.detection_);
+  }
+
+  if (value != nullptr) {
+    ::google::protobuf::Arena* submessage_arena = value->GetArena();
+    if (message_arena != submessage_arena) {
+      value = ::google::protobuf::internal::GetOwnedMessage(message_arena, value, submessage_arena);
+    }
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+
+  _impl_.detection_ = reinterpret_cast<::app::Rect*>(value);
+  // @@protoc_insertion_point(field_set_allocated:app.DetectionItem.detection)
+}
+
+// optional int32 class_id = 2;
+inline bool DetectionItem::has_class_id() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  return value;
+}
+inline void DetectionItem::clear_class_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_id_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000002U);
+}
+inline ::int32_t DetectionItem::class_id() const {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.class_id)
+  return _internal_class_id();
+}
+inline void DetectionItem::set_class_id(::int32_t value) {
+  _internal_set_class_id(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:app.DetectionItem.class_id)
+}
+inline ::int32_t DetectionItem::_internal_class_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.class_id_;
+}
+inline void DetectionItem::_internal_set_class_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.class_id_ = value;
+}
+
+// optional float confidence = 3;
+inline bool DetectionItem::has_confidence() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  return value;
+}
+inline void DetectionItem::clear_confidence() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.confidence_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000004U);
+}
+inline float DetectionItem::confidence() const {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.confidence)
+  return _internal_confidence();
+}
+inline void DetectionItem::set_confidence(float value) {
+  _internal_set_confidence(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  // @@protoc_insertion_point(field_set:app.DetectionItem.confidence)
+}
+inline float DetectionItem::_internal_confidence() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.confidence_;
+}
+inline void DetectionItem::_internal_set_confidence(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.confidence_ = value;
 }
 
 // -------------------------------------------------------------------

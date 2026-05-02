@@ -417,7 +417,7 @@ enum EventWrapper_Msg { detection, notSet }
 
 class EventWrapper extends $pb.GeneratedMessage {
   factory EventWrapper({
-    DetectionItem? detection,
+    Detection? detection,
   }) {
     final result = create();
     if (detection != null) result.detection = detection;
@@ -442,8 +442,8 @@ class EventWrapper extends $pb.GeneratedMessage {
       package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
       createEmptyInstance: create)
     ..oo(0, [1])
-    ..aOM<DetectionItem>(1, _omitFieldNames ? '' : 'detection',
-        subBuilder: DetectionItem.create)
+    ..aOM<Detection>(1, _omitFieldNames ? '' : 'detection',
+        subBuilder: Detection.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -471,31 +471,99 @@ class EventWrapper extends $pb.GeneratedMessage {
   void clearMsg() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
-  DetectionItem get detection => $_getN(0);
+  Detection get detection => $_getN(0);
   @$pb.TagNumber(1)
-  set detection(DetectionItem value) => $_setField(1, value);
+  set detection(Detection value) => $_setField(1, value);
   @$pb.TagNumber(1)
   $core.bool hasDetection() => $_has(0);
   @$pb.TagNumber(1)
   void clearDetection() => $_clearField(1);
   @$pb.TagNumber(1)
-  DetectionItem ensureDetection() => $_ensure(0);
+  Detection ensureDetection() => $_ensure(0);
 }
 
-class DetectionItem extends $pb.GeneratedMessage {
-  factory DetectionItem({
-    $core.Iterable<Rect>? detections,
-    $core.Iterable<$core.int>? classIds,
-    $core.Iterable<$core.double>? confidences,
+class Detection extends $pb.GeneratedMessage {
+  factory Detection({
+    $core.Iterable<DetectionItem>? item,
     $core.int? frameCount,
     $fixnum.Int64? timestampNs,
   }) {
     final result = create();
-    if (detections != null) result.detections.addAll(detections);
-    if (classIds != null) result.classIds.addAll(classIds);
-    if (confidences != null) result.confidences.addAll(confidences);
+    if (item != null) result.item.addAll(item);
     if (frameCount != null) result.frameCount = frameCount;
     if (timestampNs != null) result.timestampNs = timestampNs;
+    return result;
+  }
+
+  Detection._();
+
+  factory Detection.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory Detection.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'Detection',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..pPM<DetectionItem>(1, _omitFieldNames ? '' : 'item',
+        subBuilder: DetectionItem.create)
+    ..aI(4, _omitFieldNames ? '' : 'frameCount')
+    ..aInt64(5, _omitFieldNames ? '' : 'timestampNs')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Detection clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  Detection copyWith(void Function(Detection) updates) =>
+      super.copyWith((message) => updates(message as Detection)) as Detection;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static Detection create() => Detection._();
+  @$core.override
+  Detection createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static Detection getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<Detection>(create);
+  static Detection? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $pb.PbList<DetectionItem> get item => $_getList(0);
+
+  @$pb.TagNumber(4)
+  $core.int get frameCount => $_getIZ(1);
+  @$pb.TagNumber(4)
+  set frameCount($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(4)
+  $core.bool hasFrameCount() => $_has(1);
+  @$pb.TagNumber(4)
+  void clearFrameCount() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $fixnum.Int64 get timestampNs => $_getI64(2);
+  @$pb.TagNumber(5)
+  set timestampNs($fixnum.Int64 value) => $_setInt64(2, value);
+  @$pb.TagNumber(5)
+  $core.bool hasTimestampNs() => $_has(2);
+  @$pb.TagNumber(5)
+  void clearTimestampNs() => $_clearField(5);
+}
+
+class DetectionItem extends $pb.GeneratedMessage {
+  factory DetectionItem({
+    Rect? detection,
+    $core.int? classId,
+    $core.double? confidence,
+  }) {
+    final result = create();
+    if (detection != null) result.detection = detection;
+    if (classId != null) result.classId = classId;
+    if (confidence != null) result.confidence = confidence;
     return result;
   }
 
@@ -512,12 +580,9 @@ class DetectionItem extends $pb.GeneratedMessage {
       _omitMessageNames ? '' : 'DetectionItem',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
       createEmptyInstance: create)
-    ..pPM<Rect>(1, _omitFieldNames ? '' : 'detections', subBuilder: Rect.create)
-    ..p<$core.int>(2, _omitFieldNames ? '' : 'classIds', $pb.PbFieldType.P3)
-    ..p<$core.double>(
-        3, _omitFieldNames ? '' : 'confidences', $pb.PbFieldType.PF)
-    ..aI(4, _omitFieldNames ? '' : 'frameCount')
-    ..aInt64(5, _omitFieldNames ? '' : 'timestampNs')
+    ..aOM<Rect>(1, _omitFieldNames ? '' : 'detection', subBuilder: Rect.create)
+    ..aI(2, _omitFieldNames ? '' : 'classId')
+    ..aD(3, _omitFieldNames ? '' : 'confidence', fieldType: $pb.PbFieldType.OF)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -540,31 +605,33 @@ class DetectionItem extends $pb.GeneratedMessage {
   static DetectionItem? _defaultInstance;
 
   @$pb.TagNumber(1)
-  $pb.PbList<Rect> get detections => $_getList(0);
+  Rect get detection => $_getN(0);
+  @$pb.TagNumber(1)
+  set detection(Rect value) => $_setField(1, value);
+  @$pb.TagNumber(1)
+  $core.bool hasDetection() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearDetection() => $_clearField(1);
+  @$pb.TagNumber(1)
+  Rect ensureDetection() => $_ensure(0);
 
   @$pb.TagNumber(2)
-  $pb.PbList<$core.int> get classIds => $_getList(1);
+  $core.int get classId => $_getIZ(1);
+  @$pb.TagNumber(2)
+  set classId($core.int value) => $_setSignedInt32(1, value);
+  @$pb.TagNumber(2)
+  $core.bool hasClassId() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearClassId() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $pb.PbList<$core.double> get confidences => $_getList(2);
-
-  @$pb.TagNumber(4)
-  $core.int get frameCount => $_getIZ(3);
-  @$pb.TagNumber(4)
-  set frameCount($core.int value) => $_setSignedInt32(3, value);
-  @$pb.TagNumber(4)
-  $core.bool hasFrameCount() => $_has(3);
-  @$pb.TagNumber(4)
-  void clearFrameCount() => $_clearField(4);
-
-  @$pb.TagNumber(5)
-  $fixnum.Int64 get timestampNs => $_getI64(4);
-  @$pb.TagNumber(5)
-  set timestampNs($fixnum.Int64 value) => $_setInt64(4, value);
-  @$pb.TagNumber(5)
-  $core.bool hasTimestampNs() => $_has(4);
-  @$pb.TagNumber(5)
-  void clearTimestampNs() => $_clearField(5);
+  $core.double get confidence => $_getN(2);
+  @$pb.TagNumber(3)
+  set confidence($core.double value) => $_setFloat(2, value);
+  @$pb.TagNumber(3)
+  $core.bool hasConfidence() => $_has(2);
+  @$pb.TagNumber(3)
+  void clearConfidence() => $_clearField(3);
 }
 
 class Rect extends $pb.GeneratedMessage {

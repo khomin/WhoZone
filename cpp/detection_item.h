@@ -8,12 +8,15 @@
 #include <opencv2/highgui.hpp>
 
 struct DetectionItem {
+    cv::Rect rect;
+    int class_id;
+    float confidence;
+};
+
+struct Detection {
     uint64_t frame_count;
     int64_t timestamp_ns;
-    std::vector<cv::Rect> detections;
-    std::vector<int> class_ids;
-    std::vector<float> confidences;
-    std::vector<std::string> names;
+    std::vector<DetectionItem> detections;
 };
 
 #endif // DETECTION_ITEM_H

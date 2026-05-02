@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'dart:ffi';
-import 'dart:io';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
 import 'package:loggy/loggy.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:ffi/ffi.dart';
-import 'package:fixnum/fixnum.dart' as fixnum;
 
 class ServiceApi {
+  static Function(Detection detection)? onDetection;
   static late Function _initApi;
   static late Function _initializeApi;
   static late Function _registerEventPort;
@@ -112,7 +111,7 @@ class ServiceApi {
         var ev = EventWrapper.fromBuffer(buf);
         switch (ev.whichMsg()) {
           case EventWrapper_Msg.detection:
-            logDebug('$tag: detection [${ev.detection}');
+            onDetection?.call(ev.detection);
             break;
           case EventWrapper_Msg.notSet:
             break;

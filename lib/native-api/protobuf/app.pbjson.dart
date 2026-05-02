@@ -116,7 +116,7 @@ const EventWrapper$json = {
       '3': 1,
       '4': 1,
       '5': 11,
-      '6': '.app.DetectionItem',
+      '6': '.app.Detection',
       '9': 0,
       '10': 'detection'
     },
@@ -128,34 +128,54 @@ const EventWrapper$json = {
 
 /// Descriptor for `EventWrapper`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List eventWrapperDescriptor = $convert.base64Decode(
-    'CgxFdmVudFdyYXBwZXISMgoJZGV0ZWN0aW9uGAEgASgLMhIuYXBwLkRldGVjdGlvbkl0ZW1IAF'
-    'IJZGV0ZWN0aW9uQgUKA21zZw==');
+    'CgxFdmVudFdyYXBwZXISLgoJZGV0ZWN0aW9uGAEgASgLMg4uYXBwLkRldGVjdGlvbkgAUglkZX'
+    'RlY3Rpb25CBQoDbXNn');
+
+@$core.Deprecated('Use detectionDescriptor instead')
+const Detection$json = {
+  '1': 'Detection',
+  '2': [
+    {
+      '1': 'item',
+      '3': 1,
+      '4': 3,
+      '5': 11,
+      '6': '.app.DetectionItem',
+      '10': 'item'
+    },
+    {'1': 'frame_count', '3': 4, '4': 1, '5': 5, '10': 'frameCount'},
+    {'1': 'timestamp_ns', '3': 5, '4': 1, '5': 3, '10': 'timestampNs'},
+  ],
+};
+
+/// Descriptor for `Detection`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List detectionDescriptor = $convert.base64Decode(
+    'CglEZXRlY3Rpb24SJgoEaXRlbRgBIAMoCzISLmFwcC5EZXRlY3Rpb25JdGVtUgRpdGVtEh8KC2'
+    'ZyYW1lX2NvdW50GAQgASgFUgpmcmFtZUNvdW50EiEKDHRpbWVzdGFtcF9ucxgFIAEoA1ILdGlt'
+    'ZXN0YW1wTnM=');
 
 @$core.Deprecated('Use detectionItemDescriptor instead')
 const DetectionItem$json = {
   '1': 'DetectionItem',
   '2': [
     {
-      '1': 'detections',
+      '1': 'detection',
       '3': 1,
-      '4': 3,
+      '4': 1,
       '5': 11,
       '6': '.app.Rect',
-      '10': 'detections'
+      '10': 'detection'
     },
-    {'1': 'class_ids', '3': 2, '4': 3, '5': 5, '10': 'classIds'},
-    {'1': 'confidences', '3': 3, '4': 3, '5': 2, '10': 'confidences'},
-    {'1': 'frame_count', '3': 4, '4': 1, '5': 5, '10': 'frameCount'},
-    {'1': 'timestamp_ns', '3': 5, '4': 1, '5': 3, '10': 'timestampNs'},
+    {'1': 'class_id', '3': 2, '4': 1, '5': 5, '10': 'classId'},
+    {'1': 'confidence', '3': 3, '4': 1, '5': 2, '10': 'confidence'},
   ],
 };
 
 /// Descriptor for `DetectionItem`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List detectionItemDescriptor = $convert.base64Decode(
-    'Cg1EZXRlY3Rpb25JdGVtEikKCmRldGVjdGlvbnMYASADKAsyCS5hcHAuUmVjdFIKZGV0ZWN0aW'
-    '9ucxIbCgljbGFzc19pZHMYAiADKAVSCGNsYXNzSWRzEiAKC2NvbmZpZGVuY2VzGAMgAygCUgtj'
-    'b25maWRlbmNlcxIfCgtmcmFtZV9jb3VudBgEIAEoBVIKZnJhbWVDb3VudBIhCgx0aW1lc3RhbX'
-    'BfbnMYBSABKANSC3RpbWVzdGFtcE5z');
+    'Cg1EZXRlY3Rpb25JdGVtEicKCWRldGVjdGlvbhgBIAEoCzIJLmFwcC5SZWN0UglkZXRlY3Rpb2'
+    '4SGQoIY2xhc3NfaWQYAiABKAVSB2NsYXNzSWQSHgoKY29uZmlkZW5jZRgDIAEoAlIKY29uZmlk'
+    'ZW5jZQ==');
 
 @$core.Deprecated('Use rectDescriptor instead')
 const Rect$json = {

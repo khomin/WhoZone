@@ -25,7 +25,7 @@ public:
     ~Detector();
 
     int start();
-    void setCallback(std::function<void(DetectionItem& item)> v);
+    void setCallback(std::function<void(Detection& detection)> v);
     void pushFrame(FrameItem& frame);
 
 private:
@@ -53,8 +53,7 @@ private:
     cv::Mat state_from_rect(const cv::Rect& r); // rect -> state (x,y,w,h,0,0,0,0)
     cv::KalmanFilter create_kalman_for_rect(const cv::Rect& r);
 
-    std::function<void(DetectionItem& item)> _onFrame;
-
+    std::function<void(Detection& detection)> _onFrame;
     std::thread _thread;
     std::atomic<bool> _running{false};
     SafeQueue<FrameItem> _frame_queue;
