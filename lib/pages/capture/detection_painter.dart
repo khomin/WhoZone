@@ -1,33 +1,132 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/capture/detection_box.dart';
-import 'package:loggy/loggy.dart';
 
 class CameraPreviewWithOverlay extends StatefulWidget {
-  CameraPreviewWithOverlay({required this.boxes});
   final Stream<List<DetectionBox>> boxes;
 
+  const CameraPreviewWithOverlay({required this.boxes});
+
   @override
-  _CameraPreviewWithOverlayState createState() =>
+  State<CameraPreviewWithOverlay> createState() =>
       _CameraPreviewWithOverlayState();
 }
 
-class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay> {
+class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  List<DetectionBox> _lastBoxes = [];
+  List<DetectionBox> _currentBoxes = [];
+  List<DetectionBox> _displayBoxes = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 50),
+    );
+    // Update _displayBoxes on every animation tick, but without calling setState
+    // because AnimatedBuilder will rebuild automatically.
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  List<DetectionBox> _interpolate(
+    List<DetectionBox> from,
+    List<DetectionBox> to,
+    double t,
+  ) {
+    final result = <DetectionBox>[];
+    final maxLen = to.length > from.length ? to.length : from.length;
+    for (int i = 0; i < maxLen; i++) {
+      final toBox = i < to.length ? to[i] : null;
+      final fromBox = i < from.length ? from[i] : null;
+      if (toBox == null) continue;
+      final fromRect = fromBox?.normalizedRect ?? toBox.normalizedRect;
+      final interpRect = Rect.fromLTRB(
+        fromRect.left + (toBox.normalizedRect.left - fromRect.left) * t,
+        fromRect.top + (toBox.normalizedRect.top - fromRect.top) * t,
+        fromRect.right + (toBox.normalizedRect.right - fromRect.right) * t,
+        fromRect.bottom + (toBox.normalizedRect.bottom - fromRect.bottom) * t,
+      );
+      result.add(DetectionBox(
+        classId: toBox.classId,
+        className: toBox.className,
+        confidence: toBox.confidence,
+        normalizedRect: interpRect,
+        // frameCount: toBox.frameCount,
+        // timestamp: toBox.timestamp,
+      ));
+    }
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
-        stream: widget.boxes,
-        builder: (context, snapshot) {
-          var detections = snapshot.data;
-          if (detections == null || detections.isEmpty) {
-            return const SizedBox();
-          }
-          return CustomPaint(
-            painter: DetectionPainter(detections),
-            size: Size.infinite,
-          );
-        });
+    return StreamBuilder<List<DetectionBox>>(
+      stream: widget.boxes,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          final newBoxes = snapshot.data!;
+          // Update references when new data arrives
+          _lastBoxes = _currentBoxes;
+          _currentBoxes = newBoxes;
+          // Restart animation (this does NOT cause setState)
+          _controller.stop();
+          _controller.value = 0.0;
+          _controller.forward();
+        }
+
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            // Compute interpolated boxes directly from current state
+            final boxes =
+                _interpolate(_lastBoxes, _currentBoxes, _controller.value);
+            if (boxes.isEmpty) return const SizedBox();
+            return CustomPaint(
+              painter: DetectionPainter(boxes),
+              size: Size.infinite,
+            );
+          },
+        );
+      },
+    );
   }
 }
+
+// class CameraPreviewWithOverlay extends StatefulWidget {
+//   CameraPreviewWithOverlay({required this.boxes});
+//   final Stream<List<DetectionBox>> boxes;
+
+//   @override
+//   _CameraPreviewWithOverlayState createState() =>
+//       _CameraPreviewWithOverlayState();
+// }
+
+// class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return StreamBuilder(
+//         stream: widget.boxes,
+//         builder: (context, snapshot) {
+//           var detections = snapshot.data;
+//           if (detections == null || detections.isEmpty) {
+//             return const SizedBox();
+//           }
+//           return CustomPaint(
+//             painter: DetectionPainter(detections),
+//             size: Size.infinite,
+//           );
+//         });
+//   }
+// }
 
 class DetectionPainter extends CustomPainter {
   final List<DetectionBox> detections;
@@ -44,21 +143,15 @@ class DetectionPainter extends CustomPainter {
     final textStyle = TextStyle(color: Colors.white, fontSize: 14);
 
     for (var box in detections) {
-      // Access normalizedRect, not direct x,y,w,h
       final rect = box.normalizedRect;
 
       // Scale coordinates from camera resolution to screen size
       final scaledRect = Rect.fromLTWH(
-        rect.left * size.width, // Use rect.left, not box.x
-        rect.top * size.height, // Use rect.top, not box.y
-        rect.width * size.width, // Use rect.width, not box.w
-        rect.height * size.height, // Use rect.height, not box.h
+        rect.left * size.width,
+        rect.top * size.height,
+        rect.width * size.width,
+        rect.height * size.height,
       );
-
-      // logDebug(
-      //     'SCALED: left=${scaledRect.left}, top=${scaledRect.top}, right=${scaledRect.right}, bottom=${scaledRect.bottom}');
-      // logDebug('SCREEN: width=${size.width}, height=${size.height}');
-
       canvas.drawRect(scaledRect, paint);
 
       // Draw label

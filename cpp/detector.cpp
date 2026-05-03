@@ -86,6 +86,10 @@ void Detector::saveOneFrameTo(std::string path) {
     _save_one_frame_to = path;
 }
 
+std::optional<Detection> Detector::getPreviousDetection() {
+    return _prev_detection;
+}
+
 void Detector::processFrame(FrameItem& frameItem) {
     int64 time_start = cv::getTickCount();
 
@@ -105,7 +109,12 @@ void Detector::processFrame(FrameItem& frameItem) {
         _net.setInput(blob);
 
         // --- Inference (Forward Pass) ---
+        auto now_start = std::chrono::steady_clock::now();
         _net.forward(outs, _net.getUnconnectedOutLayersNames());
+        auto now_end = std::chrono::steady_clock::now();
+        auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
+        auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();
+        LOGD("DETECTION-_net.forward: time lapsed: %dms", end_ms - start_ms);
 
         // outs[0] is [1, 84, 8400]
         cv::Mat output = outs[0];
@@ -259,6 +268,7 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
     if(_onDetection) {
         _onDetection(detection);
     }
+    _prev_detection = detection;
 }
 
 float Detector::iou(const cv::Rect& a, const cv::Rect& b) {

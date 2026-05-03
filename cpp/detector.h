@@ -28,6 +28,7 @@ public:
     void setCallback(std::function<void(Detection& detection)> v);
     void pushFrame(FrameItem& frame);
     void saveOneFrameTo(std::string path);
+    std::optional<Detection> getPreviousDetection();
 private:
     void send_result(
         std::vector<cv::Rect>& detections,
@@ -66,6 +67,7 @@ private:
     std::string _save_one_frame_to;
     std::vector<cv::Scalar> _colors;
     std::vector<Tracker> _trackers;
+    std::optional<Detection> _prev_detection;
 };
 
 #endif // DETECTOR_H

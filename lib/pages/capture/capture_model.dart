@@ -258,17 +258,21 @@ class CaptureModel with ChangeNotifier {
     //     'BTEST:2 rotation=$rotation, devRotation=$devRotation, sensorRotation=$sensorRotation, cam=${camera?.sensor}, ratio=$ratio');
   }
 
+  DateTime? _detectionTime;
+
   void detection(Detection ev) {
     final boxes = <DetectionBox>[];
     for (var item in ev.item) {
       boxes.add(DetectionBox.fromProto(item, _classNames));
     }
-    // if (boxes.isNotEmpty) {
-    // logDebug('$tag: detection: [${boxes.length}]');
-    // }
-    // var v = boxes.toList();
-    // logDebug(
-    //     'BTEST_CAP-2: model=${hashCode}, onDetection=${onDetection.hashCode},len=${boxes.length}');
+    final now = DateTime.now();
+    var prevTime = _detectionTime;
+    if (prevTime != null) {
+      var distance = now.difference(prevTime);
+      logDebug(
+          '$tag: detection: [${boxes.length}], elapsed: ${distance.inMicroseconds}');
+    }
+    _detectionTime = now;
     onDetection.add(boxes);
   }
 
