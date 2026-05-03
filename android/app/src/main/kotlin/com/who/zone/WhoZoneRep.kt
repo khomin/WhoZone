@@ -58,4 +58,5 @@ object WhoZoneRep {
     external fun nativeInitImageReader(): Surface
     external fun nativeSetOutputWindow(surface: Surface)
     external fun setCameraSensorRotation(rotation: Int)
+    external fun nativeSaveOneFrame(path: String)
 }

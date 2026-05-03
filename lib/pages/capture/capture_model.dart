@@ -263,12 +263,12 @@ class CaptureModel with ChangeNotifier {
     for (var item in ev.item) {
       boxes.add(DetectionBox.fromProto(item, _classNames));
     }
-    if (boxes.isNotEmpty) {
-      logDebug('$tag: detection: [${boxes.length}]');
-    }
+    // if (boxes.isNotEmpty) {
+    // logDebug('$tag: detection: [${boxes.length}]');
+    // }
     // var v = boxes.toList();
-    logDebug(
-        'BTEST_CAP-2: model=${hashCode}, onDetection=${onDetection.hashCode},len=${boxes.length}');
+    // logDebug(
+    //     'BTEST_CAP-2: model=${hashCode}, onDetection=${onDetection.hashCode},len=${boxes.length}');
     onDetection.add(boxes);
   }
 

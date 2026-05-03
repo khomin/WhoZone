@@ -75,11 +75,15 @@ int Detector::start() {
 }
 
 void Detector::setCallback(std::function<void(Detection& detection)> v) {
-    _onFrame = v;
+    _onDetection = v;
 }
 
 void Detector::pushFrame(FrameItem& frame) {
     _frame_queue.push(std::move(frame));
+}
+
+void Detector::saveOneFrameTo(std::string path) {
+    _save_one_frame_to = path;
 }
 
 void Detector::processFrame(FrameItem& frameItem) {
@@ -166,49 +170,54 @@ void Detector::processFrame(FrameItem& frameItem) {
         outs.clear();
         send_result(detections, det_class_ids, det_confidences, frame);
     } else {
-        // Predict-only frames
+        // --- Predict-only frames (Kalman smoothing) ---
         std::vector<cv::Rect> tracker_boxes;
         std::vector<int> tracker_class_ids;
         std::vector<float> tracker_confidences;
 
-        // Clean up dead trackers (optional but recommended)
+        for (auto &tr : _trackers) {
+            // Predict next state
+            cv::Mat pred = tr.kf.predict();
+
+            float x = pred.at<float>(0);
+            float y = pred.at<float>(1);
+            float w = pred.at<float>(2);
+            float h = pred.at<float>(3);
+
+            cv::Rect box;
+            box.x = static_cast<int>(x);
+            box.y = static_cast<int>(y);
+            box.width = std::max(1, static_cast<int>(w));
+            box.height = std::max(1, static_cast<int>(h));
+
+            // Optional: clamp to frame
+            box &= cv::Rect(0, 0, frame.cols, frame.rows);
+
+            // Track aging
+            tr.missed_frames++;
+
+            // kill weak + stale trackers early
+            if (tr.last_confidence < 0.5f && tr.missed_frames > 3)
+                tr.missed_frames = MAX_MISSED_FRAMES + 1;
+
+            // Kill stale trackers
+            if (tr.missed_frames > MAX_MISSED_FRAMES)
+                continue;
+
+            tracker_boxes.push_back(box);
+            tracker_class_ids.push_back(tr.class_id);
+            tracker_confidences.push_back(tr.last_confidence);
+        }
+
+        // Remove dead trackers
         _trackers.erase(
                 std::remove_if(_trackers.begin(), _trackers.end(),
-                               [](const Tracker& tr) {
-                                   return tr.missed_frames >= MAX_MISSED_FRAMES;
+                               [](const Tracker& t) {
+                                   return t.missed_frames > MAX_MISSED_FRAMES;
                                }),
                 _trackers.end()
         );
-        for (auto &tr : _trackers) {
-            tr.kf.predict();
-            tr.missed_frames++;
-            // ✅ Only include ACTIVE trackers (not dead)
-            // A tracker needs MIN_HITS_BEFORE_CONFIRM detections AND
-            // less than MAX_MISSED_FRAMES consecutive misses
-            // Get predicted position
-            const float *prediction = tr.kf.statePre.ptr<float>();
-            float cx = prediction[0];
-            float cy = prediction[1];
-            float w = prediction[2];
-            float h = prediction[3];
-
-            int x = std::max(0, (int) (cx - w / 2));
-            int y = std::max(0, (int) (cy - h / 2));
-            int width = (int) w;
-            int height = (int) h;
-
-            // Clip to frame boundaries
-            width = std::min(frame.cols - x, width);
-            height = std::min(frame.rows - y, height);
-
-            if (width > 0 && height > 0) {
-                tracker_boxes.push_back(cv::Rect(x, y, width, height));
-                tracker_class_ids.push_back(tr.class_id);
-                tracker_confidences.push_back(tr.last_confidence);
-            }
-        }
-        draw_trackers(frame, _colors, time_start, _trackers);
-        // ✅ SEND TRACKER PREDICTIONS
+        // Send predicted (smoothed) results
         send_result(tracker_boxes, tracker_class_ids, tracker_confidences, frame);
     }
 }
@@ -224,7 +233,7 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
     LOGD("📊 FRAME: %dx%d", frame.cols, frame.rows);
     auto now = std::chrono::steady_clock::now();
     Detection detection;
-    detection.frame_count = _frame_count++;
+    detection.frame_count = _frame_count;
     detection.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
     for(int i=0; i<detections.size(); i++) {
         LOGD("📦 RAW detection %d: x=%d, y=%d, w=%d, h=%d",
@@ -247,9 +256,8 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
         item.confidence = det_confidences[i];
         detection.detections.push_back(item);
     }
-//    auto res = cv::imwrite("/storage/emulated/0/Download/who-zone-temp/2.jpeg", frame);
-    if(_onFrame) {
-        _onFrame(detection);
+    if(_onDetection) {
+        _onDetection(detection);
     }
 }
 
@@ -415,13 +423,17 @@ void Detector::process_predictions_and_update_trackers(cv::Mat& frame, cv::Mat& 
                    trackers.end());
 
     // Draw trackers (using updated states)
-    draw_trackers(frame, colors, time_start, trackers);
+    if(!_save_one_frame_to.empty()) {
+        draw_trackers(frame, colors, time_start, trackers);
+        cv::imwrite(_save_one_frame_to, frame);
+        _save_one_frame_to.clear();
+    }
 }
 
 void Detector::draw_trackers(cv::Mat& frame,
-                   const std::vector<cv::Scalar>& colors,
-                   int64& time_start,
-                   std::vector<Tracker>& trackers) {
+                             const std::vector<cv::Scalar>& colors,
+                             int64& time_start,
+                             std::vector<Tracker>& trackers) {
     for (auto &tr : trackers) {
         cv::Mat state = tr.kf.statePost; // use posterior if available
         // but if recently predicted (no correct), statePost is still valid; otherwise predict above was called

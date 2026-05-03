@@ -145,10 +145,11 @@ class CapturePageState extends State<CapturePage>
                   animation: _ctrSlideTop,
                   builder: (context, child) {
                     return SliverAppBar(
-                        backgroundColor: Theme.of(context).colorScheme.colorBar,
-                        toolbarHeight: _slideHeight.value,
-                        automaticallyImplyLeading: false,
-                        flexibleSpace: _sliverAppBar());
+                      backgroundColor: Theme.of(context).colorScheme.colorBar,
+                      toolbarHeight: _slideHeight.value,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: _sliverAppBar(),
+                    );
                   }),
               SliverFillRemaining(child: _camera())
             ]));
@@ -218,35 +219,46 @@ class CapturePageState extends State<CapturePage>
                   child: Text('Capture',
                       style: Theme.of(context).colorScheme.homeCardH1Style),
                 ),
-                HoverClick(
-                    onPressedL: (p0) async {
-                      _handleOnSlide();
-                    },
-                    child: SizedBox(
-                        width: 130,
-                        height: 50,
-                        child: RepaintBoundary(
-                            child:
-                                Stack(alignment: Alignment.center, children: [
-                          StreamBuilder(
-                              stream: getIt<CameraRep>().onCaptureTime,
-                              initialData:
-                                  getIt<CameraRep>().onCaptureTime.valueOrNull,
-                              builder: (context, snapshot) {
-                                var duration = snapshot.data;
-                                return AnimatedContainer(
-                                    duration: Duration.zero,
-                                    width: duration == null ? 10 : 130,
-                                    height: duration == null ? 10 : 30,
-                                    child: RoundBox(
-                                        text: duration?.duration.format() ?? '',
-                                        color: const Color.fromARGB(
-                                                255, 211, 19, 5)
-                                            .withValues(alpha: 0.8),
-                                        borderRadius: 40));
-                              })
-                        ])))),
+                // HoverClick(
+                //     onPressedL: (p0) async {
+                //       _handleOnSlide();
+                //     },
+                //     child: SizedBox(
+                //         width: 130,
+                //         height: 50,
+                //         child: RepaintBoundary(
+                //             child:
+                //                 Stack(alignment: Alignment.center, children: [
+                //           StreamBuilder(
+                //               stream: getIt<CameraRep>().onCaptureTime,
+                //               initialData:
+                //                   getIt<CameraRep>().onCaptureTime.valueOrNull,
+                //               builder: (context, snapshot) {
+                //                 var duration = snapshot.data;
+                //                 return AnimatedContainer(
+                //                     duration: Duration.zero,
+                //                     width: duration == null ? 10 : 130,
+                //                     height: duration == null ? 10 : 30,
+                //                     child: RoundBox(
+                //                         text: duration?.duration.format() ?? '',
+                //                         color: const Color.fromARGB(
+                //                                 255, 211, 19, 5)
+                //                             .withValues(alpha: 0.8),
+                //                         borderRadius: 40));
+                //               })
+                //         ])))),
                 const Spacer(),
+                RoundButton(
+                    color: Colors.transparent,
+                    iconColor: Theme.of(context)
+                        .colorScheme
+                        .colorTextAccent
+                        .withValues(alpha: 0.8),
+                    size: 70,
+                    iconData: Icons.bug_report,
+                    onPressed: (p0) {
+                      getIt<CameraRep>().saveOneFrame();
+                    }),
                 RoundButton(
                     color: Colors.transparent,
                     iconColor: Theme.of(context)
@@ -266,126 +278,146 @@ class CapturePageState extends State<CapturePage>
 
   // var collapse = context.select<AppModel, bool>((v) => v.collapse);
   Widget _camera() {
+    // return Builder(builder: (context) {
+    //   return Container(
+    //       decoration: const BoxDecoration(
+    //           color: Colors.black,
+    //           borderRadius: BorderRadius.only(
+    //               topLeft: Radius.circular(20), topRight: Radius.circular(20))),
+    //       height: double.infinity,
+    //       child: Stack(alignment: Alignment.center, children: [
+    //         Positioned(
+    //             top: 0,
+    //             left: 0,
+    //             right: 0,
+    //             bottom: 0,
+    //             child: LayoutBuilder(builder: (context, constraints) {
     return Builder(builder: (context) {
-      return Container(
-          decoration: const BoxDecoration(
-              color: Colors.black,
-              borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-          height: double.infinity,
-          child: Stack(alignment: Alignment.center, children: [
-            Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: LayoutBuilder(builder: (context, constraints) {
-                  return Builder(builder: (context) {
-                    var size = MediaQuery.sizeOf(context);
-                    var camera = context
-                        .select<CaptureModel, app.Camera?>((v) => v.camera);
-                    var layout = context
-                        .select<CaptureModel, SurfaceLayout>((v) => v.layout);
-                    var textureId =
-                        context.select<CaptureModel, int?>((v) => v.textureId);
-                    logDebug(
-                        'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
-                    if (camera == null) {
-                      return const SizedBox();
-                    }
-                    // The exact dimensions the AI sees
-                    // final double aiWidth = 480;
-                    // final double aiHeight = 640;
-                    final double aiWidth = 640;
-                    final double aiHeight = 480;
+      // var size = MediaQuery.sizeOf(context);
+      var camera = context.select<CaptureModel, app.Camera?>((v) => v.camera);
+      var layout = context.select<CaptureModel, SurfaceLayout>((v) => v.layout);
+      var textureId = context.select<CaptureModel, int?>((v) => v.textureId);
+      logDebug(
+          'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
+      if (camera == null) {
+        return const SizedBox();
+      }
+      double sensorWidth = camera.size.width.toDouble();
+      double sensorHeight = camera.size.height.toDouble();
 
-                    return Center(
-                      // child: AspectRatio(
-                      //   // 1. Force the painter to use the AI's 3:4 aspect ratio
-                      //   aspectRatio: aiWidth / aiHeight,
-                      child: Stack(
-                        children: [
-                          // --- VIDEO LAYER ---
-                          Positioned.fill(
-                            child: ClipRect(
-                              child: RotatedBox(
-                                // Your head is already upright, so this turn is likely correct
-                                quarterTurns: 3,
-                                child: FittedBox(
-                                  // 2. Cover handles the crop from 4128x3096 into 480x640
-                                  fit: BoxFit.cover,
-                                  child: SizedBox(
-                                    width: 1,
-                                    height: 1,
-                                    child: Texture(textureId: textureId!),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-
-                          // --- OVERLAY LAYER ---
-                          Positioned.fill(
-                            child: CameraPreviewWithOverlay(
-                              // 3. This Painter's 'size' will now be exactly 3:4.
-                              //    norm_x * size.width will now land exactly where it
-                              //    did in your C++ 'imwrite' dump.
-                              boxes: _captureModel.onDetection.stream,
-                            ),
-                          ),
-                        ],
+      return Center(
+        child: AspectRatio(
+          aspectRatio: 480 / 640, // 3:4 The AI World (Portrait)
+          child: Stack(
+            children: [
+              // 1. VIDEO LAYER: Correct the stretch
+              Positioned.fill(
+                child: ClipRect(
+                  child: FittedBox(
+                    // Scale the rotated SizedBox to cover the 3:4 AspectRatio
+                    fit: BoxFit.cover,
+                    child: RotatedBox(
+                      quarterTurns:
+                          3, // Correct orientation for frontal sensor rotation
+                      child: SizedBox(
+                        // 1. Define the RAW shape of the sensor stream (Landscape)
+                        width: sensorWidth,
+                        height: sensorHeight,
+                        child: Texture(textureId: textureId!),
                       ),
-                      // ),
-                    );
-                    // return ClipRRect(
-                    //     borderRadius: BorderRadius.circular(20.0),
-                    //     child: RotatedBox(
-                    //         quarterTurns: layout.rotation,
-                    //         child: FittedBox(
-                    //             // fit: BoxFit.cover,
-                    //             fit: BoxFit.contain,
-                    //             child: SizedBox(
-                    //                 width: cameraSize.height.toDouble(),
-                    //                 height: cameraSize.width.toDouble(),
-                    //                 child: Stack(
-                    //                     alignment: AlignmentGeometry.center,
-                    //                     children: [
-                    //                       //
-                    //                       // texture
-                    //                       textureId != null
-                    //                           ? Texture(
-                    //                               textureId: textureId,
-                    //                             )
-                    //                           : const SizedBox(),
-                    //                     ])))));
-                  });
-                })),
-            //
-            // overlay
-            Positioned.fill(
+                    ),
+                  ),
+                ),
+              ),
+
+              // 2. OVERLAY LAYER
+              Positioned.fill(
                 child: CameraPreviewWithOverlay(
-                    boxes: _captureModel.onDetection.stream)),
-            //
-            //
-            // progress
-            Positioned.fill(
-                child: Stack(alignment: Alignment.center, children: [
-              RepaintBoundary(child: Builder(builder: (context) {
-                var wait = context
-                    .select<CaptureModel, bool>((v) => v.orientationpWait);
-                if (wait) {
-                  return const SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator());
-                }
-                return const SizedBox();
-              }))
-            ])),
-            // buttons
-            Positioned(left: 0, bottom: 0, right: 0, child: _buttons())
-          ]));
+                  // Since the Painter's 'size' is now exactly 3:4,
+                  // the boxes will remain perfect and aligned.
+                  boxes: _captureModel.onDetection.stream,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      return Center(
+        child: AspectRatio(
+          aspectRatio: 480 / 640,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: RotatedBox(
+                  quarterTurns: 3,
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: SizedBox(
+                      width: 1,
+                      height: 1,
+                      child: Texture(textureId: textureId!),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: CameraPreviewWithOverlay(
+                  boxes: _captureModel.onDetection.stream,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      // return ClipRRect(
+      //     borderRadius: BorderRadius.circular(20.0),
+      //     child: RotatedBox(
+      //         quarterTurns: layout.rotation,
+      //         child: FittedBox(
+      //             // fit: BoxFit.cover,
+      //             fit: BoxFit.contain,
+      //             child: SizedBox(
+      //                 width: cameraSize.height.toDouble(),
+      //                 height: cameraSize.width.toDouble(),
+      //                 child: Stack(
+      //                     alignment: AlignmentGeometry.center,
+      //                     children: [
+      //                       //
+      //                       // texture
+      //                       textureId != null
+      //                           ? Texture(
+      //                               textureId: textureId,
+      //                             )
+      //                           : const SizedBox(),
+      //                     ])))));
     });
+    // })),
+    //
+    // overlay
+    // Positioned.fill(
+    //     child: CameraPreviewWithOverlay(
+    //         boxes: _captureModel.onDetection.stream)),
+    // //
+    // //
+    // // progress
+    // Positioned.fill(
+    //     child: Stack(alignment: Alignment.center, children: [
+    //   RepaintBoundary(child: Builder(builder: (context) {
+    //     var wait = context
+    //         .select<CaptureModel, bool>((v) => v.orientationpWait);
+    //     if (wait) {
+    //       return const SizedBox(
+    //           width: 60,
+    //           height: 60,
+    //           child: CircularProgressIndicator());
+    //     }
+    //     return const SizedBox();
+    //   }))
+    // ])),
+    // // buttons
+    // Positioned(left: 0, bottom: 0, right: 0, child: _buttons())
+    // ]));
+    // });
   }
 
   Widget _buttons() {

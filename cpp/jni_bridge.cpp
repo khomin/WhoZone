@@ -45,6 +45,27 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         auto item = new app::DetectionItem();
         appDetection->set_frame_count(detection.frame_count);
         appDetection->set_timestamp_ns(detection.timestamp_ns);
+//        // test -start
+//        {
+//            auto p= appDetection->add_item();
+////            p->mutable_detection()->set_x(0.0);
+////            p->mutable_detection()->set_y(0.0);
+////            p->mutable_detection()->set_width(0.5);
+////            p->mutable_detection()->set_height(0.375);
+////            x=0.1, y=0.1, w=0.2, h=0.2
+////            p->mutable_detection()->set_x(0.1);
+////            p->mutable_detection()->set_y(0.1);
+////            p->mutable_detection()->set_width(0.2);
+////            p->mutable_detection()->set_height(0.2);
+////            x=0, y=0, w=1.0, h=1.0
+//            p->mutable_detection()->set_x(0);
+//            p->mutable_detection()->set_y(0);
+//            p->mutable_detection()->set_width(1);
+//            p->mutable_detection()->set_height(1);
+//            p->set_class_id(10);
+//            p->set_confidence(1);
+//        }
+        // test -end
         for(auto it: detection.detections) {
             auto p = appDetection->add_item();
             p->mutable_detection()->set_x(it.x);
@@ -213,3 +234,10 @@ Java_com_who_zone_WhoZoneRep_nativeSetOutputWindow(JNIEnv *env, jobject thiz, jo
 //     // signal_client.queueUpdate(item);
 // };
 // detector.run();
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_who_zone_WhoZoneRep_nativeSaveOneFrame(JNIEnv *env, jobject thiz, jstring path) {
+    auto nativePath = env->GetStringUTFChars(path, nullptr);
+    detector->saveOneFrameTo(nativePath);
+    env->ReleaseStringUTFChars(path, nativePath);
+}

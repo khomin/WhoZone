@@ -55,9 +55,9 @@ class DetectionPainter extends CustomPainter {
         rect.height * size.height, // Use rect.height, not box.h
       );
 
-      logDebug(
-          'SCALED: left=${scaledRect.left}, top=${scaledRect.top}, right=${scaledRect.right}, bottom=${scaledRect.bottom}');
-      logDebug('SCREEN: width=${size.width}, height=${size.height}');
+      // logDebug(
+      //     'SCALED: left=${scaledRect.left}, top=${scaledRect.top}, right=${scaledRect.right}, bottom=${scaledRect.bottom}');
+      // logDebug('SCREEN: width=${size.width}, height=${size.height}');
 
       canvas.drawRect(scaledRect, paint);
 

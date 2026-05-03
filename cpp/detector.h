@@ -27,7 +27,7 @@ public:
     int start();
     void setCallback(std::function<void(Detection& detection)> v);
     void pushFrame(FrameItem& frame);
-
+    void saveOneFrameTo(std::string path);
 private:
     void send_result(
         std::vector<cv::Rect>& detections,
@@ -53,7 +53,7 @@ private:
     cv::Mat state_from_rect(const cv::Rect& r); // rect -> state (x,y,w,h,0,0,0,0)
     cv::KalmanFilter create_kalman_for_rect(const cv::Rect& r);
 
-    std::function<void(Detection& detection)> _onFrame;
+    std::function<void(Detection& detection)> _onDetection;
     std::thread _thread;
     std::atomic<bool> _running{false};
     SafeQueue<FrameItem> _frame_queue;
@@ -63,6 +63,7 @@ private:
     std::string _module_path;
     int _next_tracker_id = 0;
     int _frame_count = 0;
+    std::string _save_one_frame_to;
     std::vector<cv::Scalar> _colors;
     std::vector<Tracker> _trackers;
 };

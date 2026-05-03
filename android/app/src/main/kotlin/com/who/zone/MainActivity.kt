@@ -102,6 +102,12 @@ class MainActivity : FlutterFragmentActivity() {
                     }
                     return@setMethodCallHandler
                 }
+                "save_one_frame" -> {
+                    val path = args["path"] as String
+                    WhoZoneRep.nativeSaveOneFrame(path)
+                    result.success(true)
+                    return@setMethodCallHandler
+                }
             }
             result.success(true)
         }

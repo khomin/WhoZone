@@ -468,6 +468,17 @@ class CameraRep {
     await deleteHistoryRoot(historyCache);
     onHistoryDataSize.add(Int64.ZERO);
   }
+
+  Future<void> saveOneFrame() async {
+    try {
+      var path = await FileUtils.getDowloadPath('who-zone-temp/one_frame.jpeg');
+      await _channelCmd.invokeMethod('save_one_frame', <String, dynamic>{
+        'path': path,
+      });
+    } catch (e) {
+      logError('$tag: error: $e');
+    }
+  }
 }
 
 class Sound {
