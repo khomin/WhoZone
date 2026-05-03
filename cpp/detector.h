@@ -37,7 +37,8 @@ private:
         cv::Mat& frame
      );
 
-    void processFrame(FrameItem& frame);
+    void updatePrediction(FrameItem& frame);
+    void processNeural(FrameItem& frame);
 
     void process_predictions_and_update_trackers(cv::Mat& frame, cv::Mat& outs, const std::vector<cv::Scalar>& colors,
                                                  int64& time_start,
@@ -56,8 +57,10 @@ private:
 
     std::function<void(Detection& detection)> _onDetection;
     std::thread _thread;
+    std::thread _ai_thread;
     std::atomic<bool> _running{false};
-    SafeQueue<FrameItem> _frame_queue;
+    SafeQueue<FrameItem> _in_frame_queue;
+    SafeQueue<FrameItem> _ai_frame_queue;
 
     std::vector<std::string> _class_names;
     cv::dnn::Net _net;

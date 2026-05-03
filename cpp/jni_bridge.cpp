@@ -123,8 +123,6 @@ void onFrame(void* context, AImageReader* reader) {
             else if (camera_sensor_rotation == 270)
                 cv::rotate(frame, frame, cv::ROTATE_90_COUNTERCLOCKWISE);
         }
-//        cv::cvtColor(frame, frame, cv::COLOR_RGB2BGR);
-//        auto res = cv::imwrite("/storage/emulated/0/Download/who-zone-temp/1.jpeg", frame);
         AImage_delete(image);
 
         auto frame_item = FrameItem{
@@ -135,11 +133,6 @@ void onFrame(void* context, AImageReader* reader) {
         detector->pushFrame(frame_item);
     }
 }
-
-// FrameItem frame;
-// AImageReader_new
-// frame.frame = cv::Mat(...);
-// frame.frame_index = frame_index++;
 
 extern "C"
 JNIEXPORT jobject JNICALL
