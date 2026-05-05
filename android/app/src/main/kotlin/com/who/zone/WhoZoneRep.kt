@@ -34,7 +34,7 @@ object WhoZoneRep {
                 setModelPath(modelPath)
             }
             this.imageReaderWidth = READER_WIDTH
-            this.imageReaderWidth = READER_HEIGHT
+            this.imageReaderHeight = READER_HEIGHT
             this.modelFrameWidth = MODEL_WIDTH
             this.modelFrameHeight = MODEL_HEIGHT
         }.build().toByteArray()

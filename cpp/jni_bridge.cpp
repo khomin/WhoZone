@@ -50,7 +50,6 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         if(prev.has_value()) {
             LOGD("DETECTION: time lapsed: %d", now_ns - prev->timestamp_ns);
         }
-
         auto appDetection = new app::Detection();
         auto item = new app::DetectionItem();
         appDetection->set_frame_count(detection.frame_count);

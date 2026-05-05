@@ -39,8 +39,8 @@ class MainActivity : FlutterFragmentActivity() {
             when (call.method) {
                 "get_model_target_size" -> {
                     val map = mutableMapOf<String, Int>()
-                    map["width"] = WhoZoneRep.MODEL_WIDTH
-                    map["height"] = WhoZoneRep.MODEL_HEIGHT
+                    map["width"] = WhoZoneRep.READER_WIDTH
+                    map["height"] = WhoZoneRep.READER_HEIGHT
                     result.success(map)
                     return@setMethodCallHandler
                 }
