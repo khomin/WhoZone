@@ -21,14 +21,18 @@ class InitParam extends $pb.GeneratedMessage {
   factory InitParam({
     $core.Iterable<$core.String>? cocoNames,
     $core.String? modelPath,
-    $core.int? targetWidth,
-    $core.int? targetHeight,
+    $core.int? imageReaderWidth,
+    $core.int? imageReaderHeight,
+    $core.int? modelFrameWidth,
+    $core.int? modelFrameHeight,
   }) {
     final result = create();
     if (cocoNames != null) result.cocoNames.addAll(cocoNames);
     if (modelPath != null) result.modelPath = modelPath;
-    if (targetWidth != null) result.targetWidth = targetWidth;
-    if (targetHeight != null) result.targetHeight = targetHeight;
+    if (imageReaderWidth != null) result.imageReaderWidth = imageReaderWidth;
+    if (imageReaderHeight != null) result.imageReaderHeight = imageReaderHeight;
+    if (modelFrameWidth != null) result.modelFrameWidth = modelFrameWidth;
+    if (modelFrameHeight != null) result.modelFrameHeight = modelFrameHeight;
     return result;
   }
 
@@ -47,8 +51,10 @@ class InitParam extends $pb.GeneratedMessage {
       createEmptyInstance: create)
     ..pPS(1, _omitFieldNames ? '' : 'cocoNames')
     ..aOS(2, _omitFieldNames ? '' : 'modelPath')
-    ..aI(3, _omitFieldNames ? '' : 'targetWidth')
-    ..aI(4, _omitFieldNames ? '' : 'targetHeight')
+    ..aI(3, _omitFieldNames ? '' : 'imageReaderWidth')
+    ..aI(4, _omitFieldNames ? '' : 'imageReaderHeight')
+    ..aI(5, _omitFieldNames ? '' : 'modelFrameWidth')
+    ..aI(6, _omitFieldNames ? '' : 'modelFrameHeight')
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -82,22 +88,40 @@ class InitParam extends $pb.GeneratedMessage {
   void clearModelPath() => $_clearField(2);
 
   @$pb.TagNumber(3)
-  $core.int get targetWidth => $_getIZ(2);
+  $core.int get imageReaderWidth => $_getIZ(2);
   @$pb.TagNumber(3)
-  set targetWidth($core.int value) => $_setSignedInt32(2, value);
+  set imageReaderWidth($core.int value) => $_setSignedInt32(2, value);
   @$pb.TagNumber(3)
-  $core.bool hasTargetWidth() => $_has(2);
+  $core.bool hasImageReaderWidth() => $_has(2);
   @$pb.TagNumber(3)
-  void clearTargetWidth() => $_clearField(3);
+  void clearImageReaderWidth() => $_clearField(3);
 
   @$pb.TagNumber(4)
-  $core.int get targetHeight => $_getIZ(3);
+  $core.int get imageReaderHeight => $_getIZ(3);
   @$pb.TagNumber(4)
-  set targetHeight($core.int value) => $_setSignedInt32(3, value);
+  set imageReaderHeight($core.int value) => $_setSignedInt32(3, value);
   @$pb.TagNumber(4)
-  $core.bool hasTargetHeight() => $_has(3);
+  $core.bool hasImageReaderHeight() => $_has(3);
   @$pb.TagNumber(4)
-  void clearTargetHeight() => $_clearField(4);
+  void clearImageReaderHeight() => $_clearField(4);
+
+  @$pb.TagNumber(5)
+  $core.int get modelFrameWidth => $_getIZ(4);
+  @$pb.TagNumber(5)
+  set modelFrameWidth($core.int value) => $_setSignedInt32(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasModelFrameWidth() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearModelFrameWidth() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.int get modelFrameHeight => $_getIZ(5);
+  @$pb.TagNumber(6)
+  set modelFrameHeight($core.int value) => $_setSignedInt32(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasModelFrameHeight() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearModelFrameHeight() => $_clearField(6);
 }
 
 class CameraInfo extends $pb.GeneratedMessage {

@@ -6,7 +6,7 @@
 - source ./yolo_env/bin/activate
 - pip install --upgrade pip
 - pip install ultralytics
-- yolo export model=yolo11n.pt format=onnx imgsz=320 dynamic=False opset=12
+- yolo export model=yolo11n.pt format=onnx imgsz=320 opset=17 
 copy the file to assets
 - cp /android/app/src/main/assets
 

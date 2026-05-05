@@ -236,6 +236,7 @@ class CapturePageState extends State<CapturePage>
       var sensorHeight = camera.size.height.toDouble();
       return Center(
         child: AspectRatio(
+          // aspectRatio: 480 / 640, // 3:4 The AI World (Portrait)
           aspectRatio: targetSize.height / targetSize.width,
           child: Stack(
             children: [

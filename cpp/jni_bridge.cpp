@@ -39,9 +39,8 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
     detector = new Detector(
         std::vector<std::string>(initial_params.coco_names().begin(), initial_params.coco_names().end()),
         initial_params.model_path(),
-        640, 640
-//        initial_params.target_width(),
-//        initial_params.target_height()
+        initial_params.model_frame_width(),
+        initial_params.model_frame_height()
     );
     detector->start();
     detector->setCallback([&] (Detection & detection) {
@@ -80,8 +79,8 @@ void onFrame(void* context, AImageReader* reader) {
         uint8_t* yData = nullptr, * uData = nullptr, * vData = nullptr;
         int32_t yStride = 0, uStride = 0, vStride = 0;
         int32_t yLen = 0, uLen = 0, vLen = 0;
-        int width = initial_params.target_width();
-        int height = initial_params.target_height();
+        int width = initial_params.image_reader_width();
+        int height = initial_params.image_reader_height();
         // Get Y plane (always exists)
         if (AImage_getPlaneData(image, 0, &yData, &yLen) != AMEDIA_OK) {
             AImage_delete(image);
@@ -141,7 +140,7 @@ extern "C"
 JNIEXPORT jobject JNICALL
 Java_com_who_zone_WhoZoneRep_nativeInitImageReader(JNIEnv *env, jobject thiz) {
     ANativeWindow* nativeWindow = nullptr;
-    AImageReader_new(initial_params.target_width(), initial_params.target_height(), AIMAGE_FORMAT_YUV_420_888, 3, &g_reader);
+    AImageReader_new(initial_params.image_reader_width(), initial_params.image_reader_height(), AIMAGE_FORMAT_YUV_420_888, 3, &g_reader);
     AImageReader_ImageListener listener {
         .onImageAvailable = onFrame
     };

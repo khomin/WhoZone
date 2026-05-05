@@ -22,12 +22,12 @@ const int MAX_MISSED = 10; // remove tracker after this many skipped frames
 
 Detector::Detector(std::vector<std::string> class_names,
                    std::string module_path,
-                   int target_width, int target_height
+                   int model_width, int model_height
 ) :
     _class_names(class_names),
     _module_path(module_path),
-    _target_width(target_width),
-    _target_height(target_height)
+    _model_width(model_width),
+    _model_height(model_height)
 {
     _colors.push_back(cv::Scalar(0, 255, 0));
     _colors.push_back(cv::Scalar(0, 255, 255));
@@ -164,7 +164,7 @@ void Detector::processNeural(FrameItem& frameItem) {
     int64 time_start = cv::getTickCount();
     // --- Pre-processing (Image to Blob) ---
     cv::Mat blob;
-    cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(_target_width, _target_height), cv::Scalar(), true, false);
+    cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(_model_width, _model_height), cv::Scalar(), true, false);
     _net.setInput(blob);
 
     // --- Inference (Forward Pass) ---
@@ -173,6 +173,7 @@ void Detector::processNeural(FrameItem& frameItem) {
         _net.forward(outs, _net.getUnconnectedOutLayersNames());
     } catch (const cv::Exception& e) {
         std::cerr << "OpenCV Forward Error: " << e.what() << std::endl;
+        return;
     }
     auto now_end = std::chrono::steady_clock::now();
     auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
@@ -205,8 +206,8 @@ void Detector::processNeural(FrameItem& frameItem) {
             float oh = row.at<float>(3);
 
             // Standard YOLO scaling
-            float x_factor = frame.cols / _target_width;
-            float y_factor = frame.rows / _target_height;
+            float x_factor = frame.cols / _model_width;
+            float y_factor = frame.rows / _model_height;
 
             int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
             int y = static_cast<int>((cy - 0.5f * oh) * y_factor);

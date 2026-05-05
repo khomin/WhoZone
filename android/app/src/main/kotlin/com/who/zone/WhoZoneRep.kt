@@ -1,17 +1,15 @@
 package com.who.zone
 
 import android.content.Context
-import android.media.ImageReader
-import android.os.Build
 import android.view.Surface
 import com.elvishew.xlog.XLog
 import java.io.File
 
 object WhoZoneRep {
-//    const val TARGET_WIDTH = 320
-//    const val TARGET_HEIGHT = 320
-    const val TARGET_WIDTH = 640
-    const val TARGET_HEIGHT = 480
+    const val READER_WIDTH = 640
+    const val READER_HEIGHT = 480
+    const val MODEL_WIDTH = 320
+    const val MODEL_HEIGHT = 320
 
     fun initEngine(context: Context) {
         try {
@@ -35,8 +33,10 @@ object WhoZoneRep {
             if(modelPath.isNotEmpty()) {
                 setModelPath(modelPath)
             }
-            this.targetWidth = TARGET_WIDTH
-            this.targetHeight = TARGET_HEIGHT
+            this.imageReaderWidth = READER_WIDTH
+            this.imageReaderWidth = READER_HEIGHT
+            this.modelFrameWidth = MODEL_WIDTH
+            this.modelFrameHeight = MODEL_HEIGHT
         }.build().toByteArray()
         init(propertyArray, propertyArray.size)
     }

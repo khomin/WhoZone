@@ -126,8 +126,10 @@ inline constexpr InitParam::Impl_::Impl_(
         model_path_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
-        target_width_{0},
-        target_height_{0} {}
+        image_reader_width_{0},
+        image_reader_height_{0},
+        model_frame_width_{0},
+        model_frame_height_{0} {}
 
 template <typename>
 constexpr InitParam::InitParam(::_pbi::ConstantInitialized)
@@ -328,15 +330,19 @@ const ::uint32_t
         protodesc_cold) = {
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_._has_bits_),
-        7, // hasbit index offset
+        9, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.coco_names_),
         PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.model_path_),
-        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.target_width_),
-        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.target_height_),
+        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.image_reader_width_),
+        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.image_reader_height_),
+        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.model_frame_width_),
+        PROTOBUF_FIELD_OFFSET(::app::InitParam, _impl_.model_frame_height_),
         0,
         1,
         2,
         3,
+        4,
+        5,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::app::CameraInfo, _impl_._has_bits_),
         8, // hasbit index offset
@@ -413,14 +419,14 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, sizeof(::app::InitParam)},
-        {11, sizeof(::app::CameraInfo)},
-        {24, sizeof(::app::Camera)},
-        {35, sizeof(::app::Range)},
-        {42, sizeof(::app::Size)},
-        {49, sizeof(::app::EventWrapper)},
-        {53, sizeof(::app::Detection)},
-        {62, sizeof(::app::DetectionItem)},
-        {71, sizeof(::app::Rect)},
+        {15, sizeof(::app::CameraInfo)},
+        {28, sizeof(::app::Camera)},
+        {39, sizeof(::app::Range)},
+        {46, sizeof(::app::Size)},
+        {53, sizeof(::app::EventWrapper)},
+        {57, sizeof(::app::Detection)},
+        {66, sizeof(::app::DetectionItem)},
+        {75, sizeof(::app::Rect)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::app::_InitParam_default_instance_._instance,
@@ -435,30 +441,32 @@ static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
 };
 const char descriptor_table_protodef_app_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\tapp.proto\022\003app\"`\n\tInitParam\022\022\n\ncoco_na"
-    "mes\030\001 \003(\t\022\022\n\nmodel_path\030\002 \001(\t\022\024\n\014target_"
-    "width\030\003 \001(\005\022\025\n\rtarget_height\030\004 \001(\005\"\203\001\n\nC"
-    "ameraInfo\022\n\n\002id\030\001 \001(\t\022\027\n\017sensor_rotation"
-    "\030\002 \001(\r\022\020\n\010is_front\030\003 \001(\010\022\036\n\013cameraSizes\030"
-    "\004 \003(\0132\t.app.Size\022\036\n\nfps_ranges\030\005 \003(\0132\n.a"
-    "pp.Range\"O\n\006Camera\022\n\n\002id\030\001 \001(\t\022\020\n\010is_fro"
-    "nt\030\002 \001(\010\022\016\n\006sensor\030\003 \001(\r\022\027\n\004size\030\004 \001(\0132\t"
-    ".app.Size\"%\n\005Range\022\r\n\005lower\030\001 \001(\r\022\r\n\005upp"
-    "er\030\002 \001(\r\"%\n\004Size\022\r\n\005width\030\001 \001(\r\022\016\n\006heigh"
-    "t\030\002 \001(\r\":\n\014EventWrapper\022#\n\tdetection\030\001 \001"
-    "(\0132\016.app.DetectionH\000B\005\n\003msg\"X\n\tDetection"
-    "\022 \n\004item\030\001 \003(\0132\022.app.DetectionItem\022\023\n\013fr"
-    "ame_count\030\004 \001(\005\022\024\n\014timestamp_ns\030\005 \001(\003\"S\n"
-    "\rDetectionItem\022\034\n\tdetection\030\001 \001(\0132\t.app."
-    "Rect\022\020\n\010class_id\030\002 \001(\005\022\022\n\nconfidence\030\003 \001"
-    "(\002\";\n\004Rect\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\r\n\005widt"
-    "h\030\003 \001(\001\022\016\n\006height\030\004 \001(\001"
+    "\n\tapp.proto\022\003app\"\243\001\n\tInitParam\022\022\n\ncoco_n"
+    "ames\030\001 \003(\t\022\022\n\nmodel_path\030\002 \001(\t\022\032\n\022image_"
+    "reader_width\030\003 \001(\005\022\033\n\023image_reader_heigh"
+    "t\030\004 \001(\005\022\031\n\021model_frame_width\030\005 \001(\005\022\032\n\022mo"
+    "del_frame_height\030\006 \001(\005\"\203\001\n\nCameraInfo\022\n\n"
+    "\002id\030\001 \001(\t\022\027\n\017sensor_rotation\030\002 \001(\r\022\020\n\010is"
+    "_front\030\003 \001(\010\022\036\n\013cameraSizes\030\004 \003(\0132\t.app."
+    "Size\022\036\n\nfps_ranges\030\005 \003(\0132\n.app.Range\"O\n\006"
+    "Camera\022\n\n\002id\030\001 \001(\t\022\020\n\010is_front\030\002 \001(\010\022\016\n\006"
+    "sensor\030\003 \001(\r\022\027\n\004size\030\004 \001(\0132\t.app.Size\"%\n"
+    "\005Range\022\r\n\005lower\030\001 \001(\r\022\r\n\005upper\030\002 \001(\r\"%\n\004"
+    "Size\022\r\n\005width\030\001 \001(\r\022\016\n\006height\030\002 \001(\r\":\n\014E"
+    "ventWrapper\022#\n\tdetection\030\001 \001(\0132\016.app.Det"
+    "ectionH\000B\005\n\003msg\"X\n\tDetection\022 \n\004item\030\001 \003"
+    "(\0132\022.app.DetectionItem\022\023\n\013frame_count\030\004 "
+    "\001(\005\022\024\n\014timestamp_ns\030\005 \001(\003\"S\n\rDetectionIt"
+    "em\022\034\n\tdetection\030\001 \001(\0132\t.app.Rect\022\020\n\010clas"
+    "s_id\030\002 \001(\005\022\022\n\nconfidence\030\003 \001(\002\";\n\004Rect\022\t"
+    "\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\r\n\005width\030\003 \001(\001\022\016\n\006h"
+    "eight\030\004 \001(\001"
 };
 static ::absl::once_flag descriptor_table_app_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_app_2eproto = {
     false,
     false,
-    703,
+    771,
     descriptor_table_protodef_app_2eproto,
     "app.proto",
     &descriptor_table_app_2eproto_once,
@@ -522,12 +530,12 @@ InitParam::InitParam(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char*>(&_impl_) +
-               offsetof(Impl_, target_width_),
+               offsetof(Impl_, image_reader_width_),
            reinterpret_cast<const char*>(&from._impl_) +
-               offsetof(Impl_, target_width_),
-           offsetof(Impl_, target_height_) -
-               offsetof(Impl_, target_width_) +
-               sizeof(Impl_::target_height_));
+               offsetof(Impl_, image_reader_width_),
+           offsetof(Impl_, model_frame_height_) -
+               offsetof(Impl_, image_reader_width_) +
+               sizeof(Impl_::model_frame_height_));
 
   // @@protoc_insertion_point(copy_constructor:app.InitParam)
 }
@@ -549,11 +557,11 @@ PROTOBUF_NDEBUG_INLINE InitParam::Impl_::Impl_(
 inline void InitParam::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char*>(&_impl_) +
-               offsetof(Impl_, target_width_),
+               offsetof(Impl_, image_reader_width_),
            0,
-           offsetof(Impl_, target_height_) -
-               offsetof(Impl_, target_width_) +
-               sizeof(Impl_::target_height_));
+           offsetof(Impl_, model_frame_height_) -
+               offsetof(Impl_, image_reader_width_) +
+               sizeof(Impl_::model_frame_height_));
 }
 InitParam::~InitParam() {
   // @@protoc_insertion_point(destructor:app.InitParam)
@@ -631,16 +639,16 @@ InitParam::GetClassData() const {
   return InitParam_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 4, 0, 0, 2>
+const ::_pbi::TcParseTable<3, 6, 0, 0, 2>
 InitParam::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(InitParam, _impl_._has_bits_),
     0, // no _extensions_
-    4, 24,  // max_field_number, fast_idx_mask
+    6, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967280,  // skipmap
+    4294967232,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    4,  // num_field_entries
+    6,  // num_field_entries
     0,  // num_aux_entries
     offsetof(decltype(_table_), field_names),  // no aux_entries
     InitParam_class_data_.base(),
@@ -650,10 +658,7 @@ InitParam::_table_ = {
     ::_pbi::TcParser::GetTable<::app::InitParam>(),  // to_prefetch
     #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
   }, {{
-    // optional int32 target_height = 4;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.target_height_), 3>(),
-     {32, 3, 0,
-      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_height_)}},
+    {::_pbi::TcParser::MiniParse, {}},
     // repeated string coco_names = 1;
     {::_pbi::TcParser::FastBR1,
      {10, 0, 0,
@@ -662,10 +667,23 @@ InitParam::_table_ = {
     {::_pbi::TcParser::FastBS1,
      {18, 1, 0,
       PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_path_)}},
-    // optional int32 target_width = 3;
-    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.target_width_), 2>(),
+    // optional int32 image_reader_width = 3;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.image_reader_width_), 2>(),
      {24, 2, 0,
-      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_width_)}},
+      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.image_reader_width_)}},
+    // optional int32 image_reader_height = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.image_reader_height_), 3>(),
+     {32, 3, 0,
+      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.image_reader_height_)}},
+    // optional int32 model_frame_width = 5;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.model_frame_width_), 4>(),
+     {40, 4, 0,
+      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_frame_width_)}},
+    // optional int32 model_frame_height = 6;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(InitParam, _impl_.model_frame_height_), 5>(),
+     {48, 5, 0,
+      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_frame_height_)}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -673,10 +691,14 @@ InitParam::_table_ = {
     {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.coco_names_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcRepeated | ::_fl::kBytes | ::_fl::kRepSString)},
     // optional string model_path = 2;
     {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_path_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
-    // optional int32 target_width = 3;
-    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_width_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
-    // optional int32 target_height = 4;
-    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_height_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 image_reader_width = 3;
+    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.image_reader_width_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 image_reader_height = 4;
+    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.image_reader_height_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 model_frame_width = 5;
+    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_frame_width_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional int32 model_frame_height = 6;
+    {PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_frame_height_), _Internal::kHasBitsOffset + 5, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
   }},
   // no aux_entries
   {{
@@ -698,10 +720,10 @@ PROTOBUF_NOINLINE void InitParam::Clear() {
       _impl_.model_path_.ClearNonDefaultToEmpty();
     }
   }
-  if (BatchCheckHasBit(cached_has_bits, 0x0000000cU)) {
-    ::memset(&_impl_.target_width_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.target_height_) -
-        reinterpret_cast<char*>(&_impl_.target_width_)) + sizeof(_impl_.target_height_));
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003cU)) {
+    ::memset(&_impl_.image_reader_width_, 0, static_cast<::size_t>(
+        reinterpret_cast<char*>(&_impl_.model_frame_height_) -
+        reinterpret_cast<char*>(&_impl_.image_reader_width_)) + sizeof(_impl_.model_frame_height_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -740,18 +762,32 @@ PROTOBUF_NOINLINE void InitParam::Clear() {
     target = stream->WriteStringMaybeAliased(2, _s, target);
   }
 
-  // optional int32 target_width = 3;
+  // optional int32 image_reader_width = 3;
   if (CheckHasBit(cached_has_bits, 0x00000004U)) {
     target =
         ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<3>(
-            stream, this_._internal_target_width(), target);
+            stream, this_._internal_image_reader_width(), target);
   }
 
-  // optional int32 target_height = 4;
+  // optional int32 image_reader_height = 4;
   if (CheckHasBit(cached_has_bits, 0x00000008U)) {
     target =
         ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<4>(
-            stream, this_._internal_target_height(), target);
+            stream, this_._internal_image_reader_height(), target);
+  }
+
+  // optional int32 model_frame_width = 5;
+  if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+    target =
+        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<5>(
+            stream, this_._internal_model_frame_width(), target);
+  }
+
+  // optional int32 model_frame_height = 6;
+  if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+    target =
+        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<6>(
+            stream, this_._internal_model_frame_height(), target);
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
@@ -779,7 +815,7 @@ PROTOBUF_NOINLINE void InitParam::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003fU)) {
     // repeated string coco_names = 1;
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       total_size +=
@@ -794,15 +830,25 @@ PROTOBUF_NOINLINE void InitParam::Clear() {
       total_size += 1 + ::google::protobuf::internal::WireFormatLite::StringSize(
                                       this_._internal_model_path());
     }
-    // optional int32 target_width = 3;
+    // optional int32 image_reader_width = 3;
     if (CheckHasBit(cached_has_bits, 0x00000004U)) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_target_width());
+          this_._internal_image_reader_width());
     }
-    // optional int32 target_height = 4;
+    // optional int32 image_reader_height = 4;
     if (CheckHasBit(cached_has_bits, 0x00000008U)) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
-          this_._internal_target_height());
+          this_._internal_image_reader_height());
+    }
+    // optional int32 model_frame_width = 5;
+    if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this_._internal_model_frame_width());
+    }
+    // optional int32 model_frame_height = 6;
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this_._internal_model_frame_height());
     }
   }
   return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -824,7 +870,7 @@ void InitParam::MergeImpl(::google::protobuf::MessageLite& to_msg,
   (void)cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003fU)) {
     if (CheckHasBitForRepeated(cached_has_bits, 0x00000001U)) {
       _this->_internal_mutable_coco_names()->InternalMergeFromWithArena(
           ::google::protobuf::MessageLite::internal_visibility(), arena,
@@ -834,10 +880,16 @@ void InitParam::MergeImpl(::google::protobuf::MessageLite& to_msg,
       _this->_internal_set_model_path(from._internal_model_path());
     }
     if (CheckHasBit(cached_has_bits, 0x00000004U)) {
-      _this->_impl_.target_width_ = from._impl_.target_width_;
+      _this->_impl_.image_reader_width_ = from._impl_.image_reader_width_;
     }
     if (CheckHasBit(cached_has_bits, 0x00000008U)) {
-      _this->_impl_.target_height_ = from._impl_.target_height_;
+      _this->_impl_.image_reader_height_ = from._impl_.image_reader_height_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      _this->_impl_.model_frame_width_ = from._impl_.model_frame_width_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+      _this->_impl_.model_frame_height_ = from._impl_.model_frame_height_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -862,11 +914,11 @@ void InitParam::InternalSwap(InitParam* PROTOBUF_RESTRICT PROTOBUF_NONNULL other
   _impl_.coco_names_.InternalSwap(&other->_impl_.coco_names_);
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.model_path_, &other->_impl_.model_path_, arena);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_height_)
-      + sizeof(InitParam::_impl_.target_height_)
-      - PROTOBUF_FIELD_OFFSET(InitParam, _impl_.target_width_)>(
-          reinterpret_cast<char*>(&_impl_.target_width_),
-          reinterpret_cast<char*>(&other->_impl_.target_width_));
+      PROTOBUF_FIELD_OFFSET(InitParam, _impl_.model_frame_height_)
+      + sizeof(InitParam::_impl_.model_frame_height_)
+      - PROTOBUF_FIELD_OFFSET(InitParam, _impl_.image_reader_width_)>(
+          reinterpret_cast<char*>(&_impl_.image_reader_width_),
+          reinterpret_cast<char*>(&other->_impl_.image_reader_width_));
 }
 
 ::google::protobuf::Metadata InitParam::GetMetadata() const {

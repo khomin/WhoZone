@@ -915,8 +915,10 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED InitParam final : public ::google::
   enum : int {
     kCocoNamesFieldNumber = 1,
     kModelPathFieldNumber = 2,
-    kTargetWidthFieldNumber = 3,
-    kTargetHeightFieldNumber = 4,
+    kImageReaderWidthFieldNumber = 3,
+    kImageReaderHeightFieldNumber = 4,
+    kModelFrameWidthFieldNumber = 5,
+    kModelFrameHeightFieldNumber = 6,
   };
   // repeated string coco_names = 1;
   [[nodiscard]] int coco_names_size()
@@ -960,35 +962,59 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED InitParam final : public ::google::
   ::std::string* PROTOBUF_NONNULL _internal_mutable_model_path();
 
   public:
-  // optional int32 target_width = 3;
-  [[nodiscard]] bool has_target_width()
+  // optional int32 image_reader_width = 3;
+  [[nodiscard]] bool has_image_reader_width()
       const;
-  void clear_target_width() ;
-  [[nodiscard]] ::int32_t target_width() const;
-  void set_target_width(::int32_t value);
+  void clear_image_reader_width() ;
+  [[nodiscard]] ::int32_t image_reader_width() const;
+  void set_image_reader_width(::int32_t value);
 
   private:
-  ::int32_t _internal_target_width() const;
-  void _internal_set_target_width(::int32_t value);
+  ::int32_t _internal_image_reader_width() const;
+  void _internal_set_image_reader_width(::int32_t value);
 
   public:
-  // optional int32 target_height = 4;
-  [[nodiscard]] bool has_target_height()
+  // optional int32 image_reader_height = 4;
+  [[nodiscard]] bool has_image_reader_height()
       const;
-  void clear_target_height() ;
-  [[nodiscard]] ::int32_t target_height() const;
-  void set_target_height(::int32_t value);
+  void clear_image_reader_height() ;
+  [[nodiscard]] ::int32_t image_reader_height() const;
+  void set_image_reader_height(::int32_t value);
 
   private:
-  ::int32_t _internal_target_height() const;
-  void _internal_set_target_height(::int32_t value);
+  ::int32_t _internal_image_reader_height() const;
+  void _internal_set_image_reader_height(::int32_t value);
+
+  public:
+  // optional int32 model_frame_width = 5;
+  [[nodiscard]] bool has_model_frame_width()
+      const;
+  void clear_model_frame_width() ;
+  [[nodiscard]] ::int32_t model_frame_width() const;
+  void set_model_frame_width(::int32_t value);
+
+  private:
+  ::int32_t _internal_model_frame_width() const;
+  void _internal_set_model_frame_width(::int32_t value);
+
+  public:
+  // optional int32 model_frame_height = 6;
+  [[nodiscard]] bool has_model_frame_height()
+      const;
+  void clear_model_frame_height() ;
+  [[nodiscard]] ::int32_t model_frame_height() const;
+  void set_model_frame_height(::int32_t value);
+
+  private:
+  ::int32_t _internal_model_frame_height() const;
+  void _internal_set_model_frame_height(::int32_t value);
 
   public:
   // @@protoc_insertion_point(class_scope:app.InitParam)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 4,
+  static const ::google::protobuf::internal::TcParseTable<3, 6,
                                    0, 0,
                                    2>
       _table_;
@@ -1014,8 +1040,10 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED InitParam final : public ::google::
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::RepeatedPtrField<::std::string> coco_names_;
     ::google::protobuf::internal::ArenaStringPtr model_path_;
-    ::int32_t target_width_;
-    ::int32_t target_height_;
+    ::int32_t image_reader_width_;
+    ::int32_t image_reader_height_;
+    ::int32_t model_frame_width_;
+    ::int32_t model_frame_height_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -2388,62 +2416,120 @@ inline void InitParam::set_allocated_model_path(::std::string* PROTOBUF_NULLABLE
   // @@protoc_insertion_point(field_set_allocated:app.InitParam.model_path)
 }
 
-// optional int32 target_width = 3;
-inline bool InitParam::has_target_width() const {
+// optional int32 image_reader_width = 3;
+inline bool InitParam::has_image_reader_width() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
 }
-inline void InitParam::clear_target_width() {
+inline void InitParam::clear_image_reader_width() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.target_width_ = 0;
+  _impl_.image_reader_width_ = 0;
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000004U);
 }
-inline ::int32_t InitParam::target_width() const {
-  // @@protoc_insertion_point(field_get:app.InitParam.target_width)
-  return _internal_target_width();
+inline ::int32_t InitParam::image_reader_width() const {
+  // @@protoc_insertion_point(field_get:app.InitParam.image_reader_width)
+  return _internal_image_reader_width();
 }
-inline void InitParam::set_target_width(::int32_t value) {
-  _internal_set_target_width(value);
+inline void InitParam::set_image_reader_width(::int32_t value) {
+  _internal_set_image_reader_width(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000004U);
-  // @@protoc_insertion_point(field_set:app.InitParam.target_width)
+  // @@protoc_insertion_point(field_set:app.InitParam.image_reader_width)
 }
-inline ::int32_t InitParam::_internal_target_width() const {
+inline ::int32_t InitParam::_internal_image_reader_width() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.target_width_;
+  return _impl_.image_reader_width_;
 }
-inline void InitParam::_internal_set_target_width(::int32_t value) {
+inline void InitParam::_internal_set_image_reader_width(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.target_width_ = value;
+  _impl_.image_reader_width_ = value;
 }
 
-// optional int32 target_height = 4;
-inline bool InitParam::has_target_height() const {
+// optional int32 image_reader_height = 4;
+inline bool InitParam::has_image_reader_height() const {
   bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
   return value;
 }
-inline void InitParam::clear_target_height() {
+inline void InitParam::clear_image_reader_height() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.target_height_ = 0;
+  _impl_.image_reader_height_ = 0;
   ClearHasBit(_impl_._has_bits_[0],
                   0x00000008U);
 }
-inline ::int32_t InitParam::target_height() const {
-  // @@protoc_insertion_point(field_get:app.InitParam.target_height)
-  return _internal_target_height();
+inline ::int32_t InitParam::image_reader_height() const {
+  // @@protoc_insertion_point(field_get:app.InitParam.image_reader_height)
+  return _internal_image_reader_height();
 }
-inline void InitParam::set_target_height(::int32_t value) {
-  _internal_set_target_height(value);
+inline void InitParam::set_image_reader_height(::int32_t value) {
+  _internal_set_image_reader_height(value);
   SetHasBit(_impl_._has_bits_[0], 0x00000008U);
-  // @@protoc_insertion_point(field_set:app.InitParam.target_height)
+  // @@protoc_insertion_point(field_set:app.InitParam.image_reader_height)
 }
-inline ::int32_t InitParam::_internal_target_height() const {
+inline ::int32_t InitParam::_internal_image_reader_height() const {
   ::google::protobuf::internal::TSanRead(&_impl_);
-  return _impl_.target_height_;
+  return _impl_.image_reader_height_;
 }
-inline void InitParam::_internal_set_target_height(::int32_t value) {
+inline void InitParam::_internal_set_image_reader_height(::int32_t value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
-  _impl_.target_height_ = value;
+  _impl_.image_reader_height_ = value;
+}
+
+// optional int32 model_frame_width = 5;
+inline bool InitParam::has_model_frame_width() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+  return value;
+}
+inline void InitParam::clear_model_frame_width() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.model_frame_width_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000010U);
+}
+inline ::int32_t InitParam::model_frame_width() const {
+  // @@protoc_insertion_point(field_get:app.InitParam.model_frame_width)
+  return _internal_model_frame_width();
+}
+inline void InitParam::set_model_frame_width(::int32_t value) {
+  _internal_set_model_frame_width(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
+  // @@protoc_insertion_point(field_set:app.InitParam.model_frame_width)
+}
+inline ::int32_t InitParam::_internal_model_frame_width() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.model_frame_width_;
+}
+inline void InitParam::_internal_set_model_frame_width(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.model_frame_width_ = value;
+}
+
+// optional int32 model_frame_height = 6;
+inline bool InitParam::has_model_frame_height() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000020U);
+  return value;
+}
+inline void InitParam::clear_model_frame_height() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.model_frame_height_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000020U);
+}
+inline ::int32_t InitParam::model_frame_height() const {
+  // @@protoc_insertion_point(field_get:app.InitParam.model_frame_height)
+  return _internal_model_frame_height();
+}
+inline void InitParam::set_model_frame_height(::int32_t value) {
+  _internal_set_model_frame_height(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000020U);
+  // @@protoc_insertion_point(field_set:app.InitParam.model_frame_height)
+}
+inline ::int32_t InitParam::_internal_model_frame_height() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.model_frame_height_;
+}
+inline void InitParam::_internal_set_model_frame_height(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.model_frame_height_ = value;
 }
 
 // -------------------------------------------------------------------

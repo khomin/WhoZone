@@ -5,8 +5,10 @@ package app;
 message InitParam {
     repeated string coco_names = 1;
     optional string model_path = 2;
-    optional int32 target_width = 3;
-    optional int32 target_height = 4;
+    optional int32 image_reader_width = 3;
+    optional int32 image_reader_height = 4;
+    optional int32 model_frame_width = 5;
+    optional int32 model_frame_height = 6;
 }
 
 message CameraInfo {

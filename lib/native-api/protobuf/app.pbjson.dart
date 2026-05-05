@@ -21,16 +21,38 @@ const InitParam$json = {
   '2': [
     {'1': 'coco_names', '3': 1, '4': 3, '5': 9, '10': 'cocoNames'},
     {'1': 'model_path', '3': 2, '4': 1, '5': 9, '10': 'modelPath'},
-    {'1': 'target_width', '3': 3, '4': 1, '5': 5, '10': 'targetWidth'},
-    {'1': 'target_height', '3': 4, '4': 1, '5': 5, '10': 'targetHeight'},
+    {
+      '1': 'image_reader_width',
+      '3': 3,
+      '4': 1,
+      '5': 5,
+      '10': 'imageReaderWidth'
+    },
+    {
+      '1': 'image_reader_height',
+      '3': 4,
+      '4': 1,
+      '5': 5,
+      '10': 'imageReaderHeight'
+    },
+    {'1': 'model_frame_width', '3': 5, '4': 1, '5': 5, '10': 'modelFrameWidth'},
+    {
+      '1': 'model_frame_height',
+      '3': 6,
+      '4': 1,
+      '5': 5,
+      '10': 'modelFrameHeight'
+    },
   ],
 };
 
 /// Descriptor for `InitParam`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List initParamDescriptor = $convert.base64Decode(
     'CglJbml0UGFyYW0SHQoKY29jb19uYW1lcxgBIAMoCVIJY29jb05hbWVzEh0KCm1vZGVsX3BhdG'
-    'gYAiABKAlSCW1vZGVsUGF0aBIhCgx0YXJnZXRfd2lkdGgYAyABKAVSC3RhcmdldFdpZHRoEiMK'
-    'DXRhcmdldF9oZWlnaHQYBCABKAVSDHRhcmdldEhlaWdodA==');
+    'gYAiABKAlSCW1vZGVsUGF0aBIsChJpbWFnZV9yZWFkZXJfd2lkdGgYAyABKAVSEGltYWdlUmVh'
+    'ZGVyV2lkdGgSLgoTaW1hZ2VfcmVhZGVyX2hlaWdodBgEIAEoBVIRaW1hZ2VSZWFkZXJIZWlnaH'
+    'QSKgoRbW9kZWxfZnJhbWVfd2lkdGgYBSABKAVSD21vZGVsRnJhbWVXaWR0aBIsChJtb2RlbF9m'
+    'cmFtZV9oZWlnaHQYBiABKAVSEG1vZGVsRnJhbWVIZWlnaHQ=');
 
 @$core.Deprecated('Use cameraInfoDescriptor instead')
 const CameraInfo$json = {

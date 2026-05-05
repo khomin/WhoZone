@@ -72,8 +72,8 @@ private:
     std::vector<cv::Scalar> _colors;
     std::vector<Tracker> _trackers;
     std::optional<Detection> _prev_detection;
-    int _target_width = 0;
-    int _target_height = 0;
+    float _model_width = 0;
+    float _model_height = 0;
 };
 
 #endif // DETECTOR_H
