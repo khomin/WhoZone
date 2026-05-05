@@ -5,20 +5,15 @@ class DetectionBox {
   final int classId;
   final String className;
   final double confidence;
-  final Rect normalizedRect; // 0.0 to 1.0 coordinates
-  // final int frameCount;
-  // final int timestamp;
+  final Rect normalizedRect;
 
   DetectionBox({
     required this.classId,
     required this.className,
     required this.confidence,
     required this.normalizedRect,
-    // required this.frameCount,
-    // required this.timestamp,
   });
 
-  // Create from protobuf message
   factory DetectionBox.fromProto(
     app.DetectionItem proto,
     List<String> classNames,
@@ -28,13 +23,11 @@ class DetectionBox {
       className: classNames[proto.classId],
       confidence: proto.confidence,
       normalizedRect: Rect.fromLTWH(
-        proto.detection.x.toDouble(), // Already normalized (0.0-1.0)
+        proto.detection.x.toDouble(),
         proto.detection.y.toDouble(),
         proto.detection.width.toDouble(),
         proto.detection.height.toDouble(),
       ),
-      // frameCount: proto.frameCount,
-      // timestamp: proto.timestamp,
     );
   }
 

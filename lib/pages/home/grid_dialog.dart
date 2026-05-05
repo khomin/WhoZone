@@ -5,7 +5,7 @@ import 'package:flutter_demo/pages/home/view_item2.dart';
 import 'package:flutter_demo/pages/home/history_view_dialog.dart';
 import 'package:flutter_demo/pages/home/grid_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
@@ -66,10 +66,10 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
     _selectRep = SelectionRep();
 
     Timer(const Duration(milliseconds: 1000), () async {
-      var history = await getIt<CameraRep>().getHistory();
+      var history = await getIt<HistoryRep>().getHistory();
       if (!mounted || history.firstOrNull == null) return;
-      var v = history.firstWhereOrNull((element) {
-        return element.folderName == widget.history.folderName;
+      var v = history.firstWhereOrNull((e) {
+        return e.folderName == widget.history.folderName;
       });
       if (v != null && v.items.isNotEmpty) {
         _model.setHistory(v.items);
@@ -79,40 +79,35 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
       }
     });
 
-    Future.microtask(() {
-      _dispStream.add(getIt<CameraRep>().onHistory.listen((history) {
-        var v = history.firstWhereOrNull((element) {
-          return element.folderName == widget.history.folderName;
-        });
-        if (v != null && v.items.isNotEmpty) {
-          _model.setHistory(v.items);
-          _selectRep.history = v.items;
-        }
-      }));
+    _dispStream.add(getIt<HistoryRep>().onHistory.listen((history) {
+      var v = history.firstWhereOrNull((element) {
+        return element.folderName == widget.history.folderName;
+      });
+      if (v != null && v.items.isNotEmpty) {
+        _model.setHistory(v.items);
+        _selectRep.history = v.items;
+      }
+    }));
 
-      _dispStream.add(_selectRep.selectedStream.listen((value) {
-        if (value == 0) {
-          _animationController.reverse().orCancel;
-        } else {
-          if (!_selectionActive) {
-            if (_animationController.isForwardOrCompleted) {
-              _animationController.reverse().orCancel;
-            } else {
-              _animationController.forward().orCancel;
-            }
+    _dispStream.add(_selectRep.selectedStream.listen((value) {
+      if (value == 0) {
+        _animationController.reverse().orCancel;
+      } else {
+        if (!_selectionActive) {
+          if (_animationController.isForwardOrCompleted) {
+            _animationController.reverse().orCancel;
+          } else {
+            _animationController.forward().orCancel;
           }
         }
-        _selectionActive = value > 0;
-      }));
-    });
+      }
+      _selectionActive = value > 0;
+    }));
 
     _animationController = AnimationController(
-        duration: const Duration(milliseconds: 200), vsync: this);
-    _animationController.addStatusListener((status) {
-      //   if (status == AnimationStatus.completed) {
-      //     _controller.reverse();
-      //   }
-    });
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
 
     _scaleAnimation = Tween<double>(
       begin: 0.0,
@@ -190,7 +185,6 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
 
   Widget _header() {
     return SizedBox(
-        // color: Colors.orange,
         height: kToolbarHeight,
         child: StreamBuilder(
             stream: _selectRep.selectedStream,
@@ -244,7 +238,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
                                     var v = _selectRep.getSelected(
                                         type: SearchType.media,
                                         resetSelection: false);
-                                    await getIt<CameraRep>().deleteHistory(v);
+                                    await getIt<HistoryRep>().deleteHistory(v);
                                   }),
                               const SizedBox(width: 15),
                               RoundButton(
@@ -264,7 +258,7 @@ class HistoryBoxDialogState extends State<HistoryGridBox>
                                     var v = _selectRep.getSelected(
                                         type: SearchType.media,
                                         resetSelection: true);
-                                    getIt<CameraRep>().share(v);
+                                    getIt<HistoryRep>().share(v);
                                   })
                             ])))
                   ]))

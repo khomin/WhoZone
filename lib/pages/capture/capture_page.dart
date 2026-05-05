@@ -29,15 +29,12 @@ class CapturePageState extends State<CapturePage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final _dispStream = DisposableStream();
   late CaptureModel _captureModel;
-  AppLifecycleListener? _listener;
   final _onStopRecordStream = PublishSubject<bool>();
   Timer? _updateLayoutTm;
-  // int? _textureId;
-
+  AppLifecycleListener? _listener;
   late final Animation<double> _slideHeight;
   late AnimationController _ctrSlideTop;
   late final Animation<double> _slideOpacity;
-  var _permissions = false;
 
   final tag = 'capturePage';
 
@@ -45,30 +42,17 @@ class CapturePageState extends State<CapturePage>
   void initState() {
     super.initState();
 
-    // request permissions
-    // get camera
-    // decide which camera to use
-    // create texture
-    // open camera with texture
-
     Future.microtask(() async {
       var res = await _captureModel.start();
       if (!res) {
         Common.showTextSnackBar(
-            context: context, text: 'Could not get camera permissions!');
+          context: context,
+          text: 'Could not get camera permissions!',
+        );
       }
     });
-    // getIt<CameraRep>().onCapture = (path) {
-    //   _updateLastFrame(path: path);
-    // };
-    // getIt<CameraRep>().onFirstFrame = () async {
-    //   logDebug('BTEST_onFirstFrame');
-    //   await Future.delayed(const Duration(milliseconds: 100));
-    //   _model.setFlipWait(false);
-    // };
 
     _listener = AppLifecycleListener(onStateChange: (value) {
-      // logDebug('BTEST_STATE=$value');
       switch (value) {
         case AppLifecycleState.inactive:
         case AppLifecycleState.hidden:
@@ -77,7 +61,7 @@ class CapturePageState extends State<CapturePage>
           _captureModel.stop();
           break;
         case AppLifecycleState.resumed:
-          // _start();
+          _captureModel.start();
           break;
       }
     });
@@ -101,7 +85,6 @@ class CapturePageState extends State<CapturePage>
 
   @override
   void dispose() {
-    super.dispose();
     _listener?.dispose();
     _dispStream.dispose();
     _onStopRecordStream.close();
@@ -109,6 +92,7 @@ class CapturePageState extends State<CapturePage>
     getIt<CameraRep>().onCapture = null;
     getIt<CameraRep>().onFirstFrame = null;
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -185,7 +169,6 @@ class CapturePageState extends State<CapturePage>
                               _handleOnSlide();
                               await getIt<CameraRep>().setCaptureActive(false);
                               _onStopRecordStream.add(true);
-                              // MyRep().stopCamera();
                             }),
                         const SizedBox(width: 15),
                         RoundButton(
@@ -219,46 +202,7 @@ class CapturePageState extends State<CapturePage>
                   child: Text('Capture',
                       style: Theme.of(context).colorScheme.homeCardH1Style),
                 ),
-                // HoverClick(
-                //     onPressedL: (p0) async {
-                //       _handleOnSlide();
-                //     },
-                //     child: SizedBox(
-                //         width: 130,
-                //         height: 50,
-                //         child: RepaintBoundary(
-                //             child:
-                //                 Stack(alignment: Alignment.center, children: [
-                //           StreamBuilder(
-                //               stream: getIt<CameraRep>().onCaptureTime,
-                //               initialData:
-                //                   getIt<CameraRep>().onCaptureTime.valueOrNull,
-                //               builder: (context, snapshot) {
-                //                 var duration = snapshot.data;
-                //                 return AnimatedContainer(
-                //                     duration: Duration.zero,
-                //                     width: duration == null ? 10 : 130,
-                //                     height: duration == null ? 10 : 30,
-                //                     child: RoundBox(
-                //                         text: duration?.duration.format() ?? '',
-                //                         color: const Color.fromARGB(
-                //                                 255, 211, 19, 5)
-                //                             .withValues(alpha: 0.8),
-                //                         borderRadius: 40));
-                //               })
-                //         ])))),
                 const Spacer(),
-                RoundButton(
-                    color: Colors.transparent,
-                    iconColor: Theme.of(context)
-                        .colorScheme
-                        .colorTextAccent
-                        .withValues(alpha: 0.8),
-                    size: 70,
-                    iconData: Icons.bug_report,
-                    onPressed: (p0) {
-                      getIt<CameraRep>().saveOneFrame();
-                    }),
                 RoundButton(
                     color: Colors.transparent,
                     iconColor: Theme.of(context)
@@ -278,49 +222,30 @@ class CapturePageState extends State<CapturePage>
 
   // var collapse = context.select<AppModel, bool>((v) => v.collapse);
   Widget _camera() {
-    // return Builder(builder: (context) {
-    //   return Container(
-    //       decoration: const BoxDecoration(
-    //           color: Colors.black,
-    //           borderRadius: BorderRadius.only(
-    //               topLeft: Radius.circular(20), topRight: Radius.circular(20))),
-    //       height: double.infinity,
-    //       child: Stack(alignment: Alignment.center, children: [
-    //         Positioned(
-    //             top: 0,
-    //             left: 0,
-    //             right: 0,
-    //             bottom: 0,
-    //             child: LayoutBuilder(builder: (context, constraints) {
     return Builder(builder: (context) {
-      // var size = MediaQuery.sizeOf(context);
       var camera = context.select<CaptureModel, app.Camera?>((v) => v.camera);
       var layout = context.select<CaptureModel, SurfaceLayout>((v) => v.layout);
+      var targetSize = getIt<CameraRep>().targetSize;
       var textureId = context.select<CaptureModel, int?>((v) => v.textureId);
       logDebug(
           'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
-      if (camera == null) {
+      if (camera == null || targetSize == null) {
         return const SizedBox();
       }
-      double sensorWidth = camera.size.width.toDouble();
-      double sensorHeight = camera.size.height.toDouble();
-
+      var sensorWidth = camera.size.width.toDouble();
+      var sensorHeight = camera.size.height.toDouble();
       return Center(
         child: AspectRatio(
-          aspectRatio: 480 / 640, // 3:4 The AI World (Portrait)
+          aspectRatio: targetSize.height / targetSize.width,
           child: Stack(
             children: [
-              // 1. VIDEO LAYER: Correct the stretch
               Positioned.fill(
                 child: ClipRect(
                   child: FittedBox(
-                    // Scale the rotated SizedBox to cover the 3:4 AspectRatio
                     fit: BoxFit.cover,
                     child: RotatedBox(
-                      quarterTurns:
-                          3, // Correct orientation for frontal sensor rotation
+                      quarterTurns: layout.rotation,
                       child: SizedBox(
-                        // 1. Define the RAW shape of the sensor stream (Landscape)
                         width: sensorWidth,
                         height: sensorHeight,
                         child: Texture(textureId: textureId!),
@@ -329,46 +254,43 @@ class CapturePageState extends State<CapturePage>
                   ),
                 ),
               ),
-
-              // 2. OVERLAY LAYER
+              // overlay
               Positioned.fill(
                 child: CameraPreviewWithOverlay(
-                  // Since the Painter's 'size' is now exactly 3:4,
-                  // the boxes will remain perfect and aligned.
-                  boxes: _captureModel.onDetection.stream,
+                  boxes: getIt<CameraRep>().onDetection.stream,
                 ),
               ),
             ],
           ),
         ),
       );
-      return Center(
-        child: AspectRatio(
-          aspectRatio: 480 / 640,
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: RotatedBox(
-                  quarterTurns: 3,
-                  child: FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: 1,
-                      height: 1,
-                      child: Texture(textureId: textureId!),
-                    ),
-                  ),
-                ),
-              ),
-              Positioned.fill(
-                child: CameraPreviewWithOverlay(
-                  boxes: _captureModel.onDetection.stream,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
+      // return Center(
+      //   child: AspectRatio(
+      //     aspectRatio: 480 / 640,
+      //     child: Stack(
+      //       children: [
+      //         Positioned.fill(
+      //           child: RotatedBox(
+      //             quarterTurns: 3,
+      //             child: FittedBox(
+      //               fit: BoxFit.cover,
+      //               child: SizedBox(
+      //                 width: 1,
+      //                 height: 1,
+      //                 child: Texture(textureId: textureId!),
+      //               ),
+      //             ),
+      //           ),
+      //         ),
+      //         Positioned.fill(
+      //           child: CameraPreviewWithOverlay(
+      //             boxes: getIt<CameraRep>().onDetection.stream,
+      //           ),
+      //         ),
+      //       ],
+      //     ),
+      //   ),
+      // );
       // return ClipRRect(
       //     borderRadius: BorderRadius.circular(20.0),
       //     child: RotatedBox(
@@ -390,34 +312,35 @@ class CapturePageState extends State<CapturePage>
       //                             )
       //                           : const SizedBox(),
       //                     ])))));
+      // })
+      // ]));
+      // })),
+      //
+      // overlay
+      // Positioned.fill(
+      //     child: CameraPreviewWithOverlay(
+      //         boxes: _captureModel.onDetection.stream)),
+      // //
+      // //
+      // // progress
+      // Positioned.fill(
+      //     child: Stack(alignment: Alignment.center, children: [
+      //   RepaintBoundary(child: Builder(builder: (context) {
+      //     var wait = context
+      //         .select<CaptureModel, bool>((v) => v.orientationpWait);
+      //     if (wait) {
+      //       return const SizedBox(
+      //           width: 60,
+      //           height: 60,
+      //           child: CircularProgressIndicator());
+      //     }
+      //     return const SizedBox();
+      //   }))
+      // ])),
+      // // buttons
+      // Positioned(left: 0, bottom: 0, right: 0, child: _buttons())
+      // ]));
     });
-    // })),
-    //
-    // overlay
-    // Positioned.fill(
-    //     child: CameraPreviewWithOverlay(
-    //         boxes: _captureModel.onDetection.stream)),
-    // //
-    // //
-    // // progress
-    // Positioned.fill(
-    //     child: Stack(alignment: Alignment.center, children: [
-    //   RepaintBoundary(child: Builder(builder: (context) {
-    //     var wait = context
-    //         .select<CaptureModel, bool>((v) => v.orientationpWait);
-    //     if (wait) {
-    //       return const SizedBox(
-    //           width: 60,
-    //           height: 60,
-    //           child: CircularProgressIndicator());
-    //     }
-    //     return const SizedBox();
-    //   }))
-    // ])),
-    // // buttons
-    // Positioned(left: 0, bottom: 0, right: 0, child: _buttons())
-    // ]));
-    // });
   }
 
   Widget _buttons() {

@@ -4,6 +4,7 @@ import 'package:flutter_demo/app.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:get_it/get_it.dart';
@@ -13,6 +14,7 @@ final getIt = GetIt.instance;
 
 Future<void> initDependencies() async {
   getIt.registerLazySingleton<CameraRep>(() => CameraRep());
+  getIt.registerLazySingleton<HistoryRep>(() => HistoryRep());
 }
 
 void main() async {

@@ -21,7 +21,8 @@ struct Tracker {
 
 class Detector {
 public:
-    Detector(std::vector<std::string> class_names, std::string module_path);
+    Detector(std::vector<std::string> class_names, std::string module_path,
+             int target_width, int target_height);
     ~Detector();
 
     int start();
@@ -40,14 +41,14 @@ private:
     void updatePrediction(FrameItem& frame);
     void processNeural(FrameItem& frame);
 
-    void process_predictions_and_update_trackers(cv::Mat& frame, cv::Mat& outs, const std::vector<cv::Scalar>& colors,
-                                                 int64& time_start,
-                                                 std::vector<cv::Rect>& detections,
-                                                 std::vector<int>& det_class_ids,
-                                                 std::vector<float>& det_confidences,
-                                                 std::vector<Tracker>& trackers);
+    void processPredictionsAndUpdateTrackers(cv::Mat& frame, cv::Mat& outs, const std::vector<cv::Scalar>& colors,
+                                             int64& time_start,
+                                             std::vector<cv::Rect>& detections,
+                                             std::vector<int>& det_class_ids,
+                                             std::vector<float>& det_confidences,
+                                             std::vector<Tracker>& trackers);
 
-    void draw_trackers(cv::Mat& frame, const std::vector<cv::Scalar>& colors, int64& time_start, std::vector<Tracker>& trackers);
+    void drawTrackers(cv::Mat& frame, const std::vector<cv::Scalar>& colors, int64& time_start, std::vector<Tracker>& trackers);
 
     // utility
     float iou(const cv::Rect& a, const cv::Rect& b);
@@ -71,6 +72,8 @@ private:
     std::vector<cv::Scalar> _colors;
     std::vector<Tracker> _trackers;
     std::optional<Detection> _prev_detection;
+    int _target_width = 0;
+    int _target_height = 0;
 };
 
 #endif // DETECTOR_H

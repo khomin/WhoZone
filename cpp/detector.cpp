@@ -12,11 +12,8 @@
 #include "log.h"
 
 // --- Configuration Constants ---
-const float INPUT_WIDTH = 640.0;
-const float INPUT_HEIGHT = 640.0;
 const float CONF_THRESHOLD = 0.50; // Minimum confidence to keep a box
 const float NMS_THRESHOLD = 0.50;  // IoU threshold for Non-Maximum Suppression
-const int INFERENCE_SKIP = 4;
 const int MAX_MISSED_FRAMES = 70;
 
 // --- Tracking Constants ---
@@ -24,10 +21,13 @@ const float MATCH_IoU_THRESHOLD = 0.3f;
 const int MAX_MISSED = 10; // remove tracker after this many skipped frames
 
 Detector::Detector(std::vector<std::string> class_names,
-                   std::string module_path
+                   std::string module_path,
+                   int target_width, int target_height
 ) :
     _class_names(class_names),
-    _module_path(module_path)
+    _module_path(module_path),
+    _target_width(target_width),
+    _target_height(target_height)
 {
     _colors.push_back(cv::Scalar(0, 255, 0));
     _colors.push_back(cv::Scalar(0, 255, 255));
@@ -164,12 +164,16 @@ void Detector::processNeural(FrameItem& frameItem) {
     int64 time_start = cv::getTickCount();
     // --- Pre-processing (Image to Blob) ---
     cv::Mat blob;
-    cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(INPUT_WIDTH, INPUT_HEIGHT), cv::Scalar(), true, false);
+    cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(_target_width, _target_height), cv::Scalar(), true, false);
     _net.setInput(blob);
 
     // --- Inference (Forward Pass) ---
     auto now_start = std::chrono::steady_clock::now();
-    _net.forward(outs, _net.getUnconnectedOutLayersNames());
+    try {
+        _net.forward(outs, _net.getUnconnectedOutLayersNames());
+    } catch (const cv::Exception& e) {
+        std::cerr << "OpenCV Forward Error: " << e.what() << std::endl;
+    }
     auto now_end = std::chrono::steady_clock::now();
     auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
     auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();
@@ -201,8 +205,8 @@ void Detector::processNeural(FrameItem& frameItem) {
             float oh = row.at<float>(3);
 
             // Standard YOLO scaling
-            float x_factor = frame.cols / 640.0f;
-            float y_factor = frame.rows / 640.0f;
+            float x_factor = frame.cols / _target_width;
+            float y_factor = frame.rows / _target_height;
 
             int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
             int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
@@ -232,152 +236,11 @@ void Detector::processNeural(FrameItem& frameItem) {
     det_confidences.swap(nms_confidences);
 
     // --- Update trackers with detections ---
-    process_predictions_and_update_trackers(frame, outs[0], _colors, time_start,
-                                            detections, det_class_ids, det_confidences,
-                                            _trackers);
+    processPredictionsAndUpdateTrackers(frame, outs[0], _colors, time_start,
+                                        detections, det_class_ids, det_confidences,
+                                        _trackers);
     outs.clear();
 }
-
-//void Detector::processFrame(FrameItem& frameItem) {
-//    int64 time_start = cv::getTickCount();
-//
-//    // storage for detections this frame (only filled on inference frames)
-//    std::vector<cv::Rect> detections;
-//    std::vector<int> det_class_ids;
-//    std::vector<float> det_confidences;
-//
-//    cv::Mat frame = frameItem.frame;
-//
-//    if (_frame_count % INFERENCE_SKIP == 0) {
-//        std::vector<cv::Mat> outs;
-//
-//        // --- Pre-processing (Image to Blob) ---
-//        cv::Mat blob;
-//        cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(INPUT_WIDTH, INPUT_HEIGHT), cv::Scalar(), true, false);
-//        _net.setInput(blob);
-//
-//        // --- Inference (Forward Pass) ---
-//        auto now_start = std::chrono::steady_clock::now();
-//        _net.forward(outs, _net.getUnconnectedOutLayersNames());
-//        auto now_end = std::chrono::steady_clock::now();
-//        auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
-//        auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();
-//        LOGD("DETECTION-_net.forward: time lapsed: %dms", end_ms - start_ms);
-//
-//        // outs[0] is [1, 84, 8400]
-//        cv::Mat output = outs[0];
-//        if (output.dims == 3) {
-//            // Reshape to [84, 8400]
-//            output = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>());
-//        }
-//        // Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
-//        cv::Mat data = output.t();
-//
-//        for (int i = 0; i < data.rows; i++) {
-//            // In YOLO11, there is no separate "Objectness" score.
-//            // You find the max class score directly.
-//            cv::Mat row = data.row(i);
-//            cv::Mat scores = row.colRange(4, 84); // 80 class scores
-//
-//            cv::Point class_id_point;
-//            double max_score;
-//            minMaxLoc(scores, 0, &max_score, 0, &class_id_point);
-//
-//            if (max_score > CONF_THRESHOLD) {
-//                float cx = row.at<float>(0);
-//                float cy = row.at<float>(1);
-//                float ow = row.at<float>(2);
-//                float oh = row.at<float>(3);
-//
-//                // Standard YOLO scaling
-//                float x_factor = frame.cols / 640.0f;
-//                float y_factor = frame.rows / 640.0f;
-//
-//                int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
-//                int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
-//                int width = static_cast<int>(ow * x_factor);
-//                int height = static_cast<int>(oh * y_factor);
-//
-//                detections.push_back(cv::Rect(x, y, width, height));
-//                det_class_ids.push_back(class_id_point.x);
-//                det_confidences.push_back(static_cast<float>(max_score));
-//            }
-//        }
-//        // NMS
-//        std::vector<int> indexes;
-//        cv::dnn::NMSBoxes(detections, det_confidences, 0.25f, 0.50f, indexes);
-//
-//        // keep only NMSed lists
-//        std::vector<cv::Rect> nms_boxes;
-//        std::vector<int> nms_class_ids;
-//        std::vector<float> nms_confidences;
-//        for (int idx : indexes) {
-//            nms_boxes.push_back(detections[idx]);
-//            nms_class_ids.push_back(det_class_ids[idx]);
-//            nms_confidences.push_back(det_confidences[idx]);
-//        }
-//        detections.swap(nms_boxes);
-//        det_class_ids.swap(nms_class_ids);
-//        det_confidences.swap(nms_confidences);
-//
-//        // --- Update trackers with detections ---
-//        process_predictions_and_update_trackers(frame, outs[0], _colors, time_start,
-//                                                detections, det_class_ids, det_confidences,
-//                                                _trackers);
-//        outs.clear();
-//        send_result(detections, det_class_ids, det_confidences, frame);
-//    } else {
-//        // --- Predict-only frames (Kalman smoothing) ---
-//        std::vector<cv::Rect> tracker_boxes;
-//        std::vector<int> tracker_class_ids;
-//        std::vector<float> tracker_confidences;
-//
-//        for (auto &tr : _trackers) {
-//            // Predict next state
-//            cv::Mat pred = tr.kf.predict();
-//
-//            float x = pred.at<float>(0);
-//            float y = pred.at<float>(1);
-//            float w = pred.at<float>(2);
-//            float h = pred.at<float>(3);
-//
-//            cv::Rect box;
-//            box.x = static_cast<int>(x);
-//            box.y = static_cast<int>(y);
-//            box.width = std::max(1, static_cast<int>(w));
-//            box.height = std::max(1, static_cast<int>(h));
-//
-//            // Optional: clamp to frame
-//            box &= cv::Rect(0, 0, frame.cols, frame.rows);
-//
-//            // Track aging
-//            tr.missed_frames++;
-//
-//            // kill weak + stale trackers early
-//            if (tr.last_confidence < 0.5f && tr.missed_frames > 3)
-//                tr.missed_frames = MAX_MISSED_FRAMES + 1;
-//
-//            // Kill stale trackers
-//            if (tr.missed_frames > MAX_MISSED_FRAMES)
-//                continue;
-//
-//            tracker_boxes.push_back(box);
-//            tracker_class_ids.push_back(tr.class_id);
-//            tracker_confidences.push_back(tr.last_confidence);
-//        }
-//
-//        // Remove dead trackers
-//        _trackers.erase(
-//                std::remove_if(_trackers.begin(), _trackers.end(),
-//                               [](const Tracker& t) {
-//                                   return t.missed_frames > MAX_MISSED_FRAMES;
-//                               }),
-//                _trackers.end()
-//        );
-//        // Send predicted (smoothed) results
-//        send_result(tracker_boxes, tracker_class_ids, tracker_confidences, frame);
-//    }
-//}
 
 void Detector::send_result(std::vector<cv::Rect>& detections,
                            std::vector<int>& det_class_ids,
@@ -495,13 +358,13 @@ cv::KalmanFilter Detector::create_kalman_for_rect(const cv::Rect& r) {
     return kf;
 }
 
-void Detector::process_predictions_and_update_trackers(cv::Mat& frame, cv::Mat& outs,
-                                             const std::vector<cv::Scalar>& colors,
-                                             int64& time_start,
-                                             std::vector<cv::Rect>& detections,
-                                             std::vector<int>& det_class_ids,
-                                             std::vector<float>& det_confidences,
-                                             std::vector<Tracker>& trackers) {
+void Detector::processPredictionsAndUpdateTrackers(cv::Mat& frame, cv::Mat& outs,
+                                                   const std::vector<cv::Scalar>& colors,
+                                                   int64& time_start,
+                                                   std::vector<cv::Rect>& detections,
+                                                   std::vector<int>& det_class_ids,
+                                                   std::vector<float>& det_confidences,
+                                                   std::vector<Tracker>& trackers) {
     // For each tracker predict first (so we can match predictions to detections)
     std::vector<cv::Rect> predicted_boxes;
     predicted_boxes.reserve(trackers.size());
@@ -582,13 +445,13 @@ void Detector::process_predictions_and_update_trackers(cv::Mat& frame, cv::Mat& 
 
     // Draw trackers (using updated states)
     if(!_save_one_frame_to.empty()) {
-        draw_trackers(frame, colors, time_start, trackers);
+        drawTrackers(frame, colors, time_start, trackers);
         cv::imwrite(_save_one_frame_to, frame);
         _save_one_frame_to.clear();
     }
 }
 
-void Detector::draw_trackers(cv::Mat& frame,
+void Detector::drawTrackers(cv::Mat& frame,
                              const std::vector<cv::Scalar>& colors,
                              int64& time_start,
                              std::vector<Tracker>& trackers) {

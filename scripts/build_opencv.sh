@@ -80,16 +80,20 @@ case $PLATFORM_ARG in
         echo "USING-CMAKE_SYSROOT: ${CMAKE_SYSROOT}"
         echo "USING-TOOLCHAIN: ${TOOLCHAIN}"
         build "android" "arm64-v8a" "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN
+            -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_ABI=arm64-v8a \
             -DANDROID_PLATFORM=android-26 \
             -DCMAKE_ANDROID_NDK=${NDK} \
             -DBUILD_SAMPLES=OFF \
-            -DCMAKE_BUILD_TYPE=Release \
             -DBUILD_SHARED_LIBS=ON \
             -DBUILD_opencv_java=ON \
             -DBUILD_opencv_dnn=ON \
             -DBUILD_opencv_world=OFF \
             -DBUILD_ANDROID_PROJECTS=OFF \
+            -DWITH_OPENCL=ON \
+            -DENABLE_NEON=OFF \
+            -DCPU_BASELINE=DETECT \
+            -DCPU_DISPATCH=NEON,FP16,DOTPROD
             -DBUILD_opencv_dnn=ON"
         ;;
     *)

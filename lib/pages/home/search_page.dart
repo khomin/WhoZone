@@ -6,7 +6,7 @@ import 'package:flutter_demo/pages/home/grid_dialog.dart';
 import 'package:flutter_demo/pages/home/view_item1.dart';
 import 'package:flutter_demo/pages/home/search_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
 
@@ -204,7 +204,8 @@ class SearchPageState extends State<SearchPage> with TickerProviderStateMixin {
                                 .then((value) {});
                           },
                           onDelete: () async {
-                            await getIt<CameraRep>().deleteHistoryRoot([model]);
+                            await getIt<HistoryRep>()
+                                .deleteHistoryRoot([model]);
                           });
                     })
               ]));

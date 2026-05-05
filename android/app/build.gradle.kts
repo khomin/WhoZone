@@ -38,7 +38,8 @@ android {
     sourceSets {
         getByName("main") {
             java {
-                srcDirs("src/main/kotlin", "build/generated/source/proto/main/java")
+                srcDir("src/main/kotlin")
+                srcDir("build/generated/source/proto/main/java")
             }
             proto {
                 srcDir("$projectDir/../../protobuf")

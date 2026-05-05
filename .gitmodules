@@ -7,3 +7,6 @@
 [submodule "cpp/submodule/ios-cmake"]
 	path = cpp/submodule/ios-cmake
 	url = https://github.com/leetal/ios-cmake.git
+[submodule "resources/ultralytics"]
+	path = resources/ultralytics
+	url = https://github.com/ultralytics/yolov5

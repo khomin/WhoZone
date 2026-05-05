@@ -9,7 +9,7 @@ class LogPrinter extends LoggyPrinter {
     this.showColors = true,
   }) {
     () async {
-      var path = "${FileUtils.homeDir}/log/";
+      var path = "${Utils.homeDir}/log/";
       String time = DateFormat('yyyy-MM-dd kk-mm--sss').format(DateTime.now());
       path = '${path}ft-$time.txt';
       // create

@@ -34,11 +34,16 @@ class MainActivity : FlutterFragmentActivity() {
         val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         val textureRep = TextureRepository(registry) {}
 
-//        WhoZoneRep.initEngine()
-
         channel.setMethodCallHandler { call, result ->
             val args = call.arguments as HashMap<*, *>
             when (call.method) {
+                "get_model_target_size" -> {
+                    val map = mutableMapOf<String, Int>()
+                    map["width"] = WhoZoneRep.TARGET_WIDTH
+                    map["height"] = WhoZoneRep.TARGET_HEIGHT
+                    result.success(map)
+                    return@setMethodCallHandler
+                }
                 "get_cameras" -> {
                     val map = mutableMapOf<String, ByteArray>()
                     val cameras = cameraSession.getCameras()

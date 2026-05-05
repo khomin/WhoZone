@@ -13,8 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 
 class AlertPage extends StatefulWidget {
-  const AlertPage({this.arg, super.key});
-  final HistoryRecord? arg;
+  const AlertPage({super.key});
 
   @override
   State<AlertPage> createState() => AlertPageState();
@@ -22,7 +21,6 @@ class AlertPage extends StatefulWidget {
 
 class AlertPageState extends State<AlertPage> {
   late AlertModel _model;
-
   final tag = 'aletPage';
 
   @override

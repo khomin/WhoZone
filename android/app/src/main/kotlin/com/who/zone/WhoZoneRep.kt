@@ -8,6 +8,11 @@ import com.elvishew.xlog.XLog
 import java.io.File
 
 object WhoZoneRep {
+//    const val TARGET_WIDTH = 320
+//    const val TARGET_HEIGHT = 320
+    const val TARGET_WIDTH = 640
+    const val TARGET_HEIGHT = 480
+
     fun initEngine(context: Context) {
         try {
             System.loadLibrary("opencv_core")
@@ -30,8 +35,8 @@ object WhoZoneRep {
             if(modelPath.isNotEmpty()) {
                 setModelPath(modelPath)
             }
-            targetWidth = 640
-            targetHeight = 480
+            this.targetWidth = TARGET_WIDTH
+            this.targetHeight = TARGET_HEIGHT
         }.build().toByteArray()
         init(propertyArray, propertyArray.size)
     }
@@ -56,7 +61,6 @@ object WhoZoneRep {
 
     private external fun init(toByteArray: ByteArray, len: Int)
     external fun nativeInitImageReader(): Surface
-    external fun nativeSetOutputWindow(surface: Surface)
     external fun setCameraSensorRotation(rotation: Int)
     external fun nativeSaveOneFrame(path: String)
 }

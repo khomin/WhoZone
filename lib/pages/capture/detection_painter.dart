@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/pages/capture/detection_box.dart';
 
@@ -18,7 +17,6 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
   late final AnimationController _controller;
   List<DetectionBox> _lastBoxes = [];
   List<DetectionBox> _currentBoxes = [];
-  List<DetectionBox> _displayBoxes = [];
 
   @override
   void initState() {
@@ -27,8 +25,6 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
       vsync: this,
       duration: const Duration(milliseconds: 50),
     );
-    // Update _displayBoxes on every animation tick, but without calling setState
-    // because AnimatedBuilder will rebuild automatically.
   }
 
   @override
@@ -60,8 +56,6 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
         className: toBox.className,
         confidence: toBox.confidence,
         normalizedRect: interpRect,
-        // frameCount: toBox.frameCount,
-        // timestamp: toBox.timestamp,
       ));
     }
     return result;
@@ -74,19 +68,15 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           final newBoxes = snapshot.data!;
-          // Update references when new data arrives
           _lastBoxes = _currentBoxes;
           _currentBoxes = newBoxes;
-          // Restart animation (this does NOT cause setState)
           _controller.stop();
           _controller.value = 0.0;
           _controller.forward();
         }
-
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            // Compute interpolated boxes directly from current state
             final boxes =
                 _interpolate(_lastBoxes, _currentBoxes, _controller.value);
             if (boxes.isEmpty) return const SizedBox();
@@ -100,33 +90,6 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
     );
   }
 }
-
-// class CameraPreviewWithOverlay extends StatefulWidget {
-//   CameraPreviewWithOverlay({required this.boxes});
-//   final Stream<List<DetectionBox>> boxes;
-
-//   @override
-//   _CameraPreviewWithOverlayState createState() =>
-//       _CameraPreviewWithOverlayState();
-// }
-
-// class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return StreamBuilder(
-//         stream: widget.boxes,
-//         builder: (context, snapshot) {
-//           var detections = snapshot.data;
-//           if (detections == null || detections.isEmpty) {
-//             return const SizedBox();
-//           }
-//           return CustomPaint(
-//             painter: DetectionPainter(detections),
-//             size: Size.infinite,
-//           );
-//         });
-//   }
-// }
 
 class DetectionPainter extends CustomPainter {
   final List<DetectionBox> detections;

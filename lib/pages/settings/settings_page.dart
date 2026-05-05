@@ -8,8 +8,10 @@ import 'package:flutter_demo/pages/alert/alert_model.dart';
 import 'package:flutter_demo/pages/settings/settings_about.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/converter.dart';
+import 'package:flutter_demo/utils/file_utils.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -180,7 +182,7 @@ class SettingsPageState extends State<SettingsPage> {
                                             iconData: Icons.delete,
                                             onPressed: (v) async {
                                               Navigator.of(context).pop();
-                                              getIt<CameraRep>().freeData();
+                                              getIt<HistoryRep>().freeData();
                                             }),
                                         const SizedBox(width: 15),
                                         RoundButton(
@@ -258,7 +260,7 @@ class SettingsPageState extends State<SettingsPage> {
             useBorderTop: true,
             useBorderBot: false,
             onClicked: () {
-              getIt<CameraRep>().shareApp();
+              Utils().shareApp();
             },
             height: _itemHeight,
             child: Row(children: [

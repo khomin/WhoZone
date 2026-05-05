@@ -8,13 +8,11 @@ import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/home/grid_dialog.dart';
 import 'package:flutter_demo/pages/home/search_page.dart';
 import 'package:flutter_demo/pages/home/view_item1.dart';
-import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:flutter_demo/utils/common.dart';
-import 'package:loggy/loggy.dart';
-import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HomePagePage extends StatefulWidget {
@@ -77,8 +75,7 @@ class HomePagePageState extends State<HomePagePage>
           tween: Tween<double>(begin: -0.005, end: 0), weight: 1),
     ]).animate(CurvedAnimation(
       parent: _ctrShakeIcon.view,
-      curve: Curves
-          .linear, // Use a linear curve for a consistent back-and-forth movement
+      curve: Curves.linear,
     ));
 
     _scrollCtr.addListener(() {
@@ -92,17 +89,10 @@ class HomePagePageState extends State<HomePagePage>
       });
     });
 
-    _dispStream.add(getIt<CameraRep>().onHistory.listen((history) {
-      if (!mounted) return;
-      context.read<AppModel>().setHistory(history);
-    }));
-
     Timer(const Duration(milliseconds: 100), () async {
-      var history = await getIt<CameraRep>().getHistory();
+      var history = await getIt<HistoryRep>().getHistory();
       if (!mounted) return;
-      var model = context.read<AppModel>();
-      model.setHistory(history);
-      if (model.history.isEmpty) {
+      if (history.isEmpty) {
         Timer(const Duration(milliseconds: 200), () {
           if (!mounted) return;
           if (_ctrShakeIcon.isForwardOrCompleted) {
@@ -247,8 +237,8 @@ class HomePagePageState extends State<HomePagePage>
                                   bottom: 0,
                                   top: 0,
                                   child: StreamBuilder(
-                                      stream: getIt<CameraRep>().onHistory,
-                                      initialData: getIt<CameraRep>()
+                                      stream: getIt<HistoryRep>().onHistory,
+                                      initialData: getIt<HistoryRep>()
                                           .onHistory
                                           .valueOrNull,
                                       builder: (context, snapshot) {
@@ -275,144 +265,101 @@ class HomePagePageState extends State<HomePagePage>
   }
 
   Widget _gallery() {
-    return Builder(builder: (context) {
-      var history =
-          context.select<AppModel, List<HistoryRecord>>((v) => v.history);
-      var size = MediaQuery.of(context).size;
-      if (history.isEmpty) {
-        return RotationTransition(
-            turns: _iconRotate,
-            child: SizedBox(
-                height: size.height / 1.5,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      RoundButton(
-                          iconData: Icons.create_new_folder_rounded,
-                          color: Theme.of(context).colorScheme.colorPrimary,
-                          iconColor: Theme.of(context).colorScheme.colorBar,
-                          size: (size.width / 5) + 15,
-                          iconSize: size.width / 5,
-                          useScaleAnimation: true,
-                          useShadow: true,
-                          onPressed: (p0) {
-                            if (_ctrShakeIcon.isForwardOrCompleted) {
-                              _ctrShakeIcon.reverse().orCancel;
-                            } else {
-                              _ctrShakeIcon.forward().orCancel;
-                            }
-                          }),
-                      const SizedBox(height: 20),
-                      Text('There are no entries yet',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.colorTextAccent,
-                              fontSize: 18)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Click',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent,
-                                    fontSize: 18)),
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 8),
-                                child: Icon(Icons.create_new_folder_rounded,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextSecond
-                                        .withValues(alpha: 0.5))),
-                            Text('to start',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent,
-                                    fontSize: 18))
-                          ])
-                    ])));
-      }
-      return SizedBox(
-          height: ((270 + 28) * history.length).toDouble(),
-          child: CustomScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              slivers: [
-                SliverList.builder(
-                    itemCount: history.length,
-                    itemBuilder: (context, index) {
-                      var model = history[index];
-                      return ViewItem1(
-                          history: model,
-                          onCloseSlide: _onCloseSlide,
-                          key: ValueKey('history-${model.items.lastOrNull}'),
-                          onPressed: () {
-                            GridDialog()
-                                .show(
-                                    context: context,
-                                    history: model,
-                                    initialIndex: index)
-                                .then((value) {});
-                          },
-                          onDelete: () async {
-                            await getIt<CameraRep>().deleteHistoryRoot([model]);
-                          });
-                    })
-              ]));
-    });
+    return StreamBuilder(
+        stream: getIt<HistoryRep>().onHistory,
+        builder: (context, snapshot) {
+          var history = snapshot.data;
+          var size = MediaQuery.of(context).size;
+          if (history == null || history.isEmpty) {
+            return RotationTransition(
+                turns: _iconRotate,
+                child: SizedBox(
+                    height: size.height / 1.5,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          RoundButton(
+                              iconData: Icons.create_new_folder_rounded,
+                              color: Theme.of(context).colorScheme.colorPrimary,
+                              iconColor: Theme.of(context).colorScheme.colorBar,
+                              size: (size.width / 5) + 15,
+                              iconSize: size.width / 5,
+                              useScaleAnimation: true,
+                              useShadow: true,
+                              onPressed: (p0) {
+                                if (_ctrShakeIcon.isForwardOrCompleted) {
+                                  _ctrShakeIcon.reverse().orCancel;
+                                } else {
+                                  _ctrShakeIcon.forward().orCancel;
+                                }
+                              }),
+                          const SizedBox(height: 20),
+                          Text('There are no entries yet',
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .colorTextAccent,
+                                  fontSize: 18)),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text('Click',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .colorTextAccent,
+                                        fontSize: 18)),
+                                Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 8, right: 8),
+                                    child: Icon(Icons.create_new_folder_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .colorTextSecond
+                                            .withValues(alpha: 0.5))),
+                                Text('to start',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .colorTextAccent,
+                                        fontSize: 18))
+                              ])
+                        ])));
+          }
+          return SizedBox(
+              height: ((270 + 28) * history.length).toDouble(),
+              child: CustomScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  slivers: [
+                    SliverList.builder(
+                        itemCount: history.length,
+                        itemBuilder: (context, index) {
+                          var model = history[index];
+                          return ViewItem1(
+                              history: model,
+                              onCloseSlide: _onCloseSlide,
+                              key:
+                                  ValueKey('history-${model.items.lastOrNull}'),
+                              onPressed: () {
+                                GridDialog()
+                                    .show(
+                                        context: context,
+                                        history: model,
+                                        initialIndex: index)
+                                    .then((value) {});
+                              },
+                              onDelete: () async {
+                                await getIt<HistoryRep>()
+                                    .deleteHistoryRoot([model]);
+                              });
+                        })
+                  ]));
+        });
   }
 
   Widget _sliverAppBar() {
     return Stack(children: [
-      Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Opacity(
-              opacity: _slideOpacity.value,
-              child: SizedBox(
-                  height: _slideHeight.value / 1.5,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        RoundButton(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .colorButtonRed
-                                .withValues(alpha: 0.8),
-                            iconColor: Theme.of(context)
-                                .colorScheme
-                                .colorCard
-                                .withValues(alpha: 0.8),
-                            size: 55,
-                            radius: 20,
-                            useScaleAnimation: true,
-                            iconData: Icons.stop_circle_sharp,
-                            onPressed: (v) async {
-                              _handleOnSlide();
-                              await getIt<CameraRep>().setCaptureActive(false);
-                              getIt<CameraRep>().stopCamera();
-                            }),
-                        const SizedBox(width: 15),
-                        RoundButton(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .colorSecondary
-                                .withValues(alpha: 0.8),
-                            iconColor: Theme.of(context)
-                                .colorScheme
-                                .colorCard
-                                .withValues(alpha: 0.8),
-                            size: 55,
-                            radius: 20,
-                            useScaleAnimation: true,
-                            iconData: Icons.close,
-                            onPressed: (v) {
-                              _handleOnSlide();
-                            })
-                      ])))),
       Positioned(
           top: 0,
           left: 0,

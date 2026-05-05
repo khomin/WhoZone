@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/click_detector.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 
@@ -15,7 +15,6 @@ class ViewItem2 extends StatefulWidget {
     this.padding,
     super.key,
   });
-
   final HistoryRecord history;
   final Function() onPressed;
   final int size;

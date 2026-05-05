@@ -7,8 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsRep {
   final _usedCameraIdKey = 'camera_id';
-  final _showCaptureKey = 'show_area';
-  final _captureMinAreaKey = 'capt_min_area';
   final _captIntValSecKey = 'capt_intval_sec';
   final _soundUsedKey = 'soundUsedKey';
   final _packetUsedKey = 'packetUsedKey';
@@ -50,29 +48,9 @@ class SettingsRep {
     return prefs.getInt(_captIntValSecKey) ?? Constants.minCaptIntvalDefault;
   }
 
-  void setCaptureIntervalSec(int v) async {
+  Future<void> setCaptureIntervalSec(int v) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(_captIntValSecKey, v);
-  }
-
-  Future<int> getCaptureMinArea() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_captureMinAreaKey) ?? Constants.minAreaDefault;
-  }
-
-  void setCaptureMinArea(int v) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_captureMinAreaKey, v);
-  }
-
-  Future<bool> getCaptureShowArea() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_showCaptureKey) ?? true;
-  }
-
-  void setCaptureShowArea(bool v) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_showCaptureKey, v);
   }
 
   Future<Sound?> getSoundUsed() async {

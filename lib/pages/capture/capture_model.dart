@@ -1,17 +1,12 @@
 import 'dart:async';
-
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
-import 'package:flutter_demo/pages/capture/detection_box.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/utils/file_utils.dart';
 import 'package:loggy/loggy.dart';
-import 'package:rxdart/rxdart.dart';
 
 class SurfaceLayout {
   SurfaceLayout({required this.rotation, required this.ratio});
@@ -20,9 +15,7 @@ class SurfaceLayout {
 }
 
 class CaptureModel with ChangeNotifier {
-  int minArea = Constants.minAreaDefault;
   int captureIntervalSec = Constants.minCaptIntvalDefault;
-  bool showAreaOnCapture = false;
   bool run = false;
   int devRotation = 0;
   bool flipWait = false;
@@ -30,28 +23,15 @@ class CaptureModel with ChangeNotifier {
   double flipTurns = 0.0;
   Camera? camera;
   int? textureId;
-  var onDetection = StreamController<List<DetectionBox>>.broadcast();
   SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
   SurfaceLayout oldLayout = SurfaceLayout(rotation: 0, ratio: 1);
-  List<String> _classNames = [];
   var _disposed = false;
   final tag = 'captureModel';
 
-  CaptureModel() {
-    Future.microtask(() async {
-      final data = await rootBundle.loadString('assets/coco.names');
-      _classNames = data.split('\n');
-    });
-  }
+  CaptureModel();
 
-  void init({
-    required int minArea,
-    required int captureIntervalSec,
-    required bool showAreaOnCapture,
-  }) {
-    this.minArea = minArea;
+  void init({required int captureIntervalSec}) {
     this.captureIntervalSec = captureIntervalSec;
-    this.showAreaOnCapture = showAreaOnCapture;
     notify();
   }
 
@@ -91,13 +71,9 @@ class CaptureModel with ChangeNotifier {
       logError('$tag: could not find camera');
       return false;
     }
-    // await getIt<CameraRep>().stopCamera();
     var res = await getIt<CameraRep>().startCamera(
-      id: camera.id,
-      captureIntervalSec: await SettingsRep().getCaptureIntervalSec(),
-      minArea: await SettingsRep().getCaptureMinArea(),
-      showAreaOnCapture: await SettingsRep().getCaptureShowArea(),
-    );
+        id: camera.id,
+        captureIntervalSec: await SettingsRep().getCaptureIntervalSec());
     if (res == null) {
       return false;
     }
@@ -125,101 +101,13 @@ class CaptureModel with ChangeNotifier {
   //   return front;
   // }
 
-  // void _updateLastFrame({required String path}) async {
-  //   if (_captured == null) {
-  //     setState(() {
-  //       if (path.isNotEmpty) {
-  //         _captured = ClipRRect(
-  //             borderRadius: BorderRadius.circular(30.0),
-  //             child: Stack(alignment: Alignment.center, children: [
-  //               Image.memory(File(path).readAsBytesSync(),
-  //                   cacheHeight: 100, cacheWidth: 100, fit: BoxFit.fill)
-  //             ]));
-  //       } else {
-  //         _captured = ClipRRect(
-  //             borderRadius: BorderRadius.circular(30.0),
-  //             child:
-  //                 Stack(alignment: Alignment.center, children: [Container()]));
-  //       }
-  //       _onRightToLeft = true;
-  //       _hasLastCapture = true;
-  //     });
-  //   } else {
-  //     setState(() {
-  //       _onLeftToGone = true;
-  //       _hasLastCapture = true;
-  //     });
-  //     Timer(Constants.lastFrameDuration, () {
-  //       setState(() {
-  //         _onLeftToGone = false;
-  //         _captured = null;
-  //         _onRightToLeft = false;
-  //       });
-  //       Timer(Constants.lastFrameDuration, () {
-  //         setState(() {
-  //           if (path.isNotEmpty) {
-  //             _captured = ClipRRect(
-  //                 borderRadius: BorderRadius.circular(30.0),
-  //                 child: Stack(alignment: Alignment.center, children: [
-  //                   Image.memory(File(path).readAsBytesSync(),
-  //                       cacheHeight: 100,
-  //                       cacheWidth: 100,
-  //                       fit: BoxFit.fitHeight)
-  //                 ]));
-  //           } else {
-  //             _captured = ClipRRect(
-  //                 borderRadius: BorderRadius.circular(30.0),
-  //                 child: Stack(
-  //                     alignment: Alignment.center, children: [Container()]));
-  //           }
-  //           _onRightToLeft = true;
-  //         });
-  //       });
-  //     });
-  //   }
-  // }
-
-  // void _handleOnSlide() {
-  //   if (getIt<CameraRep>().onCaptureTime.valueOrNull == null) return;
-  //   if (_ctrSlideTop.isForwardOrCompleted) {
-  //     _ctrSlideTop.reverse().orCancel;
-  //   } else {
-  //     _ctrSlideTop.forward().orCancel;
-  //   }
-  // }
-
-  void setMinArea(int v) {
-    if (minArea != v) {
-      minArea = v;
-      SettingsRep().setCaptureMinArea(v);
-      getIt<CameraRep>().updateConfiguration(
-          minArea: minArea,
-          captureIntervalSec: captureIntervalSec,
-          showAreaOnCapture: showAreaOnCapture);
-      notify();
-    }
-  }
-
-  void setCaptureImageIntVal(int v) {
+  void setCaptureImageIntVal(int v) async {
     if (captureIntervalSec != v) {
       captureIntervalSec = v;
-      SettingsRep().setCaptureIntervalSec(v);
+      await SettingsRep().setCaptureIntervalSec(v);
       getIt<CameraRep>().updateConfiguration(
-          minArea: minArea,
-          captureIntervalSec: captureIntervalSec,
-          showAreaOnCapture: showAreaOnCapture);
-      notify();
-    }
-  }
-
-  void setShowArea(bool v) {
-    if (showAreaOnCapture != v) {
-      showAreaOnCapture = v;
-      SettingsRep().setCaptureShowArea(v);
-      getIt<CameraRep>().updateConfiguration(
-          minArea: minArea,
-          captureIntervalSec: captureIntervalSec,
-          showAreaOnCapture: showAreaOnCapture);
+        captureIntervalSec: captureIntervalSec,
+      );
       notify();
     }
   }
@@ -254,26 +142,6 @@ class CaptureModel with ChangeNotifier {
     ratio = size.height / size.width;
     ratio = size.width / size.height;
     setSurfaceLayout(SurfaceLayout(rotation: rotation, ratio: ratio));
-    // logDebug(
-    //     'BTEST:2 rotation=$rotation, devRotation=$devRotation, sensorRotation=$sensorRotation, cam=${camera?.sensor}, ratio=$ratio');
-  }
-
-  DateTime? _detectionTime;
-
-  void detection(Detection ev) {
-    final boxes = <DetectionBox>[];
-    for (var item in ev.item) {
-      boxes.add(DetectionBox.fromProto(item, _classNames));
-    }
-    final now = DateTime.now();
-    var prevTime = _detectionTime;
-    if (prevTime != null) {
-      var distance = now.difference(prevTime);
-      logDebug(
-          '$tag: detection: [${boxes.length}], elapsed: ${distance.inMicroseconds}');
-    }
-    _detectionTime = now;
-    onDetection.add(boxes);
   }
 
   int _adjustRotation({

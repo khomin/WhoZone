@@ -4,7 +4,7 @@ import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/click_detector.dart';
 import 'package:flutter_demo/components/slidable_item.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:loggy/loggy.dart';

@@ -1,6 +1,16 @@
 # 🐶 WhoZone
 
-#### To generate new protobuf files
+# to yolo11n.onnx
+- cd ./resources/ultralytics
+- python3 -m venv yolo_env
+- source ./yolo_env/bin/activate
+- pip install --upgrade pip
+- pip install ultralytics
+- yolo export model=yolo11n.pt format=onnx imgsz=320 dynamic=False opset=12
+copy the file to assets
+- cp /android/app/src/main/assets
+
+#### To generate protobuf files
 - dart pub global activate protoc_plugin
 - ./scripts/gen_proto.sh
 

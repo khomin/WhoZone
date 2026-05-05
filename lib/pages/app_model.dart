@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppModel with ChangeNotifier {
@@ -7,7 +6,6 @@ class AppModel with ChangeNotifier {
   bool collapse = false;
   String appVersion = '';
   ThemeMode theme = ThemeMode.system;
-  List<HistoryRecord> history = [];
   var _disposed = false;
 
   AppModel({required this.theme}) {
@@ -32,14 +30,6 @@ class AppModel with ChangeNotifier {
   void setReady(bool v) {
     if (v != ready) {
       ready = v;
-      notifyListeners();
-    }
-  }
-
-  void setHistory(List<HistoryRecord> v) {
-    if (history != v) {
-      history = [];
-      history.addAll(v);
       notifyListeners();
     }
   }

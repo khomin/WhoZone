@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
-import 'package:flutter_demo/components/custom_checkbox.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
@@ -25,8 +24,6 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
     Future.microtask(() async {
       _model.init(
         captureIntervalSec: await SettingsRep().getCaptureIntervalSec(),
-        minArea: await SettingsRep().getCaptureMinArea(),
-        showAreaOnCapture: await SettingsRep().getCaptureShowArea(),
       );
     });
   }
@@ -73,43 +70,6 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       //
-                      // min area
-                      Builder(builder: (context) {
-                        var minArea =
-                            context.select<CaptureModel, int>((v) => v.minArea);
-                        return Row(children: [
-                          Padding(
-                              padding: const EdgeInsets.only(left: 25),
-                              child: Text('Min area [$minArea]',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .colorTextAccent))),
-                          Expanded(
-                              child: Slider(
-                                  value: minArea.toDouble(),
-                                  min: 100.0,
-                                  max: 100000.0,
-                                  divisions: 100,
-                                  activeColor: Theme.of(context)
-                                      .colorScheme
-                                      .colorSecondary,
-                                  inactiveColor: Theme.of(context)
-                                      .colorScheme
-                                      .colorSecondary,
-                                  thumbColor: Theme.of(context)
-                                      .colorScheme
-                                      .colorPrimary,
-                                  label: minArea.toString(),
-                                  onChanged: (double newValue) {
-                                    context
-                                        .read<CaptureModel>()
-                                        .setMinArea(newValue.toInt());
-                                  }))
-                        ]);
-                      }),
-                      //
                       // capture image interval
                       Builder(builder: (context) {
                         var captureSec = context.select<CaptureModel, int>(
@@ -147,29 +107,6 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                                   }))
                         ]);
                       }),
-                      // enable area on images
-                      Row(children: [
-                        Padding(
-                            padding: EdgeInsets.only(left: 25),
-                            child: Text('Show area on captured images',
-                                style: TextStyle(
-                                    fontSize: 14,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent))),
-                        const Spacer(),
-                        Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: Builder(builder: (context) {
-                              var showArea = context.select<CaptureModel, bool>(
-                                  (v) => v.showAreaOnCapture);
-                              return CustomCheckBox(
-                                  value: showArea,
-                                  onChanged: (v) {
-                                    context.read<CaptureModel>().setShowArea(v);
-                                  });
-                            }))
-                      ]),
                     ]))
           ]),
           Builder(builder: (context) {

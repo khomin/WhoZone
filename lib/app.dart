@@ -1,5 +1,4 @@
-import 'dart:developer';
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/camera_settings_page.dart';
 import 'package:flutter_demo/components/hover_click.dart';
@@ -48,24 +47,18 @@ class AppState extends State<App> {
     // date format
     Jiffy.setLocale('uk');
     // create app home directory
-    await FileUtils.init();
+    await Utils.init();
     // init log
     Loggy.initLoggy(logPrinter: LogPrinter());
     // init cpp
     await ServiceApi().initLib();
-    // preload history
-    _appModel.setHistory(await getIt<CameraRep>().getHistory());
     // hide splash screen
     _appModel.setReady(true);
     // preload alert
     _alertModel.init();
     getIt<CameraRep>().init();
 
-    ServiceApi.onDetection = (ev) {
-      _captureModel.detection(ev);
-    };
-
-    Future.microtask(() {
+    Timer(Duration(seconds: 1), () {
       NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
     });
   }

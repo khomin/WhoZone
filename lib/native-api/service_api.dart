@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
+import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:loggy/loggy.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:ffi/ffi.dart';
 
 class ServiceApi {
-  static Function(Detection detection)? onDetection;
   static late Function _initApi;
   static late Function _initializeApi;
   static late Function _registerEventPort;
@@ -111,7 +112,7 @@ class ServiceApi {
         var ev = EventWrapper.fromBuffer(buf);
         switch (ev.whichMsg()) {
           case EventWrapper_Msg.detection:
-            onDetection?.call(ev.detection);
+            getIt<CameraRep>().detection(ev.detection);
             break;
           case EventWrapper_Msg.notSet:
             break;
