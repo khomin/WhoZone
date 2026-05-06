@@ -4,6 +4,13 @@ This app is currently under active development.
 
 It serves as a personal playground for exploring high-performance mobile architecture and integrating advanced ML models.
 
+Dection events are sent from cpp via protobuf -> FFI -> dart
+
+Boxes are drawn in flutter using normalized coordinates, the goal is 60 FPS
+
+### Previews
+![1](/resources/demo.gif)
+
 ### How to generate yolo11n.onnx
 - cd ./resources/ultralytics
 - python3 -m venv yolo_env
