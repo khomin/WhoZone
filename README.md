@@ -1,6 +1,10 @@
 # 🐶 WhoZone
 
-# to yolo11n.onnx
+This app is currently under active development.
+
+It serves as a personal playground for exploring high-performance mobile architecture and integrating advanced ML models.
+
+### How to generate yolo11n.onnx
 - cd ./resources/ultralytics
 - python3 -m venv yolo_env
 - source ./yolo_env/bin/activate
@@ -10,7 +14,7 @@
 copy the file to assets
 - cp /android/app/src/main/assets
 
-#### To generate protobuf files
+### How to generate protobuf files
 - dart pub global activate protoc_plugin
 - ./scripts/gen_proto.sh
 

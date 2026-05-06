@@ -16,7 +16,7 @@ class SurfaceLayout {
 
 class CaptureModel with ChangeNotifier {
   int captureIntervalSec = Constants.minCaptIntvalDefault;
-  bool run = false;
+  bool recording = false;
   int devRotation = 0;
   bool flipWait = false;
   bool orientationpWait = false;
@@ -47,7 +47,7 @@ class CaptureModel with ChangeNotifier {
   }
 
   void stop({bool shouldNotify = true}) async {
-    run = false;
+    recording = false;
     camera = null;
     if (shouldNotify) {
       notify();
@@ -56,7 +56,7 @@ class CaptureModel with ChangeNotifier {
     await getIt<CameraRep>().setCaptureActive(false);
   }
 
-  Future<bool> start() async {
+  Future<bool> start({bool flip = false}) async {
     var cameras = await getIt<CameraRep>().getCameras();
     var usedCameraId = await SettingsRep().getCameraUsed();
     var camera = cameras[usedCameraId];

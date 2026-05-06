@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
 import 'package:flutter_demo/components/circle_button.dart';
@@ -73,33 +72,12 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
 
-    // _height = Tween<double>(begin: 70.0, end: 100.0).animate(CurvedAnimation(
-    //     parent: _controller.view,
-    //     curve: const Interval(
-    //       0.10,
-    //       0.375,
-    //       curve: Curves.ease,
-    //     )));
-
-    // _widthIconStart = Tween<double>(
-    //   begin: 70.0,
-    //   end: 5.0,
-    // ).animate(CurvedAnimation(
-    //     parent: _controller.view,
-    //     curve: const Interval(0.000, 0.100, curve: Curves.easeInOut)));
-
     _widthIconExpand = Tween<double>(
       begin: 5.0,
       end: 30.0,
     ).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
-
-    // _borderRadius = Tween<double>(begin: 60.0, end: 25.0).animate(
-    //     CurvedAnimation(
-    //         parent: _controller.view,
-    //         curve: const Interval(0.000, 0.125, curve: Curves.easeInOut)));
-
     _opacity1 = Tween<double>(begin: 1.0, end: 0.0).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
@@ -142,48 +120,11 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
     }
   }
 
-  // void _doPlay() {
-  //   Timer(Duration(milliseconds: 1), () {
-  //     setState(() {
-  //       tabInfoItems = [
-  //         Container(
-  //             // padding:
-  //             //     const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
-  //             child: Icon(Icons.photo_camera_back_rounded,
-  //                 color: Constants.colorCard, size: 30)),
-  //         Container(
-  //             // padding:
-  //             //     const EdgeInsets.only(top: 10, left: 8, right: 8, bottom: 8),
-  //             child: Icon(Icons.stop_circle,
-  //                 color: Constants.colorCard, size: 30)),
-  //       ];
-  //       tabInfoItems = tabInfoItems
-  //           .animate(interval: 500.ms)
-  //           .fadeIn(duration: 500.ms, delay: 100.ms)
-  //           // .shimmer(blendMode: BlendMode.srcOver, color: Colors.white12)
-  //           // .move(begin: const Offset(-16, 0), curve: Curves.easeOutQuad);
-  //           // .
-  //           .move(begin: const Offset(0, -16), curve: Curves.easeOutQuad);
-  //     });
-  //   });
-  // }
-
-  // void _doStop() {
-  //   Timer(Duration(milliseconds: 300), () {
-  //     setState(() {
-  //       tabInfoItems = [];
-  //     });
-  //   });
-  // }
-
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
     _dispStream.dispose();
-    // _model.setRun(run: false, camera: null, mounted: false);
-    // MyRep().stopCamera();
-    // WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   @override
@@ -208,22 +149,14 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                 .select<ExpandModel, bool>((v) => v.isExpanded);
                             return IgnorePointer(
                                 ignoring: expanded,
-                                child: RoundButton(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorButtonBg,
-                                    iconColor:
-                                        Colors.red.withValues(alpha: 0.8),
-                                    size: 70,
-                                    useScaleAnimation: true,
-                                    iconSize: 50,
-                                    iconData: Icons.radio_button_on,
-                                    onPressed: (v) {
-                                      _switchAnimation();
-                                      context
-                                          .read<ExpandModel>()
-                                          .setExpanded(!expanded);
-                                    }));
+                                child: _recordButton(
+                                  () {
+                                    _switchAnimation();
+                                    context
+                                        .read<ExpandModel>()
+                                        .setExpanded(!expanded);
+                                  },
+                                ));
                           })),
                       Row(
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -238,16 +171,14 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                       ignoring: !expanded,
                                       child: ButtonRoundCorner(
                                           color: Colors.transparent,
-                                          colorIcon: Theme.of(context)
-                                              .colorScheme
-                                              .colorCard,
                                           width: _width.value / 2,
                                           icon: Icon(
-                                              Icons.photo_camera_back_rounded,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .colorCard,
-                                              size: _widthIconExpand.value),
+                                            Icons.photo_camera_back_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .cameraButtonIcon,
+                                            size: _widthIconExpand.value,
+                                          ),
                                           radious: const BorderRadius.only(
                                               topLeft: Radius.circular(90),
                                               bottomLeft: Radius.circular(90)),
@@ -267,13 +198,10 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                       child: ButtonRoundCorner(
                                           color: Colors.transparent,
                                           width: _width.value / 2,
-                                          colorIcon: Theme.of(context)
-                                              .colorScheme
-                                              .colorCard,
                                           icon: Icon(Icons.stop_circle,
                                               color: Theme.of(context)
                                                   .colorScheme
-                                                  .colorCard,
+                                                  .cameraButtonIcon,
                                               size: _widthIconExpand.value),
                                           radious: const BorderRadius.only(
                                               topRight: Radius.circular(90),
@@ -289,5 +217,31 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                     ]));
               });
         });
+  }
+
+  Widget _recordButton(Function() onPressed) {
+    return GestureDetector(
+      onTap: () {
+        onPressed();
+      },
+      child: Container(
+          width: 80,
+          height: 80,
+          padding: const EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.white,
+          ),
+          child: Stack(alignment: Alignment.center, children: [
+            Container(
+              width: 30,
+              height: 30,
+              decoration: const BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ])),
+    );
   }
 }

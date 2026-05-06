@@ -99,7 +99,7 @@ class DetectionPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.red
+      ..color = Colors.lightGreen
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3;
 

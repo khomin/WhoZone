@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ButtonRoundCorner extends StatelessWidget {
-  const ButtonRoundCorner(
-      {required this.colorIcon,
-      required this.icon,
-      required this.color,
-      required this.onPressed,
-      required this.radious,
-      required this.width,
-      this.borderColor,
-      super.key});
+  const ButtonRoundCorner({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+    required this.radious,
+    required this.width,
+    this.borderColor,
+    super.key,
+  });
   final Icon icon;
   final Function() onPressed;
   final double width;
   final Color color;
-  final Color colorIcon;
   final Color? borderColor;
   final BorderRadiusGeometry radious;
 
@@ -22,16 +21,8 @@ class ButtonRoundCorner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: width,
-        // width: 150 / 2,
-        // width: 30,
         alignment: Alignment.center,
-        // color: Colors.amber,
-        // child: Container(
-        // height: widget.size,
-        // width: widget.size,
-        // margin: widget.margin,
         child: Stack(children: [
-          // 2
           ElevatedButton(
               onPressed: () => onPressed.call(),
               autofocus: false,
@@ -43,21 +34,14 @@ class ButtonRoundCorner extends StatelessWidget {
                           : BorderSide.none),
                   padding: null,
                   alignment: Alignment.center,
-                  // ap
                   backgroundColor: color,
                   animationDuration: Duration.zero,
-                  // maximumSize: Size(150 / 2, 70),
-                  // fixedSize: Size(150 / 2, 70),
                   shadowColor: Colors.transparent,
                   textStyle: const TextStyle(
                     fontWeight: FontWeight.w300,
                     fontSize: 12,
-                    // color: Theme.of(context).colorScheme.baseColor1,
                   )),
-              child: Center(child: icon
-
-                  // child: Center(child: Text('1') //icon)
-                  ))
+              child: Center(child: icon))
         ]));
   }
 }

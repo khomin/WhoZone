@@ -138,8 +138,8 @@ class CameraRep {
     var prevTime = _prevDetectionTime;
     if (prevTime != null) {
       var distance = now.difference(prevTime);
-      logDebug(
-          '$tag: detection: [${boxes.length}], elapsed: ${distance.inMicroseconds}');
+      // logDebug(
+      //     '$tag: detection: [${boxes.length}], elapsed: ${distance.inMicroseconds}');
       if (distance.inSeconds >= _captureIntervalSec) {
         _alertEvent();
       }
