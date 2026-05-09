@@ -142,6 +142,15 @@ const EventWrapper$json = {
       '9': 0,
       '10': 'detection'
     },
+    {
+      '1': 'frame_saved',
+      '3': 2,
+      '4': 1,
+      '5': 11,
+      '6': '.app.FrameSaved',
+      '9': 0,
+      '10': 'frameSaved'
+    },
   ],
   '8': [
     {'1': 'msg'},
@@ -151,7 +160,8 @@ const EventWrapper$json = {
 /// Descriptor for `EventWrapper`. Decode as a `google.protobuf.DescriptorProto`.
 final $typed_data.Uint8List eventWrapperDescriptor = $convert.base64Decode(
     'CgxFdmVudFdyYXBwZXISLgoJZGV0ZWN0aW9uGAEgASgLMg4uYXBwLkRldGVjdGlvbkgAUglkZX'
-    'RlY3Rpb25CBQoDbXNn');
+    'RlY3Rpb24SMgoLZnJhbWVfc2F2ZWQYAiABKAsyDy5hcHAuRnJhbWVTYXZlZEgAUgpmcmFtZVNh'
+    'dmVkQgUKA21zZw==');
 
 @$core.Deprecated('Use detectionDescriptor instead')
 const Detection$json = {
@@ -198,6 +208,18 @@ final $typed_data.Uint8List detectionItemDescriptor = $convert.base64Decode(
     'Cg1EZXRlY3Rpb25JdGVtEicKCWRldGVjdGlvbhgBIAEoCzIJLmFwcC5SZWN0UglkZXRlY3Rpb2'
     '4SGQoIY2xhc3NfaWQYAiABKAVSB2NsYXNzSWQSHgoKY29uZmlkZW5jZRgDIAEoAlIKY29uZmlk'
     'ZW5jZQ==');
+
+@$core.Deprecated('Use frameSavedDescriptor instead')
+const FrameSaved$json = {
+  '1': 'FrameSaved',
+  '2': [
+    {'1': 'path', '3': 1, '4': 1, '5': 9, '10': 'path'},
+  ],
+};
+
+/// Descriptor for `FrameSaved`. Decode as a `google.protobuf.DescriptorProto`.
+final $typed_data.Uint8List frameSavedDescriptor =
+    $convert.base64Decode('CgpGcmFtZVNhdmVkEhIKBHBhdGgYASABKAlSBHBhdGg=');
 
 @$core.Deprecated('Use rectDescriptor instead')
 const Rect$json = {

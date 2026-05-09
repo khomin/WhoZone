@@ -43,13 +43,7 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         initial_params.model_frame_height()
     );
     detector->start();
-    detector->setCallback([&] (Detection & detection) {
-        auto now = std::chrono::steady_clock::now();
-        auto now_ns  = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
-        auto prev = detector->getPreviousDetection();
-        if(prev.has_value()) {
-            LOGD("DETECTION: time lapsed: %d", now_ns - prev->timestamp_ns);
-        }
+    detector->onDetection([&] (Detection & detection) {
         auto appDetection = new app::Detection();
         auto item = new app::DetectionItem();
         appDetection->set_frame_count(detection.frame_count);
@@ -67,7 +61,13 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray byte_arr
         event.set_allocated_detection(appDetection);
         sendToDart(&event);
     });
-
+    detector->onFrameSaved([&] (std::string path) {
+        app::EventWrapper event;
+        auto frameSaved = new app::FrameSaved();
+        frameSaved->set_path(path);
+        event.set_allocated_frame_saved(frameSaved);
+        sendToDart(&event);
+    });
     env->ReleaseByteArrayElements(byte_array, data_byte, 0);
 }
 

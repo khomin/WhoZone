@@ -39,8 +39,8 @@ class HistoryRecord with ChangeNotifier {
 
 class HistoryRep {
   final onHistory = BehaviorSubject<List<HistoryRecord>>();
-  var historyCache = <HistoryRecord>[];
   final onHistoryDataSize = BehaviorSubject<Int64>.seeded(Int64.ZERO);
+  var historyCache = <HistoryRecord>[];
   var _inited = false;
   final _historySemphore = Semaphore(1);
   final tag = 'historyRep';
@@ -54,9 +54,10 @@ class HistoryRep {
 
   Future<List<HistoryRecord>> getHistory() async {
     await _historySemphore.acquire();
-    var path = '${Utils.homeDir}/gallery/';
     historyCache = [];
     var dataSize = Int64();
+    var path = Utils().galleryPath();
+    // TODO: gallery use metadata
     try {
       var dir = Directory(path);
       var folders = await dir.list().toList();

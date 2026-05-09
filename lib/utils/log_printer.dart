@@ -8,24 +8,22 @@ class LogPrinter extends LoggyPrinter {
   LogPrinter({
     this.showColors = true,
   }) {
-    () async {
-      var path = "${Utils.homeDir}/log/";
-      String time = DateFormat('yyyy-MM-dd kk-mm--sss').format(DateTime.now());
-      path = '${path}ft-$time.txt';
-      // create
-      try {
-        var file = await File(path).create(recursive: true, exclusive: true);
-        file.open(mode: FileMode.writeOnlyAppend);
-        logFile = file;
-      } catch (ex) {
-        logError('cannot create log: ${ex.toString()}');
-      }
-    }();
+    var path = "${Utils.homeDir}/log/";
+    String time = DateFormat('yyyy-MM-dd kk-mm--sss').format(DateTime.now());
+    path = '${path}ft-$time.txt';
+    try {
+      final file = File(path);
+      file.createSync(recursive: true, exclusive: true);
+      file.open(mode: FileMode.writeOnlyAppend);
+      logFile = file;
+    } catch (ex) {
+      logError('$tag: cannot create log: ${ex.toString()}');
+    }
   }
 
   final bool? showColors;
-
   bool get _colorize => showColors ?? false;
+  final tag = 'logPrinter';
 
   static final _levelColors = {
     LogLevel.debug:

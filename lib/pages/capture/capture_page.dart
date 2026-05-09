@@ -34,8 +34,6 @@ class CapturePageState extends State<CapturePage>
   AppLifecycleListener? _listener;
   late final Animation<double> _slideHeight;
   late AnimationController _ctrSlideTop;
-  late final Animation<double> _slideOpacity;
-
   final tag = 'capturePage';
 
   @override
@@ -75,12 +73,6 @@ class CapturePageState extends State<CapturePage>
     ).animate(CurvedAnimation(
         parent: _ctrSlideTop.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
-    _slideOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-        parent: _ctrSlideTop.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
   }
 
   @override
@@ -108,14 +100,6 @@ class CapturePageState extends State<CapturePage>
     _updateLayoutTm = Timer(const Duration(milliseconds: 300), () async {
       _captureModel.updateRotation();
     });
-  }
-
-  void _handleOnSlide() {
-    if (_ctrSlideTop.isForwardOrCompleted) {
-      _ctrSlideTop.reverse().orCancel;
-    } else {
-      _ctrSlideTop.forward().orCancel;
-    }
   }
 
   @override
@@ -148,37 +132,67 @@ class CapturePageState extends State<CapturePage>
           child: Container(
               color: Theme.of(context).colorScheme.colorBar,
               height: kToolbarHeight,
-              child: Row(children: [
-                Container(
-                  width: 100,
-                  margin: const EdgeInsets.only(left: 25),
-                  child: Text('Capture',
-                      style: Theme.of(context).colorScheme.homeCardH1Style),
-                ),
-                const Spacer(),
-                RoundButton(
-                    color: Colors.transparent,
-                    iconColor: Theme.of(context)
-                        .colorScheme
-                        .colorTextAccent
-                        .withValues(alpha: 0.8),
-                    size: 70,
-                    vertTransform: true,
-                    iconData: Icons.arrow_back_ios_new,
-                    onPressed: (p0) {
-                      var model = context.read<AppModel>();
-                      model.setCollapse(!model.collapse);
-                    })
-              ])))
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Padding(
+                            padding: EdgeInsets.only(left: 25),
+                            child: Text('Capture',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .colorScheme
+                                    .homeCardH1Style))),
+                    //
+                    // duration
+                    RepaintBoundary(
+                        child: SizedBox(
+                            width: 110,
+                            height: 30,
+                            child: Stack(children: [
+                              StreamBuilder(
+                                  stream: getIt<CameraRep>().onCaptureTime,
+                                  initialData: getIt<CameraRep>()
+                                      .onCaptureTime
+                                      .valueOrNull,
+                                  builder: (context, snapshot) {
+                                    var duration = snapshot.data;
+                                    if (duration == null)
+                                      return const SizedBox();
+                                    return RoundBox(
+                                        text: duration.duration.format(),
+                                        useRightMargin: false,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .colorButtonRed,
+                                        borderRadius: 40);
+                                  })
+                            ]))),
+                    RoundButton(
+                        color: Colors.transparent,
+                        iconColor: Theme.of(context)
+                            .colorScheme
+                            .colorTextAccent
+                            .withValues(alpha: 0.8),
+                        size: 70,
+                        vertTransform: true,
+                        iconData: Icons.arrow_back_ios_new,
+                        onPressed: (p0) {
+                          var model = context.read<AppModel>();
+                          model.setCollapse(!model.collapse);
+                        })
+                  ])))
     ]);
   }
 
   Widget _camera() {
-    return LayoutBuilder(builder: (context, constraints) {
-      var camera = context.select<CaptureModel, app.Camera?>((v) => v.camera);
-      var layout = context.select<CaptureModel, SurfaceLayout>((v) => v.layout);
+    return Builder(builder: (context) {
       var targetSize = getIt<CameraRep>().targetSize;
-      var textureId = context.select<CaptureModel, int?>((v) => v.textureId);
+      var (camera, layout, textureId, recording) = context
+          .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
+        (v) => (v.camera, v.layout, v.textureId, v.recording),
+      );
       logDebug(
           'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
       if (camera == null || targetSize == null) {
@@ -218,7 +232,9 @@ class CapturePageState extends State<CapturePage>
                   decoration: BoxDecoration(
                     shape: BoxShape.rectangle,
                     border: Border.all(
-                        color: Theme.of(context).colorScheme.colorButtonRed,
+                        color: recording
+                            ? Theme.of(context).colorScheme.colorButtonRed
+                            : Colors.transparent,
                         width: 2),
                   ),
                 )),
@@ -228,6 +244,33 @@ class CapturePageState extends State<CapturePage>
                     boxes: getIt<CameraRep>().onDetection.stream,
                   ),
                 ),
+                // detection shots count
+                Positioned(
+                  bottom: 10,
+                  left: 10,
+                  child: RepaintBoundary(
+                    child: SizedBox(
+                        width: 40,
+                        height: 30,
+                        child: Stack(children: [
+                          StreamBuilder(
+                              stream:
+                                  getIt<CameraRep>().onDetectionCount.stream,
+                              builder: (context, snapshot) {
+                                var count = snapshot.data ?? 0;
+                                if (count == 0) return const SizedBox();
+                                return RoundBox(
+                                  text: count.toString(),
+                                  useLeftMargin: false,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .bottomNavIconUnselected,
+                                  borderRadius: 60,
+                                );
+                              })
+                        ])),
+                  ),
+                )
               ],
             ),
           ),
@@ -251,13 +294,13 @@ class CapturePageState extends State<CapturePage>
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       AnimatedCameraButton(
-                          activeDefault: getIt<CameraRep>().captureActive,
+                          activeDefault: getIt<CameraRep>().captureEnable,
                           onStopOutsideStream: _onStopRecordStream,
                           onCapture: () async {
-                            await getIt<CameraRep>().setCaptureActive(true);
+                            _captureModel.startCapture();
                           },
                           onStop: () async {
-                            await getIt<CameraRep>().setCaptureActive(false);
+                            _captureModel.stopCapture();
                           }),
                     ]))));
   }

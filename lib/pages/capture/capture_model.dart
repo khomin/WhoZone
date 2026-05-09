@@ -28,12 +28,7 @@ class CaptureModel with ChangeNotifier {
   var _disposed = false;
   final tag = 'captureModel';
 
-  CaptureModel();
-
-  void init({required int captureIntervalSec}) {
-    this.captureIntervalSec = captureIntervalSec;
-    notify();
-  }
+  CaptureModel({required this.captureIntervalSec});
 
   @override
   void dispose() {
@@ -53,12 +48,12 @@ class CaptureModel with ChangeNotifier {
       notify();
     }
     await getIt<CameraRep>().stopCamera();
-    await getIt<CameraRep>().setCaptureActive(false);
+    getIt<CameraRep>().stopCapture();
   }
 
   Future<bool> start({bool flip = false}) async {
     var cameras = await getIt<CameraRep>().getCameras();
-    var usedCameraId = await SettingsRep().getCameraUsed();
+    var usedCameraId = getIt<SettingsRep>().getCameraUsed();
     var camera = cameras[usedCameraId];
     if (camera == null) {
       var i = cameras.values
@@ -71,9 +66,7 @@ class CaptureModel with ChangeNotifier {
       logError('$tag: could not find camera');
       return false;
     }
-    var res = await getIt<CameraRep>().startCamera(
-        id: camera.id,
-        captureIntervalSec: await SettingsRep().getCaptureIntervalSec());
+    var res = await getIt<CameraRep>().startCamera(id: camera.id);
     if (res == null) {
       return false;
     }
@@ -86,7 +79,7 @@ class CaptureModel with ChangeNotifier {
     );
     notify();
     updateRotation();
-    await SettingsRep().setCameraUsed(camera.id);
+    await getIt<SettingsRep>().setCameraUsed(camera.id);
     return true;
   }
 
@@ -101,15 +94,13 @@ class CaptureModel with ChangeNotifier {
   //   return front;
   // }
 
-  void setCaptureImageIntVal(int v) async {
-    if (captureIntervalSec != v) {
-      captureIntervalSec = v;
-      await SettingsRep().setCaptureIntervalSec(v);
-      getIt<CameraRep>().updateConfiguration(
-        captureIntervalSec: captureIntervalSec,
-      );
-      notify();
-    }
+  void setCaptureInterval(int v) async {
+    captureIntervalSec = v;
+    notify();
+    getIt<CameraRep>().updateConfiguration(
+      captureIntervalSec: captureIntervalSec,
+    );
+    await getIt<SettingsRep>().setCaptureIntervalSec(v);
   }
 
   void setFlipWait(bool v) {
@@ -156,5 +147,19 @@ class CaptureModel with ChangeNotifier {
       int combinedRotation = (sensorRotation - deviceRotation + 360) % 360;
       return combinedRotation ~/ 90;
     }
+  }
+
+  void startCapture() {
+    getIt<CameraRep>().startCapture(
+      captureIntervalSec: getIt<SettingsRep>().getCaptureIntervalSec(),
+    );
+    recording = true;
+    notify();
+  }
+
+  void stopCapture() async {
+    getIt<CameraRep>().stopCapture();
+    recording = false;
+    notify();
   }
 }

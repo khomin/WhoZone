@@ -74,7 +74,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
 
     _widthIconExpand = Tween<double>(
       begin: 5.0,
-      end: 30.0,
+      end: 40.0,
     ).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
@@ -115,9 +115,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
       } else {
         await _controller.forward().orCancel;
       }
-    } on TickerCanceled {
-      // The animation got canceled, probably because we were disposed.
-    }
+    } on TickerCanceled {}
   }
 
   @override
@@ -173,7 +171,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                           color: Colors.transparent,
                                           width: _width.value / 2,
                                           icon: Icon(
-                                            Icons.photo_camera_back_rounded,
+                                            Icons.camera_sharp,
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .cameraButtonIcon,
@@ -183,8 +181,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                               topLeft: Radius.circular(90),
                                               bottomLeft: Radius.circular(90)),
                                           onPressed: () {
-                                            getIt<CameraRep>()
-                                                .captureOneFrame();
+                                            getIt<CameraRep>().saveFrame();
                                           }));
                                 })),
                             Opacity(
@@ -198,11 +195,13 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                       child: ButtonRoundCorner(
                                           color: Colors.transparent,
                                           width: _width.value / 2,
-                                          icon: Icon(Icons.stop_circle,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .cameraButtonIcon,
-                                              size: _widthIconExpand.value),
+                                          icon: Icon(
+                                            Icons.stop_rounded,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .cameraButtonIcon,
+                                            size: _widthIconExpand.value,
+                                          ),
                                           radious: const BorderRadius.only(
                                               topRight: Radius.circular(90),
                                               bottomRight: Radius.circular(90)),

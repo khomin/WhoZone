@@ -437,14 +437,16 @@ class Size extends $pb.GeneratedMessage {
   void clearHeight() => $_clearField(2);
 }
 
-enum EventWrapper_Msg { detection, notSet }
+enum EventWrapper_Msg { detection, frameSaved, notSet }
 
 class EventWrapper extends $pb.GeneratedMessage {
   factory EventWrapper({
     Detection? detection,
+    FrameSaved? frameSaved,
   }) {
     final result = create();
     if (detection != null) result.detection = detection;
+    if (frameSaved != null) result.frameSaved = frameSaved;
     return result;
   }
 
@@ -459,15 +461,18 @@ class EventWrapper extends $pb.GeneratedMessage {
 
   static const $core.Map<$core.int, EventWrapper_Msg> _EventWrapper_MsgByTag = {
     1: EventWrapper_Msg.detection,
+    2: EventWrapper_Msg.frameSaved,
     0: EventWrapper_Msg.notSet
   };
   static final $pb.BuilderInfo _i = $pb.BuilderInfo(
       _omitMessageNames ? '' : 'EventWrapper',
       package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
       createEmptyInstance: create)
-    ..oo(0, [1])
+    ..oo(0, [1, 2])
     ..aOM<Detection>(1, _omitFieldNames ? '' : 'detection',
         subBuilder: Detection.create)
+    ..aOM<FrameSaved>(2, _omitFieldNames ? '' : 'frameSaved',
+        subBuilder: FrameSaved.create)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -490,8 +495,10 @@ class EventWrapper extends $pb.GeneratedMessage {
   static EventWrapper? _defaultInstance;
 
   @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
   EventWrapper_Msg whichMsg() => _EventWrapper_MsgByTag[$_whichOneof(0)]!;
   @$pb.TagNumber(1)
+  @$pb.TagNumber(2)
   void clearMsg() => $_clearField($_whichOneof(0));
 
   @$pb.TagNumber(1)
@@ -504,6 +511,17 @@ class EventWrapper extends $pb.GeneratedMessage {
   void clearDetection() => $_clearField(1);
   @$pb.TagNumber(1)
   Detection ensureDetection() => $_ensure(0);
+
+  @$pb.TagNumber(2)
+  FrameSaved get frameSaved => $_getN(1);
+  @$pb.TagNumber(2)
+  set frameSaved(FrameSaved value) => $_setField(2, value);
+  @$pb.TagNumber(2)
+  $core.bool hasFrameSaved() => $_has(1);
+  @$pb.TagNumber(2)
+  void clearFrameSaved() => $_clearField(2);
+  @$pb.TagNumber(2)
+  FrameSaved ensureFrameSaved() => $_ensure(1);
 }
 
 class Detection extends $pb.GeneratedMessage {
@@ -656,6 +674,59 @@ class DetectionItem extends $pb.GeneratedMessage {
   $core.bool hasConfidence() => $_has(2);
   @$pb.TagNumber(3)
   void clearConfidence() => $_clearField(3);
+}
+
+class FrameSaved extends $pb.GeneratedMessage {
+  factory FrameSaved({
+    $core.String? path,
+  }) {
+    final result = create();
+    if (path != null) result.path = path;
+    return result;
+  }
+
+  FrameSaved._();
+
+  factory FrameSaved.fromBuffer($core.List<$core.int> data,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromBuffer(data, registry);
+  factory FrameSaved.fromJson($core.String json,
+          [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
+      create()..mergeFromJson(json, registry);
+
+  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
+      _omitMessageNames ? '' : 'FrameSaved',
+      package: const $pb.PackageName(_omitMessageNames ? '' : 'app'),
+      createEmptyInstance: create)
+    ..aOS(1, _omitFieldNames ? '' : 'path')
+    ..hasRequiredFields = false;
+
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FrameSaved clone() => deepCopy();
+  @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
+  FrameSaved copyWith(void Function(FrameSaved) updates) =>
+      super.copyWith((message) => updates(message as FrameSaved)) as FrameSaved;
+
+  @$core.override
+  $pb.BuilderInfo get info_ => _i;
+
+  @$core.pragma('dart2js:noInline')
+  static FrameSaved create() => FrameSaved._();
+  @$core.override
+  FrameSaved createEmptyInstance() => create();
+  @$core.pragma('dart2js:noInline')
+  static FrameSaved getDefault() => _defaultInstance ??=
+      $pb.GeneratedMessage.$_defaultFor<FrameSaved>(create);
+  static FrameSaved? _defaultInstance;
+
+  @$pb.TagNumber(1)
+  $core.String get path => $_getSZ(0);
+  @$pb.TagNumber(1)
+  set path($core.String value) => $_setString(0, value);
+  @$pb.TagNumber(1)
+  $core.bool hasPath() => $_has(0);
+  @$pb.TagNumber(1)
+  void clearPath() => $_clearField(1);
 }
 
 class Rect extends $pb.GeneratedMessage {

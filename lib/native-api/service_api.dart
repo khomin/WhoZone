@@ -67,8 +67,8 @@ class ServiceApi {
           description: 'init');
       _initApi(out.taskId, out.data, out.len);
     } catch (ex) {
-      logInfo('$tag: -init failed: ${ex.toString()}');
-      completer.complete("Error while starting:\n${ex.toString()}");
+      logError('$tag: init failed: ${ex.toString()}');
+      completer.complete('Error while starting: ${ex.toString()}');
     }
     return completer.future;
   }
@@ -88,7 +88,7 @@ class ServiceApi {
     return completer.future;
   }
 
-  // @pragma('vm:entry-point')
+  @pragma('vm:entry-point')
   static void _handleNativeEvent(dynamic message) {
     var taskId = message[0];
     var buf = message[1] as Uint8List;
@@ -113,6 +113,8 @@ class ServiceApi {
         switch (ev.whichMsg()) {
           case EventWrapper_Msg.detection:
             getIt<CameraRep>().detection(ev.detection);
+            break;
+          case EventWrapper_Msg.frameSaved:
             break;
           case EventWrapper_Msg.notSet:
             break;

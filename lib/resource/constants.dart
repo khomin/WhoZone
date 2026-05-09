@@ -34,6 +34,8 @@ class Constants {
       'https://play.google.com/store/apps/details?id=com.who.zone';
 
   static const isDefaultFront = true;
+  static const isTestMode = true;
+  static get collapseMenuHeight => 150.0;
 
   static const duration = Duration(milliseconds: 200);
   static const durationPanel = Duration(milliseconds: 100);

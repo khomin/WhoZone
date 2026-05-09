@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/pages/capture/detection_box.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
@@ -12,9 +12,9 @@ import 'package:loggy/loggy.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CaptureTime {
-  CaptureTime({required this.duration, required this.isFirstEv});
+  CaptureTime({required this.duration, required this.isFirstEvent});
   Duration duration;
-  bool isFirstEv;
+  bool isFirstEvent;
 }
 
 class StartResult {
@@ -28,18 +28,18 @@ class CameraRep {
   final onFrameSize = BehaviorSubject<Size>.seeded(const Size(0, 0));
   final onCaptureTime = BehaviorSubject<CaptureTime?>();
   var onDetection = StreamController<List<DetectionBox>>.broadcast();
+  var onDetectionCount = BehaviorSubject<int>();
   final onTexture = BehaviorSubject<int>();
-  final onHistoryDataSize = BehaviorSubject<Int64>.seeded(Int64.ZERO);
-  bool captureActive = false;
+  bool captureEnable = false;
   Size? targetSize;
   Function(String path)? onCapture;
   Function()? onFirstFrame;
+
   var _frameSize = const Size(0, 0);
   Timer? _captureTm;
-  DateTime? _captureStart;
-  Completer<String>? _complCaptOneFrame;
+  DateTime? _captureStartedDate;
   int _captureIntervalSec = 0;
-  DateTime? _prevDetectionTime;
+  DateTime? _lastDetectionTime;
   final _channelCmd = MethodChannel('channel_cmd');
   List<String> _classNames = [];
   var _inited = false;
@@ -70,10 +70,7 @@ class CameraRep {
     return cameras;
   }
 
-  Future<StartResult?> startCamera({
-    required String id,
-    required int captureIntervalSec,
-  }) async {
+  Future<StartResult?> startCamera({required String id}) async {
     try {
       // permissions
       var r = await _channelCmd
@@ -123,10 +120,8 @@ class CameraRep {
     }
   }
 
-  Future<void> updateConfiguration({
-    required int captureIntervalSec,
-  }) async {
-    _captureIntervalSec = captureIntervalSec;
+  void updateConfiguration({required int captureIntervalSec}) async {
+    this._captureIntervalSec = captureIntervalSec;
   }
 
   void detection(app.Detection ev) {
@@ -134,17 +129,16 @@ class CameraRep {
     for (var item in ev.item) {
       boxes.add(DetectionBox.fromProto(item, _classNames));
     }
-    final now = DateTime.now();
-    var prevTime = _prevDetectionTime;
-    if (prevTime != null) {
-      var distance = now.difference(prevTime);
-      // logDebug(
-      //     '$tag: detection: [${boxes.length}], elapsed: ${distance.inMicroseconds}');
-      if (distance.inSeconds >= _captureIntervalSec) {
-        _alertEvent();
+    if (boxes.isNotEmpty) {
+      final now = DateTime.now();
+      var lastDetectionTime = _lastDetectionTime;
+      if (lastDetectionTime == null ||
+          now.difference(lastDetectionTime).inSeconds >= _captureIntervalSec) {
+        onDetectionCount.add((onDetectionCount.valueOrNull ?? 0) + 1);
+        _lastDetectionTime = now;
+        _detectionEvent();
       }
     }
-    _prevDetectionTime = now;
     onDetection.add(boxes);
   }
 
@@ -159,43 +153,33 @@ class CameraRep {
     return 0;
   }
 
-  Future<void> setCaptureActive(bool v) async {
-    if (captureActive != v) {
-      captureActive = v;
-      if (captureActive) {
-        _captureStart = DateTime.now();
-        _captureTm = Timer.periodic(const Duration(seconds: 1), (timer) {
-          var duration = (_captureStart?.difference(DateTime.now()).abs()) ??
-              Duration.zero;
-          onCaptureTime.add(CaptureTime(duration: duration, isFirstEv: false));
-        });
-        onCaptureTime
-            .add(CaptureTime(duration: const Duration(), isFirstEv: true));
-      } else {
-        _captureTm?.cancel();
-        _captureStart = null;
-        onCaptureTime.add(null);
-      }
-      try {
-        await _channelCmd.invokeMethod(
-            'set_capture_active', <String, dynamic>{'active': captureActive});
-      } catch (e) {
-        logError('$tag: set capture active ex: $e');
-      }
-    }
+  void startCapture({required int captureIntervalSec}) {
+    if (captureEnable) return;
+    captureEnable = true;
+    this._captureIntervalSec = captureIntervalSec;
+    _captureStartedDate = DateTime.now();
+    _captureTm?.cancel();
+    _captureTm = Timer.periodic(const Duration(seconds: 1), (tm) {
+      var duration = (_captureStartedDate?.difference(DateTime.now()).abs()) ??
+          Duration.zero;
+      onCaptureTime.add(CaptureTime(
+        duration: duration,
+        isFirstEvent: false,
+      ));
+    });
+    onCaptureTime.add(CaptureTime(
+      duration: const Duration(),
+      isFirstEvent: true,
+    ));
   }
 
-  Future<String> captureOneFrame({bool serviceFrame = false}) async {
-    var completer = Completer<String>();
-    try {
-      await _channelCmd.invokeMethod('capture_one_frame',
-          <String, dynamic>{'service_frame': serviceFrame});
-    } catch (e) {
-      logError('$tag: capture one frame ex: $e');
-    }
-    _complCaptOneFrame?.complete('');
-    _complCaptOneFrame = completer;
-    return completer.future;
+  void stopCapture() {
+    if (!captureEnable) return;
+    captureEnable = false;
+    _captureStartedDate = null;
+    _captureTm?.cancel();
+    onCaptureTime.add(null);
+    onDetectionCount.add(0);
   }
 
   Future<List<Sound>> getSounds() async {
@@ -247,9 +231,19 @@ class CameraRep {
     }
   }
 
-  Future<void> saveOneFrame() async {
+  Future<void> saveFrame({bool debug = false}) async {
     try {
-      var path = await Utils.getDowloadPath('who-zone-temp/one_frame.jpeg');
+      String? path;
+      if (debug) {
+        path = await Utils.getDowloadPath('who-zone-temp/one_frame.jpeg');
+      } else {
+        var date = _captureStartedDate;
+        if (date == null) {
+          logWarning('$tag: capture is not running to save frame');
+          return;
+        }
+        path = Utils().gallerySession(date);
+      }
       await _channelCmd.invokeMethod('save_one_frame', <String, dynamic>{
         'path': path,
       });
@@ -270,14 +264,19 @@ class CameraRep {
     return null;
   }
 
-  void _alertEvent() async {
+  // TODO: store frame in galery
+  // TODO: flip camera
+  // TODO: UI colors
+  // TODO: performance measure
+  void _detectionEvent() async {
+    await saveFrame();
     // handle if sound enabled
-    var sound = await SettingsRep().getSoundUsed();
+    var sound = getIt<SettingsRep>().getSound();
     if (sound != null) {
       playSound(sound: sound.uri);
     }
     // handle if packet sending enabled
-    var packet = await SettingsRep().getPacketUriUsed();
+    var packet = getIt<SettingsRep>().getPacketUri();
     if (packet != null) {
       sendPacket(packet);
     }

@@ -39,6 +39,7 @@ message Size {
 message EventWrapper {
     oneof msg {
         Detection detection = 1;
+        FrameSaved frame_saved = 2;
     }
 }
 
@@ -52,6 +53,10 @@ message DetectionItem {
     optional Rect detection = 1;
     optional int32 class_id = 2;
     optional float confidence = 3;
+}
+
+message FrameSaved {
+    optional string path = 1;
 }
 
 message Rect {

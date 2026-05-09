@@ -12,7 +12,7 @@
 #include "log.h"
 
 // --- Configuration Constants ---
-const float CONF_THRESHOLD = 0.50; // Minimum confidence to keep a box
+const float CONF_THRESHOLD = 0.30; // Minimum confidence to keep a box
 const float NMS_THRESHOLD = 0.50;  // IoU threshold for Non-Maximum Suppression
 const int MAX_MISSED_FRAMES = 70;
 
@@ -81,8 +81,12 @@ int Detector::start() {
     return 0;
 }
 
-void Detector::setCallback(std::function<void(Detection& detection)> v) {
+void Detector::onDetection(std::function<void(Detection& detection)> v) {
     _onDetection = v;
+}
+
+void Detector::onFrameSaved(std::function<void(std::string)> v) {
+    _onFrameSaved = v;
 }
 
 void Detector::pushFrame(FrameItem& frame) {
@@ -251,23 +255,23 @@ void Detector::send_result(std::vector<cv::Rect>& detections,
         std::cerr << "Error: Detection result vectors have mismatched sizes." << std::endl;
         return;
     }
-    LOGD("📊 FRAME: %dx%d", frame.cols, frame.rows);
+    // LOGD("📊 FRAME: %dx%d", frame.cols, frame.rows);
     auto now = std::chrono::steady_clock::now();
     Detection detection;
     detection.frame_count = _frame_count;
     detection.timestamp_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
     for(int i=0; i<detections.size(); i++) {
-        LOGD("📦 RAW detection %d: x=%d, y=%d, w=%d, h=%d",
-             i, detections[i].x, detections[i].y,
-             detections[i].width, detections[i].height);
+        // LOGD("📦 RAW detection %d: x=%d, y=%d, w=%d, h=%d",
+        //      i, detections[i].x, detections[i].y,
+        //      detections[i].width, detections[i].height);
         // NORMALIZE!
         float norm_x = detections[i].x / (float)frame.cols;
         float norm_y = detections[i].y / (float)frame.rows;
         float norm_w = detections[i].width / (float)frame.cols;
         float norm_h = detections[i].height / (float)frame.rows;
 
-        LOGD("📏 NORMALIZED %d: x=%.4f, y=%.4f, w=%.4f, h=%.4f",
-             i, norm_x, norm_y, norm_w, norm_h);
+        // LOGD("📏 NORMALIZED %d: x=%.4f, y=%.4f, w=%.4f, h=%.4f",
+        //      i, norm_x, norm_y, norm_w, norm_h);
         DetectionItem item;
         item.x = norm_x;
         item.y = norm_y;
@@ -448,7 +452,11 @@ void Detector::processPredictionsAndUpdateTrackers(cv::Mat& frame, cv::Mat& outs
     if(!_save_one_frame_to.empty()) {
         drawTrackers(frame, colors, time_start, trackers);
         cv::imwrite(_save_one_frame_to, frame);
+        if(_onFrameSaved != nullptr) {
+            _onFrameSaved(_save_one_frame_to);
+        }
         _save_one_frame_to.clear();
+
     }
 }
 

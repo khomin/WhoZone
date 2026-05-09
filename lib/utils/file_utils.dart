@@ -21,6 +21,14 @@ class Utils {
     return null;
   }
 
+  String galleryPath() {
+    return '${Utils.homeDir}/gallery/';
+  }
+
+  String gallerySession(DateTime date) {
+    return '${Utils.homeDir}/gallery/$date';
+  }
+
   Future writeToFile(ByteData data, String path) async {
     final buffer = data.buffer;
     await File(path).writeAsBytes(

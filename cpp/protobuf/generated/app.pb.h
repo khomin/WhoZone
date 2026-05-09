@@ -74,6 +74,10 @@ class EventWrapper;
 struct EventWrapperDefaultTypeInternal;
 extern EventWrapperDefaultTypeInternal _EventWrapper_default_instance_;
 extern const ::google::protobuf::internal::ClassDataFull EventWrapper_class_data_;
+class FrameSaved;
+struct FrameSavedDefaultTypeInternal;
+extern FrameSavedDefaultTypeInternal _FrameSaved_default_instance_;
+extern const ::google::protobuf::internal::ClassDataFull FrameSaved_class_data_;
 class InitParam;
 struct InitParamDefaultTypeInternal;
 extern InitParamDefaultTypeInternal _InitParam_default_instance_;
@@ -371,7 +375,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED Rect final : public ::google::proto
     return *reinterpret_cast<const Rect*>(
         &_Rect_default_instance_);
   }
-  static constexpr int kIndexInFileMessages = 8;
+  static constexpr int kIndexInFileMessages = 9;
   friend void swap(Rect& a, Rect& b) { a.Swap(&b); }
   inline void Swap(Rect* PROTOBUF_NONNULL other) {
     if (other == this) return;
@@ -1051,6 +1055,209 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED InitParam final : public ::google::
 };
 
 extern const ::google::protobuf::internal::ClassDataFull InitParam_class_data_;
+// -------------------------------------------------------------------
+
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED FrameSaved final : public ::google::protobuf::Message
+/* @@protoc_insertion_point(class_definition:app.FrameSaved) */ {
+ public:
+  inline FrameSaved() : FrameSaved(nullptr) {}
+  ~FrameSaved() PROTOBUF_FINAL;
+
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+  void operator delete(FrameSaved* PROTOBUF_NONNULL msg, ::std::destroying_delete_t) {
+    SharedDtor(*msg);
+    ::google::protobuf::internal::SizedDelete(msg, sizeof(FrameSaved));
+  }
+#endif
+
+  template <typename = void>
+  explicit constexpr FrameSaved(::google::protobuf::internal::ConstantInitialized);
+
+  inline FrameSaved(const FrameSaved& from) : FrameSaved(nullptr, from) {}
+  inline FrameSaved(FrameSaved&& from) noexcept
+      : FrameSaved(nullptr, ::std::move(from)) {}
+  inline FrameSaved& operator=(const FrameSaved& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline FrameSaved& operator=(FrameSaved&& from) noexcept {
+    if (this == &from) return *this;
+    if (::google::protobuf::internal::CanMoveWithInternalSwap(GetArena(), from.GetArena())) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
+      ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
+  }
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
+  mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
+  }
+
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  [[nodiscard]] static const FrameSaved& default_instance() {
+    return *reinterpret_cast<const FrameSaved*>(
+        &_FrameSaved_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages = 8;
+  friend void swap(FrameSaved& a, FrameSaved& b) { a.Swap(&b); }
+  inline void Swap(FrameSaved* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    if (::google::protobuf::internal::CanUseInternalSwap(GetArena(), other->GetArena())) {
+      InternalSwap(other);
+    } else {
+      ::google::protobuf::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(FrameSaved* PROTOBUF_NONNULL other) {
+    if (other == this) return;
+    ABSL_DCHECK(GetArena() == other->GetArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  [[nodiscard]] FrameSaved* PROTOBUF_NONNULL
+  New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
+    return ::google::protobuf::Message::DefaultConstruct<FrameSaved>(arena);
+  }
+  using ::google::protobuf::Message::CopyFrom;
+  void CopyFrom(const FrameSaved& from);
+  using ::google::protobuf::Message::MergeFrom;
+  void MergeFrom(const FrameSaved& from) { FrameSaved::MergeImpl(*this, from); }
+
+  private:
+  static void MergeImpl(::google::protobuf::MessageLite& to_msg,
+                        const ::google::protobuf::MessageLite& from_msg);
+
+  public:
+  [[nodiscard]] bool IsInitialized() const {
+    return true;
+  }
+  ABSL_ATTRIBUTE_REINITIALIZES void Clear() PROTOBUF_FINAL;
+  #if defined(PROTOBUF_CUSTOM_VTABLE)
+  private:
+  [[nodiscard]] static ::size_t ByteSizeLong(const ::google::protobuf::MessageLite& msg);
+  [[nodiscard]] static ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      const ::google::protobuf::MessageLite& msg, ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream);
+
+  public:
+  [[nodiscard]] ::size_t ByteSizeLong() const { return ByteSizeLong(*this); }
+  [[nodiscard]] ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+    return _InternalSerialize(*this, target, stream);
+  }
+  #else   // PROTOBUF_CUSTOM_VTABLE
+  [[nodiscard]] ::size_t ByteSizeLong() const final;
+  [[nodiscard]] ::uint8_t* PROTOBUF_NONNULL _InternalSerialize(
+      ::uint8_t* PROTOBUF_NONNULL target,
+      ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const final;
+  #endif  // PROTOBUF_CUSTOM_VTABLE
+  [[nodiscard]] int GetCachedSize() const {
+    return _impl_._cached_size_.Get();
+  }
+
+  private:
+  void SharedCtor(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static void SharedDtor(MessageLite& self);
+  void InternalSwap(FrameSaved* PROTOBUF_NONNULL other);
+ private:
+  template <typename T>
+  friend ::absl::string_view(::google::protobuf::internal::GetAnyMessageName)();
+  static ::absl::string_view FullMessageName() { return "app.FrameSaved"; }
+
+  explicit FrameSaved(::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  FrameSaved(::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const FrameSaved& from);
+  FrameSaved(
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, FrameSaved&& from) noexcept
+      : FrameSaved(arena) {
+    *this = ::std::move(from);
+  }
+  const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL GetClassData() const PROTOBUF_FINAL;
+  static void* PROTOBUF_NONNULL PlacementNew_(
+      const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
+      ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+  static constexpr auto InternalNewImpl_();
+
+ public:
+  static constexpr auto InternalGenerateClassData_();
+
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+  enum : int {
+    kPathFieldNumber = 1,
+  };
+  // optional string path = 1;
+  [[nodiscard]] bool has_path()
+      const;
+  void clear_path() ;
+  [[nodiscard]] const ::std::string& path() const;
+  template <typename Arg_ = const ::std::string&, typename... Args_>
+  void set_path(Arg_&& arg, Args_... args);
+  ::std::string* PROTOBUF_NONNULL mutable_path();
+  [[nodiscard]] ::std::string* PROTOBUF_NULLABLE release_path();
+  void set_allocated_path(::std::string* PROTOBUF_NULLABLE value);
+
+  private:
+  const ::std::string& _internal_path() const;
+  PROTOBUF_ALWAYS_INLINE void _internal_set_path(const ::std::string& value);
+  ::std::string* PROTOBUF_NONNULL _internal_mutable_path();
+
+  public:
+  // @@protoc_insertion_point(class_scope:app.FrameSaved)
+ private:
+  class _Internal;
+  friend class ::google::protobuf::internal::TcParser;
+  static const ::google::protobuf::internal::TcParseTable<0, 1,
+                                   0, 0,
+                                   2>
+      _table_;
+
+  friend class ::google::protobuf::MessageLite;
+  friend class ::google::protobuf::Arena;
+  friend ::google::protobuf::internal::PrivateAccess;
+  template <typename T>
+  friend class ::google::protobuf::Arena::InternalHelper;
+  using InternalArenaConstructable_ = void;
+  using DestructorSkippable_ = void;
+  struct Impl_ {
+    inline explicit constexpr Impl_(::google::protobuf::internal::InternalVisibility visibility,
+                                    ::google::protobuf::internal::ConstantInitialized) noexcept;
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena);
+    inline explicit Impl_(
+        ::google::protobuf::internal::InternalVisibility visibility,
+        ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+        const FrameSaved& from_msg);
+    ::google::protobuf::internal::HasBits<1> _has_bits_;
+    ::google::protobuf::internal::CachedSize _cached_size_;
+    ::google::protobuf::internal::ArenaStringPtr path_;
+    PROTOBUF_TSAN_DECLARE_MEMBER
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_app_2eproto;
+};
+
+extern const ::google::protobuf::internal::ClassDataFull FrameSaved_class_data_;
 // -------------------------------------------------------------------
 
 class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::google::protobuf::Message
@@ -2099,6 +2306,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
   }
   enum MsgCase {
     kDetection = 1,
+    kFrameSaved = 2,
     MSG_NOT_SET = 0,
   };
   static constexpr int kIndexInFileMessages = 5;
@@ -2192,6 +2400,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
   // accessors -------------------------------------------------------
   enum : int {
     kDetectionFieldNumber = 1,
+    kFrameSavedFieldNumber = 2,
   };
   // .app.Detection detection = 1;
   [[nodiscard]] bool has_detection()
@@ -2213,17 +2422,38 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
   ::app::Detection* PROTOBUF_NONNULL _internal_mutable_detection();
 
   public:
+  // .app.FrameSaved frame_saved = 2;
+  [[nodiscard]] bool has_frame_saved()
+      const;
+  private:
+  bool _internal_has_frame_saved() const;
+
+  public:
+  void clear_frame_saved() ;
+  [[nodiscard]] const ::app::FrameSaved& frame_saved() const;
+  [[nodiscard]] ::app::FrameSaved* PROTOBUF_NULLABLE release_frame_saved();
+  ::app::FrameSaved* PROTOBUF_NONNULL mutable_frame_saved();
+  void set_allocated_frame_saved(::app::FrameSaved* PROTOBUF_NULLABLE value);
+  void unsafe_arena_set_allocated_frame_saved(::app::FrameSaved* PROTOBUF_NULLABLE value);
+  ::app::FrameSaved* PROTOBUF_NULLABLE unsafe_arena_release_frame_saved();
+
+  private:
+  const ::app::FrameSaved& _internal_frame_saved() const;
+  ::app::FrameSaved* PROTOBUF_NONNULL _internal_mutable_frame_saved();
+
+  public:
   void clear_msg();
   MsgCase msg_case() const;
   // @@protoc_insertion_point(class_scope:app.EventWrapper)
  private:
   class _Internal;
   void set_has_detection();
+  void set_has_frame_saved();
   [[nodiscard]] inline bool has_msg() const;
   inline void clear_has_msg();
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<0, 1,
-                                   1, 0,
+  static const ::google::protobuf::internal::TcParseTable<0, 2,
+                                   2, 0,
                                    2>
       _table_;
 
@@ -2248,6 +2478,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED EventWrapper final : public ::googl
       constexpr MsgUnion() : _constinit_{} {}
       ::google::protobuf::internal::ConstantInitialized _constinit_;
       ::app::Detection* PROTOBUF_NULLABLE detection_;
+      ::app::FrameSaved* PROTOBUF_NULLABLE frame_saved_;
     } msg_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::uint32_t _oneof_case_[1];
@@ -3215,6 +3446,88 @@ inline ::app::Detection* PROTOBUF_NONNULL EventWrapper::mutable_detection()
   return _msg;
 }
 
+// .app.FrameSaved frame_saved = 2;
+inline bool EventWrapper::has_frame_saved() const {
+  return msg_case() == kFrameSaved;
+}
+inline bool EventWrapper::_internal_has_frame_saved() const {
+  return msg_case() == kFrameSaved;
+}
+inline void EventWrapper::set_has_frame_saved() {
+  _impl_._oneof_case_[0] = kFrameSaved;
+}
+inline void EventWrapper::clear_frame_saved() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (msg_case() == kFrameSaved) {
+    if (GetArena() == nullptr) {
+      delete _impl_.msg_.frame_saved_;
+    } else if (::google::protobuf::internal::DebugHardenClearOneofMessageOnArena()) {
+      ::google::protobuf::internal::MaybePoisonAfterClear(_impl_.msg_.frame_saved_);
+    }
+    clear_has_msg();
+  }
+}
+inline ::app::FrameSaved* PROTOBUF_NULLABLE EventWrapper::release_frame_saved() {
+  // @@protoc_insertion_point(field_release:app.EventWrapper.frame_saved)
+  if (msg_case() == kFrameSaved) {
+    clear_has_msg();
+    auto* temp = _impl_.msg_.frame_saved_;
+    if (GetArena() != nullptr) {
+      temp = ::google::protobuf::internal::DuplicateIfNonNull(temp);
+    }
+    _impl_.msg_.frame_saved_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline const ::app::FrameSaved& EventWrapper::_internal_frame_saved() const {
+  return msg_case() == kFrameSaved ? static_cast<const ::app::FrameSaved&>(*_impl_.msg_.frame_saved_)
+                     : reinterpret_cast<const ::app::FrameSaved&>(::app::_FrameSaved_default_instance_);
+}
+inline const ::app::FrameSaved& EventWrapper::frame_saved() const ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:app.EventWrapper.frame_saved)
+  return _internal_frame_saved();
+}
+inline ::app::FrameSaved* PROTOBUF_NULLABLE EventWrapper::unsafe_arena_release_frame_saved() {
+  // @@protoc_insertion_point(field_unsafe_arena_release:app.EventWrapper.frame_saved)
+  if (msg_case() == kFrameSaved) {
+    clear_has_msg();
+    auto* temp = _impl_.msg_.frame_saved_;
+    _impl_.msg_.frame_saved_ = nullptr;
+    return temp;
+  } else {
+    return nullptr;
+  }
+}
+inline void EventWrapper::unsafe_arena_set_allocated_frame_saved(
+    ::app::FrameSaved* PROTOBUF_NULLABLE value) {
+  // We rely on the oneof clear method to free the earlier contents
+  // of this oneof. We can directly use the pointer we're given to
+  // set the new value.
+  clear_msg();
+  if (value) {
+    set_has_frame_saved();
+    _impl_.msg_.frame_saved_ = value;
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:app.EventWrapper.frame_saved)
+}
+inline ::app::FrameSaved* PROTOBUF_NONNULL EventWrapper::_internal_mutable_frame_saved() {
+  if (msg_case() != kFrameSaved) {
+    clear_msg();
+    set_has_frame_saved();
+    _impl_.msg_.frame_saved_ = 
+        ::google::protobuf::Message::DefaultConstruct<::app::FrameSaved>(GetArena());
+  }
+  return _impl_.msg_.frame_saved_;
+}
+inline ::app::FrameSaved* PROTOBUF_NONNULL EventWrapper::mutable_frame_saved()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  ::app::FrameSaved* _msg = _internal_mutable_frame_saved();
+  // @@protoc_insertion_point(field_mutable:app.EventWrapper.frame_saved)
+  return _msg;
+}
+
 inline bool EventWrapper::has_msg() const {
   return msg_case() != MSG_NOT_SET;
 }
@@ -3501,6 +3814,79 @@ inline float DetectionItem::_internal_confidence() const {
 inline void DetectionItem::_internal_set_confidence(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.confidence_ = value;
+}
+
+// -------------------------------------------------------------------
+
+// FrameSaved
+
+// optional string path = 1;
+inline bool FrameSaved::has_path() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000001U);
+  return value;
+}
+inline void FrameSaved::clear_path() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.path_.ClearToEmpty();
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000001U);
+}
+inline const ::std::string& FrameSaved::path() const
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  // @@protoc_insertion_point(field_get:app.FrameSaved.path)
+  return _internal_path();
+}
+template <typename Arg_, typename... Args_>
+PROTOBUF_ALWAYS_INLINE void FrameSaved::set_path(Arg_&& arg, Args_... args) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  _impl_.path_.Set(static_cast<Arg_&&>(arg), args..., GetArena());
+  // @@protoc_insertion_point(field_set:app.FrameSaved.path)
+}
+inline ::std::string* PROTOBUF_NONNULL FrameSaved::mutable_path()
+    ABSL_ATTRIBUTE_LIFETIME_BOUND {
+  SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  ::std::string* _s = _internal_mutable_path();
+  // @@protoc_insertion_point(field_mutable:app.FrameSaved.path)
+  return _s;
+}
+inline const ::std::string& FrameSaved::_internal_path() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.path_.Get();
+}
+inline void FrameSaved::_internal_set_path(const ::std::string& value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.path_.Set(value, GetArena());
+}
+inline ::std::string* PROTOBUF_NONNULL FrameSaved::_internal_mutable_path() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  return _impl_.path_.Mutable( GetArena());
+}
+inline ::std::string* PROTOBUF_NULLABLE FrameSaved::release_path() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  // @@protoc_insertion_point(field_release:app.FrameSaved.path)
+  if (!CheckHasBit(_impl_._has_bits_[0], 0x00000001U)) {
+    return nullptr;
+  }
+  ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  auto* released = _impl_.path_.Release();
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString()) {
+    _impl_.path_.Set("", GetArena());
+  }
+  return released;
+}
+inline void FrameSaved::set_allocated_path(::std::string* PROTOBUF_NULLABLE value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  if (value != nullptr) {
+    SetHasBit(_impl_._has_bits_[0], 0x00000001U);
+  } else {
+    ClearHasBit(_impl_._has_bits_[0], 0x00000001U);
+  }
+  _impl_.path_.SetAllocated(value, GetArena());
+  if (::google::protobuf::internal::DebugHardenForceCopyDefaultString() && _impl_.path_.IsDefault()) {
+    _impl_.path_.Set("", GetArena());
+  }
+  // @@protoc_insertion_point(field_set_allocated:app.FrameSaved.path)
 }
 
 // -------------------------------------------------------------------

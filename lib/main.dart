@@ -9,12 +9,16 @@ import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> initDependencies() async {
   getIt.registerLazySingleton<CameraRep>(() => CameraRep());
   getIt.registerLazySingleton<HistoryRep>(() => HistoryRep());
+
+  final prefs = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SettingsRep>(() => SettingsRep(prefs));
 }
 
 void main() async {
@@ -30,14 +34,15 @@ void main() async {
     statusBarColor: Colors.transparent,
   ));
 
-  final results = await Future.wait([
-    SettingsRep().getTheme(),
-    initDependencies(),
-  ]);
+  await initDependencies();
+
+  await getIt<SettingsRep>().init();
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AppModel(theme: results[0] as ThemeMode),
+      create: (_) => AppModel(
+        theme: getIt<SettingsRep>().getTheme(),
+      ),
       child: const MainApp(),
     ),
   );

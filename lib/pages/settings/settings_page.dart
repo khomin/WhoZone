@@ -221,9 +221,7 @@ class SettingsPageState extends State<SettingsPage> {
                   const Spacer(),
                   const SizedBox(width: 20),
                   StreamBuilder(
-                      stream: getIt<CameraRep>().onHistoryDataSize,
-                      initialData:
-                          getIt<CameraRep>().onHistoryDataSize.valueOrNull,
+                      stream: getIt<HistoryRep>().onHistoryDataSize,
                       builder: (context, snapshot) {
                         var size = snapshot.data ?? Int64.ZERO;
                         return Text(' ${Converter.convertBytesToKbMbGb(size)}',

@@ -375,36 +375,6 @@ class HomePagePageState extends State<HomePagePage>
                       'Home',
                       style: Theme.of(context).colorScheme.homeCardH1Style,
                     )),
-                //
-                // duration
-                HoverClick(
-                    onPressedL: (p0) async {
-                      _handleOnSlide();
-                    },
-                    child: SizedBox(
-                        width: 130,
-                        height: 50,
-                        child: RepaintBoundary(
-                            child:
-                                Stack(alignment: Alignment.center, children: [
-                          StreamBuilder(
-                              stream: getIt<CameraRep>().onCaptureTime,
-                              initialData:
-                                  getIt<CameraRep>().onCaptureTime.valueOrNull,
-                              builder: (context, snapshot) {
-                                var duration = snapshot.data;
-                                return AnimatedContainer(
-                                    duration: Duration.zero,
-                                    width: duration == null ? 10 : 130,
-                                    height: duration == null ? 10 : 30,
-                                    child: RoundBox(
-                                        text: duration?.duration.format() ?? '',
-                                        color: const Color.fromARGB(
-                                                255, 211, 19, 5)
-                                            .withValues(alpha: 0.8),
-                                        borderRadius: 40));
-                              })
-                        ])))),
                 const Spacer()
               ])))
     ]);

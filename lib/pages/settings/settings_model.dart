@@ -18,7 +18,7 @@ class SettingsModel with ChangeNotifier {
 
   Future<void> initData() async {
     // whether sound used
-    Sound? usedSound = await SettingsRep().getSoundUsed();
+    Sound? usedSound = await getIt<SettingsRep>().getSound();
     // all system sounds
     setSoundList(await getIt<CameraRep>().getSounds());
     if (sounds.isNotEmpty) {
@@ -32,15 +32,14 @@ class SettingsModel with ChangeNotifier {
         } else {
           // take first default
           setSound(sounds.first);
-          SettingsRep().setSoundUsed(sounds.first);
+          getIt<SettingsRep>().setSound(sounds.first);
         }
       }
     } else {
       logError('$tag: no sounds');
     }
     // whether use packet sending
-    // await SettingsRep().get
-    Packet? packetUri = await SettingsRep().getPacketUriUsed();
+    Packet? packetUri = getIt<SettingsRep>().getPacketUri();
     if (packetUri != null) {
       setPacketToAddr(v: packetUri.address, saveConfig: false);
       setUsePacket(value: true, saveConfig: false);
@@ -54,7 +53,7 @@ class SettingsModel with ChangeNotifier {
     if (sound != v) {
       sound = v;
       useSound = v != null;
-      SettingsRep().setSoundUsed(v);
+      getIt<SettingsRep>().setSound(v);
       notifyListeners();
     }
   }
@@ -71,10 +70,10 @@ class SettingsModel with ChangeNotifier {
     if (usePacket != value) {
       usePacket = value;
       if (value && saveConfig) {
-        SettingsRep().setPacketUri(
+        getIt<SettingsRep>().setPacketUri(
             packet ?? Packet(address: '192.168.1.1', tcp: true, udp: false));
       } else if (saveConfig) {
-        SettingsRep().setPacketUri(null);
+        getIt<SettingsRep>().setPacketUri(null);
       }
       notifyListeners();
     }
@@ -84,7 +83,7 @@ class SettingsModel with ChangeNotifier {
     if (packetValue != v) {
       packetValue = v;
       if (saveConfig) {
-        SettingsRep().setPacketUri(Packet(
+        getIt<SettingsRep>().setPacketUri(Packet(
             address: packetToAddr ?? '',
             tcp: packetValue == 'TCP' ? true : false,
             udp: packetValue == 'UDP' ? true : false));
@@ -97,7 +96,7 @@ class SettingsModel with ChangeNotifier {
     if (packetToAddr != v) {
       packetToAddr = v;
       if (v != null && saveConfig) {
-        SettingsRep().setPacketUri(Packet(
+        getIt<SettingsRep>().setPacketUri(Packet(
             address: v,
             tcp: packetValue == 'TCP' ? true : false,
             udp: packetValue == 'UDP' ? true : false));

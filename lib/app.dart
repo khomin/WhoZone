@@ -15,6 +15,7 @@ import 'package:flutter_demo/pages/settings/settings_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/nav_rep.dart';
+import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/file_utils.dart';
 import 'package:flutter_demo/utils/log_printer.dart';
@@ -38,29 +39,37 @@ class AppState extends State<App> {
   void initState() {
     super.initState();
 
+    _captureModel = CaptureModel(
+      captureIntervalSec: getIt<SettingsRep>().getCaptureIntervalSec(),
+    );
     _alertModel = AlertModel();
-    _captureModel = CaptureModel();
-    _init();
+
+    _bootstrap();
   }
 
-  void _init() async {
-    // date format
-    Jiffy.setLocale('uk');
-    // create app home directory
-    await Utils.init();
-    // init log
+  void _bootstrap() async {
     Loggy.initLoggy(logPrinter: LogPrinter());
-    // init cpp
-    await ServiceApi().initLib();
-    // hide splash screen
-    _appModel.setReady(true);
-    // preload alert
-    _alertModel.init();
-    getIt<CameraRep>().init();
 
-    Timer(Duration(seconds: 1), () {
-      NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
-    });
+    Future.wait([
+      Jiffy.setLocale('uk'),
+      Utils.init(),
+      ServiceApi().initLib(),
+    ]);
+    _alertModel.init();
+
+    await getIt<CameraRep>().init();
+
+    _appModel.setReady(true);
+
+    _handleInitialRoute();
+  }
+
+  void _handleInitialRoute() {
+    if (Constants.isTestMode) {
+      Timer(const Duration(seconds: 1), () {
+        NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
+      });
+    }
   }
 
   @override
@@ -100,10 +109,11 @@ class AppState extends State<App> {
                         AnimatedPositioned(
                             duration: Constants.durationPanel,
                             curve: Curves.easeIn,
-                            top: collapse ? size.height / 3 : 0,
+                            top: collapse ? Constants.collapseMenuHeight : 0,
                             left: 0,
                             right: 0,
-                            bottom: collapse ? -(size.height / 3) : 0,
+                            bottom:
+                                collapse ? -Constants.collapseMenuHeight : 0,
                             child: Stack(children: [
                               Scaffold(
                                   body: Stack(children: [
@@ -124,23 +134,6 @@ class AppState extends State<App> {
                                               return const HomePagePage();
                                           }
                                         }),
-                                    AnimatedOpacity(
-                                        opacity: collapse ? 0.5 : 0.0,
-                                        duration: Constants.duration,
-                                        child: IgnorePointer(
-                                            ignoring: !collapse,
-                                            child: HoverClick(
-                                              onPressedL: (p0) {
-                                                context
-                                                    .read<AppModel>()
-                                                    .setCollapse(false);
-                                              },
-                                              child: Container(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .colorBgUnderCard,
-                                              ),
-                                            )))
                                   ]),
                                   bottomNavigationBar: Container(
                                       height: 70 + padding.bottom,

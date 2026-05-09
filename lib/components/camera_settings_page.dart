@@ -3,8 +3,6 @@ import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
 
 class CameraSettingsPage extends StatefulWidget {
@@ -15,28 +13,8 @@ class CameraSettingsPage extends StatefulWidget {
 }
 
 class CameraSettingsPageState extends State<CameraSettingsPage> {
-  final _dispStream = DisposableStream();
-  late CaptureModel _model;
-
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      _model.init(
-        captureIntervalSec: await SettingsRep().getCaptureIntervalSec(),
-      );
-    });
-  }
-
-  @override
-  void dispose() {
-    _dispStream.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
-    _model = context.read<CaptureModel>();
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: Stack(children: [
@@ -73,7 +51,8 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                       // capture image interval
                       Builder(builder: (context) {
                         var captureSec = context.select<CaptureModel, int>(
-                            (v) => v.captureIntervalSec);
+                          (v) => v.captureIntervalSec,
+                        );
                         return Row(children: [
                           Padding(
                               padding: const EdgeInsets.only(left: 25),
@@ -102,8 +81,7 @@ class CameraSettingsPageState extends State<CameraSettingsPage> {
                                   onChanged: (double newValue) {
                                     context
                                         .read<CaptureModel>()
-                                        .setCaptureImageIntVal(
-                                            newValue.toInt());
+                                        .setCaptureInterval(newValue.toInt());
                                   }))
                         ]);
                       }),
