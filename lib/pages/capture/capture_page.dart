@@ -244,33 +244,9 @@ class CapturePageState extends State<CapturePage>
                     boxes: getIt<CameraRep>().onDetection.stream,
                   ),
                 ),
-                // detection shots count
-                Positioned(
-                  bottom: 10,
-                  left: 10,
-                  child: RepaintBoundary(
-                    child: SizedBox(
-                        width: 40,
-                        height: 30,
-                        child: Stack(children: [
-                          StreamBuilder(
-                              stream:
-                                  getIt<CameraRep>().onDetectionCount.stream,
-                              builder: (context, snapshot) {
-                                var count = snapshot.data ?? 0;
-                                if (count == 0) return const SizedBox();
-                                return RoundBox(
-                                  text: count.toString(),
-                                  useLeftMargin: false,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .bottomNavIconUnselected,
-                                  borderRadius: 60,
-                                );
-                              })
-                        ])),
-                  ),
-                )
+                //
+                // frame-shots count
+                _frameCount()
               ],
             ),
           ),
@@ -332,5 +308,33 @@ class CapturePageState extends State<CapturePage>
                         _captureModel.setFlipWait(false);
                       }));
             }))));
+  }
+
+  Widget _frameCount() {
+    final color = Theme.of(context).colorScheme.cameraButtonIcon;
+    return Positioned(
+      bottom: 10,
+      left: 10,
+      child: RepaintBoundary(
+          child: SizedBox(
+              width: 80,
+              height: 30,
+              child: StreamBuilder(
+                  stream: getIt<CameraRep>().onDetectionCount.stream,
+                  builder: (context, snapshot) {
+                    var count = snapshot.data ?? 0;
+                    if (count == 0) return const SizedBox();
+                    return Row(children: [
+                      Icon(Icons.camera, color: color),
+                      Flexible(
+                          child: Text(
+                        count.toString(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 17, color: color),
+                      ))
+                    ]);
+                  }))),
+    );
   }
 }

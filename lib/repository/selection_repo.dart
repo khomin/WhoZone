@@ -8,21 +8,22 @@ enum SearchType { media }
 
 class GoToResult {
   GoToResult({required this.model, this.page});
-  HistoryRecord model;
-  List<HistoryRecord>? page;
+  HistoryRoot model;
+  List<HistoryRoot>? page;
 }
 
 class SelectionRep {
-  SelectionRep({this.history = const []});
-  final onResult = BehaviorSubject<List<HistoryRecord>>();
+  final onResult = BehaviorSubject<List<HistoryRoot>>();
   final onBusy = BehaviorSubject<bool>();
   final onMediaMsgCount = BehaviorSubject<int>();
   final selectedStream = BehaviorSubject<int>();
   final searchNode = FocusNode();
-  List<HistoryRecord> history;
+  List<History> history;
   bool active = false;
   int get selectedCnt => selectedStream.valueOrNull ?? 0;
   final tag = 'selectionRep';
+
+  SelectionRep({this.history = const []});
 
   void dispose() {
     for (var it in history) {
@@ -47,11 +48,11 @@ class SelectionRep {
     }
   }
 
-  List<HistoryRecord> getSelected({
+  List<History> getSelected({
     required SearchType type,
     bool resetSelection = false,
   }) {
-    var list = <HistoryRecord>[];
+    var list = <History>[];
     switch (type) {
       case SearchType.media:
         list = history.where((it) => it.selection).toList();

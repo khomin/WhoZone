@@ -7,7 +7,7 @@ import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/pages/capture/detection_box.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/utils/file_utils.dart';
+import 'package:flutter_demo/utils/utils.dart';
 import 'package:loggy/loggy.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -134,9 +134,8 @@ class CameraRep {
       var lastDetectionTime = _lastDetectionTime;
       if (lastDetectionTime == null ||
           now.difference(lastDetectionTime).inSeconds >= _captureIntervalSec) {
-        onDetectionCount.add((onDetectionCount.valueOrNull ?? 0) + 1);
         _lastDetectionTime = now;
-        _detectionEvent();
+        detectionEvent();
       }
     }
     onDetection.add(boxes);
@@ -231,27 +230,6 @@ class CameraRep {
     }
   }
 
-  Future<void> saveFrame({bool debug = false}) async {
-    try {
-      String? path;
-      if (debug) {
-        path = await Utils.getDowloadPath('who-zone-temp/one_frame.jpeg');
-      } else {
-        var date = _captureStartedDate;
-        if (date == null) {
-          logWarning('$tag: capture is not running to save frame');
-          return;
-        }
-        path = Utils().gallerySession(date);
-      }
-      await _channelCmd.invokeMethod('save_one_frame', <String, dynamic>{
-        'path': path,
-      });
-    } catch (e) {
-      logError('$tag: error: $e');
-    }
-  }
-
   Future<Size?> getTargetSize() async {
     try {
       var res = await _channelCmd
@@ -268,17 +246,42 @@ class CameraRep {
   // TODO: flip camera
   // TODO: UI colors
   // TODO: performance measure
-  void _detectionEvent() async {
-    await saveFrame();
-    // handle if sound enabled
-    var sound = getIt<SettingsRep>().getSound();
-    if (sound != null) {
-      playSound(sound: sound.uri);
+  void detectionEvent({bool force = false}) async {
+    await _saveFrame();
+    if (!force) {
+      // handle if sound enabled
+      var sound = getIt<SettingsRep>().getSound();
+      if (sound != null) {
+        playSound(sound: sound.uri);
+      }
+      // handle if packet sending enabled
+      var packet = getIt<SettingsRep>().getPacketUri();
+      if (packet != null) {
+        sendPacket(packet);
+      }
     }
-    // handle if packet sending enabled
-    var packet = getIt<SettingsRep>().getPacketUri();
-    if (packet != null) {
-      sendPacket(packet);
+    // update counter
+    onDetectionCount.add((onDetectionCount.valueOrNull ?? 0) + 1);
+  }
+
+  Future<void> _saveFrame({bool debug = false}) async {
+    try {
+      String? path;
+      if (debug) {
+        path = await Utils.getDowloadPath('who-zone-temp/one_frame.jpeg');
+      } else {
+        var date = _captureStartedDate;
+        if (date == null) {
+          logWarning('$tag: capture is not running to save frame');
+          return;
+        }
+        path = await Utils().historySession(date);
+      }
+      await _channelCmd.invokeMethod('save_one_frame', <String, dynamic>{
+        'path': path,
+      });
+    } catch (e) {
+      logError('$tag: error: $e');
     }
   }
 }

@@ -42,6 +42,8 @@ class Constants {
   static const lastFrameDuration = Duration(milliseconds: 150);
   static const animationDuraton = const Duration(milliseconds: 150);
 
+  static String get recordDateFormat => 'yyyy-MM-dd kk-mm-sss';
+
   static const menuFontSize1 = 15.0;
   static const menuFontSize2 = 14.0;
   static const menuFontSize3 = 13.0;

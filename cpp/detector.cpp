@@ -456,7 +456,6 @@ void Detector::processPredictionsAndUpdateTrackers(cv::Mat& frame, cv::Mat& outs
             _onFrameSaved(_save_one_frame_to);
         }
         _save_one_frame_to.clear();
-
     }
 }
 

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
-import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
@@ -181,7 +181,8 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                               topLeft: Radius.circular(90),
                                               bottomLeft: Radius.circular(90)),
                                           onPressed: () {
-                                            getIt<CameraRep>().saveFrame();
+                                            getIt<CameraRep>()
+                                                .detectionEvent(force: true);
                                           }));
                                 })),
                             Opacity(

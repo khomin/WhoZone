@@ -6,8 +6,8 @@ import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 
-class ViewItem2 extends StatefulWidget {
-  const ViewItem2({
+class ViewItem extends StatefulWidget {
+  const ViewItem({
     required this.history,
     required this.onPressed,
     required this.size,
@@ -15,16 +15,16 @@ class ViewItem2 extends StatefulWidget {
     this.padding,
     super.key,
   });
-  final HistoryRecord history;
+  final HistoryRoot history;
   final Function() onPressed;
   final int size;
   final EdgeInsets? padding;
   final SelectionRep selectionRep;
   @override
-  State<ViewItem2> createState() => ViewItem2State();
+  State<ViewItem> createState() => ViewItemState();
 }
 
-class ViewItem2State extends State<ViewItem2> with TickerProviderStateMixin {
+class ViewItemState extends State<ViewItem> with TickerProviderStateMixin {
   late AnimationController _controller;
   late final Animation<double> _width;
   late final Animation<double> _opacity;
@@ -51,44 +51,43 @@ class ViewItem2State extends State<ViewItem2> with TickerProviderStateMixin {
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.linear)));
 
-    if (widget.history.selection) {
-      _scale();
-    }
+    // if (widget.history.selection) {
+    //   _scale();
+    // }
 
-    _dispStream.add(widget.selectionRep.selectedStream.listen((value) {
-      if (value == 0) {
-        widget.history.selection = false;
-        // _controller.forward();
-        _controller.reverse().orCancel;
-      }
-    }));
+    // _dispStream.add(widget.selectionRep.selectedStream.listen((value) {
+    //   if (value == 0) {
+    //     widget.history.selection = false;
+    //     _controller.reverse().orCancel;
+    //   }
+    // }));
   }
 
-  void _onClick() async {
-    if (widget.selectionRep.selectedCnt == 0) {
-      widget.onPressed();
-    } else if (widget.history.selection) {
-      widget.selectionRep.releaseSelection();
-      widget.history.selection = false;
-      _scale();
-    } else {
-      widget.selectionRep.addSelection();
-      widget.history.selection = true;
-      _scale();
-    }
-  }
+  // void _onClick() async {
+  //   if (widget.selectionRep.selectedCnt == 0) {
+  //     widget.onPressed();
+  //   } else if (widget.history.selection) {
+  //     widget.selectionRep.releaseSelection();
+  //     widget.history.selection = false;
+  //     _scale();
+  //   } else {
+  //     widget.selectionRep.addSelection();
+  //     widget.history.selection = true;
+  //     _scale();
+  //   }
+  // }
 
-  void _onLongClick() async {
-    if (widget.selectionRep.selectedCnt == 0) {
-      widget.selectionRep.addSelection();
-      widget.history.selection = true;
-      _scale();
-    } else {
-      widget.selectionRep.releaseSelection();
-      widget.history.selection = false;
-      _scale();
-    }
-  }
+  // void _onLongClick() async {
+  //   if (widget.selectionRep.selectedCnt == 0) {
+  //     widget.selectionRep.addSelection();
+  //     widget.history.selection = true;
+  //     _scale();
+  //   } else {
+  //     widget.selectionRep.releaseSelection();
+  //     widget.history.selection = false;
+  //     _scale();
+  //   }
+  // }
 
   void _scale() async {
     if (_controller.isForwardOrCompleted) {
@@ -113,10 +112,10 @@ class ViewItem2State extends State<ViewItem2> with TickerProviderStateMixin {
             color: Theme.of(context).colorScheme.colorCard,
             child: ClickDetector(
                 onClick: () {
-                  _onClick();
+                  // _onClick();
                 },
                 onLongClick: () {
-                  _onLongClick();
+                  // _onLongClick();
                 },
                 child: Stack(alignment: Alignment.center, children: [
                   Column(children: [

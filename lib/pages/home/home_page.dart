@@ -1,18 +1,14 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
-import 'package:flutter_demo/components/round_box.dart';
 import 'package:flutter_demo/main.dart';
-import 'package:flutter_demo/pages/home/grid_dialog.dart';
-import 'package:flutter_demo/pages/home/search_page.dart';
-import 'package:flutter_demo/pages/home/view_item1.dart';
+import 'package:flutter_demo/pages/history/history_page.dart';
+import 'package:flutter_demo/pages/history/view_root.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
-import 'package:flutter_demo/utils/common.dart';
 import 'package:rxdart/rxdart.dart';
 
 class HomePagePage extends StatefulWidget {
@@ -27,7 +23,6 @@ class HomePagePageState extends State<HomePagePage>
   final _scrollCtr = ScrollController();
   final _focus = FocusNode();
   late final Animation<double> _slideHeight;
-  late final Animation<double> _slideOpacity;
   late AnimationController _ctrSlideTop;
   late AnimationController _ctrShakeIcon;
   late final Animation<double> _iconRotate;
@@ -48,13 +43,6 @@ class HomePagePageState extends State<HomePagePage>
     _slideHeight = Tween<double>(
       begin: kToolbarHeight,
       end: kToolbarHeight * 3,
-    ).animate(CurvedAnimation(
-        parent: _ctrSlideTop.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
-
-    _slideOpacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
     ).animate(CurvedAnimation(
         parent: _ctrSlideTop.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
@@ -90,18 +78,15 @@ class HomePagePageState extends State<HomePagePage>
     });
 
     Timer(const Duration(milliseconds: 100), () async {
-      var history = await getIt<HistoryRep>().getHistory();
-      if (!mounted) return;
-      if (history.isEmpty) {
-        Timer(const Duration(milliseconds: 200), () {
-          if (!mounted) return;
-          if (_ctrShakeIcon.isForwardOrCompleted) {
-            _ctrShakeIcon.reverse().orCancel;
-          } else {
-            _ctrShakeIcon.forward().orCancel;
-          }
-        });
+      if (await getIt<HistoryRep>().isEmpty()) {
+        if (!mounted) return;
+        if (_ctrShakeIcon.isForwardOrCompleted) {
+          _ctrShakeIcon.reverse().orCancel;
+        } else {
+          _ctrShakeIcon.forward().orCancel;
+        }
       }
+      getIt<HistoryRep>().updateHistory();
     });
   }
 
@@ -209,29 +194,29 @@ class HomePagePageState extends State<HomePagePage>
                     Flexible(
                         child: HoverClick(
                             onPressedL: (p0) {
-                              Navigator.push(
-                                  context,
-                                  CupertinoPageRoute(
-                                    settings: const RouteSettings(),
-                                    builder: (context) {
-                                      return const SearchPage();
-                                    },
-                                  ));
+                              // Navigator.push(
+                              //     context,
+                              //     CupertinoPageRoute(
+                              //       settings: const RouteSettings(),
+                              //       builder: (context) {
+                              //         return const SearchPage();
+                              //       },
+                              //     ));
                             },
                             child: Stack(children: [
-                              SizedBox(
-                                  height: 50,
-                                  width: double.infinity,
-                                  child: Row(children: [
-                                    Expanded(
-                                        child: Text('Search',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .colorTextSecond,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w400))),
-                                  ])),
+                              // SizedBox(
+                              //     height: 50,
+                              //     width: double.infinity,
+                              //     child: Row(children: [
+                              //       Expanded(
+                              //           child: Text('Search',
+                              //               style: TextStyle(
+                              //                   color: Theme.of(context)
+                              //                       .colorScheme
+                              //                       .colorTextSecond,
+                              //                   fontSize: 15,
+                              //                   fontWeight: FontWeight.w400))),
+                              //     ])),
                               Positioned(
                                   right: 15,
                                   bottom: 0,
@@ -245,12 +230,12 @@ class HomePagePageState extends State<HomePagePage>
                                         var data = snapshot.data ?? [];
                                         var countDay =
                                             snapshot.data?.length ?? 0;
-                                        var countAll = 0;
+                                        var count = 0;
                                         for (var it in data) {
-                                          countAll += it.items.length;
+                                          count += it.framesCount;
                                         }
                                         return Center(
-                                            child: Text('$countDay/$countAll',
+                                            child: Text('$countDay/$count',
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .colorScheme
@@ -336,13 +321,12 @@ class HomePagePageState extends State<HomePagePage>
                         itemCount: history.length,
                         itemBuilder: (context, index) {
                           var model = history[index];
-                          return ViewItem1(
+                          return ViewRoot(
                               history: model,
                               onCloseSlide: _onCloseSlide,
-                              key:
-                                  ValueKey('history-${model.items.lastOrNull}'),
+                              key: ValueKey('history-${model.date}'),
                               onPressed: () {
-                                GridDialog()
+                                HistoryPageDialog()
                                     .show(
                                         context: context,
                                         history: model,

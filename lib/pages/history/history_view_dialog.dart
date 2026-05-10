@@ -13,7 +13,7 @@ class FullViewDialog {
   Future<FullViewItem?> show({
     required BuildContext context,
     GlobalKey? key,
-    required List<HistoryRecord> models,
+    required List<HistoryRoot> models,
     int initialIndex = 0,
   }) {
     return showGeneralDialog(
@@ -45,7 +45,7 @@ class FullViewItem extends StatefulWidget {
     required this.initialIndex,
     super.key,
   });
-  final List<HistoryRecord> history;
+  final List<HistoryRoot> history;
   final int initialIndex;
 
   @override
@@ -55,7 +55,7 @@ class FullViewItem extends StatefulWidget {
 class Current {
   Current({required this.index, required this.model});
   int index;
-  HistoryRecord model;
+  HistoryRoot model;
 }
 
 class ScrollTouch with ChangeNotifier {
@@ -155,7 +155,6 @@ class FullViewItemState extends State<FullViewItem> {
     return Container(
         height: kToolbarHeight,
         margin: const EdgeInsets.only(bottom: 50),
-        // color: Colors.orange,
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           RoundButton(
               color: Theme.of(context)
@@ -171,9 +170,10 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
-                await getIt<HistoryRep>().deleteHistory([_current.model]);
-                if (!mounted) return;
-                Navigator.of(context).pop();
+                // TODO: restore
+                // await getIt<HistoryRep>().deleteHistory([_current.model]);
+                // if (!mounted) return;
+                // Navigator.of(context).pop();
               }),
           const SizedBox(width: 15),
           RoundButton(
@@ -190,7 +190,8 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.share,
               onPressed: (_) {
-                getIt<HistoryRep>().share([_current.model]);
+                // TODO: restore
+                // getIt<HistoryRep>().share([_current.model]);
               })
         ]));
   }
@@ -329,7 +330,7 @@ class FullViewItemState extends State<FullViewItem> {
     });
   }
 
-  Widget _item(HistoryRecord model) {
+  Widget _item(HistoryRoot model) {
     return Builder(builder: (context) {
       return Padding(
           padding: EdgeInsets.zero, //all(10),

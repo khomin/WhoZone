@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/resource/constants.dart';
+import 'package:intl/intl.dart';
 import 'package:loggy/loggy.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -21,12 +22,17 @@ class Utils {
     return null;
   }
 
-  String galleryPath() {
-    return '${Utils.homeDir}/gallery/';
+  String historyPath() {
+    return '${Utils.homeDir}/history';
   }
 
-  String gallerySession(DateTime date) {
-    return '${Utils.homeDir}/gallery/$date';
+  Future<String> historySession(DateTime date) async {
+    var now = DateTime.now().microsecondsSinceEpoch;
+    var dateStr = DateFormat(Constants.recordDateFormat).format(date);
+    var path = '${historyPath()}/$dateStr/$now.jpeg';
+    var directory = File(path).parent;
+    await directory.create(recursive: true);
+    return path;
   }
 
   Future writeToFile(ByteData data, String path) async {

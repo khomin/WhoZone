@@ -11,7 +11,7 @@ import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/converter.dart';
-import 'package:flutter_demo/utils/file_utils.dart';
+import 'package:flutter_demo/utils/utils.dart';
 import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -221,7 +221,7 @@ class SettingsPageState extends State<SettingsPage> {
                   const Spacer(),
                   const SizedBox(width: 20),
                   StreamBuilder(
-                      stream: getIt<HistoryRep>().onHistoryDataSize,
+                      stream: getIt<HistoryRep>().onHistorySize,
                       builder: (context, snapshot) {
                         var size = snapshot.data ?? Int64.ZERO;
                         return Text(' ${Converter.convertBytesToKbMbGb(size)}',

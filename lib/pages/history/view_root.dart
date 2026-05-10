@@ -10,30 +10,30 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:loggy/loggy.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ViewItem1 extends StatefulWidget {
-  const ViewItem1(
-      {required this.history,
-      required this.onPressed,
-      required this.onDelete,
-      this.onCloseSlide,
-      this.size,
-      this.padding,
-      this.showText = true,
-      this.useSwipe = true,
-      super.key});
-  final HistoryRecord history;
-  final Function() onPressed;
-  final Function() onDelete;
-  final Size? size;
+class ViewRoot extends StatefulWidget {
+  const ViewRoot({
+    required this.history,
+    required this.onPressed,
+    required this.onDelete,
+    this.onCloseSlide,
+    this.padding,
+    this.showText = true,
+    this.useSwipe = true,
+    super.key,
+  });
+  final HistoryRoot history;
   final EdgeInsets? padding;
   final bool showText;
   final bool useSwipe;
   final BehaviorSubject<bool>? onCloseSlide;
+  final Function() onPressed;
+  final Function() onDelete;
+
   @override
-  State<ViewItem1> createState() => ViewItem1State();
+  State<ViewRoot> createState() => ViewRootState();
 }
 
-class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
+class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
   late final SlidableController _slideCtr;
   late AnimationController _controller;
   late final Animation<double> _width;
@@ -94,12 +94,21 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
       await _controller.reverse().orCancel;
     } else {
       await _controller.forward().orCancel;
-      // if slide open
       if (_slideCtr.animation.isCompleted) {
       } else {
         _slideCtr.openEndActionPane();
       }
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Builder(builder: (context) {
+      if (widget.useSwipe) {
+        return _swipe(_card());
+      }
+      return _card();
+    });
   }
 
   Widget _swipe(Widget child) {
@@ -127,7 +136,7 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
 
   Widget _card() {
     var history = widget.history;
-    var itemPath = history.items.lastOrNull?.path;
+    var itemPath = history.path;
     return ClickDetector(
         onClick: () {
           _onClick();
@@ -155,6 +164,7 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
                 height: 270,
                 child: Column(children: [
                   Column(children: [
+                    //
                     // header
                     Padding(
                         padding: const EdgeInsets.only(left: 20, top: 10),
@@ -241,9 +251,9 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
                                         .withValues(alpha: 0.5)),
                                 const SizedBox(width: 4),
                                 //
-                                // count of photos
+                                // count of frames
                                 Text(
-                                  '${history.items.length}',
+                                  '${history.framesCount}',
                                   style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme
@@ -255,29 +265,20 @@ class ViewItem1State extends State<ViewItem1> with TickerProviderStateMixin {
                         ])),
                     Padding(
                         padding: const EdgeInsets.only(
-                            left: 20, right: 20, top: 10, bottom: 10),
+                          left: 20,
+                          right: 20,
+                          top: 10,
+                          bottom: 10,
+                        ),
                         child: Stack(children: [
-                          if (itemPath != null)
-                            ClipRRect(
-                                borderRadius: BorderRadius.circular(20.0),
-                                child: Image.file(File(itemPath),
-                                    width: double.infinity,
-                                    height: 180,
-                                    fit: BoxFit.cover)),
-                          // test data
-                          // Text(widget.history.date.toString())
+                          ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: Image.file(File(itemPath),
+                                  width: double.infinity,
+                                  height: 180,
+                                  fit: BoxFit.cover)),
                         ]))
                   ])
                 ]))));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Builder(builder: (context) {
-      if (widget.useSwipe) {
-        return _swipe(_card());
-      }
-      return _card();
-    });
   }
 }

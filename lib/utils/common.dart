@@ -1,11 +1,10 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/message.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/nav_rep.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:intl/intl.dart';
-import 'package:jiffy/jiffy.dart';
 
 enum ScreenType { minimum, full }
 
@@ -38,27 +37,11 @@ class Common {
     return layout;
   }
 
-  DateTime parseFileNameToDate(String name) {
+  DateTime parseDate(String name) {
     try {
-      return DateFormat('yyyy-MM-dd kk-mm-sss').parse(name);
+      return DateFormat(Constants.recordDateFormat).parse(name);
     } catch (_) {}
-    return DateTime.fromMillisecondsSinceEpoch(0);
-  }
-
-  String formatDateInt(int timestampMicro) {
-    var dateTimeStr = '';
-    var curDate = DateTime.now();
-    var dateTime = DateTime.fromMicrosecondsSinceEpoch(timestampMicro);
-    if (Jiffy.parseFromDateTime(dateTime).dayOfYear ==
-        Jiffy.parseFromDateTime(curDate).dayOfYear) {
-      dateTimeStr = DateFormat('hh:mm a').format(dateTime);
-    } else if (Jiffy.parseFromDateTime(dateTime).dayOfYear ==
-        Jiffy.parseFromDateTime(curDate).dayOfYear - 1) {
-      dateTimeStr = 'Yesterday';
-    } else {
-      dateTimeStr = DateFormat('dd-MM-yyyy').format(dateTime);
-    }
-    return dateTimeStr;
+    return DateTime(0);
   }
 
   static void showTextSnackBar({

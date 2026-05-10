@@ -14,10 +14,11 @@ import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/settings/settings_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/nav_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/utils/file_utils.dart';
+import 'package:flutter_demo/utils/utils.dart';
 import 'package:flutter_demo/utils/log_printer.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:loggy/loggy.dart';
@@ -61,15 +62,7 @@ class AppState extends State<App> {
 
     _appModel.setReady(true);
 
-    _handleInitialRoute();
-  }
-
-  void _handleInitialRoute() {
-    if (Constants.isTestMode) {
-      Timer(const Duration(seconds: 1), () {
-        NavigatorRep().routeBloc.goto(Panel(type: PageType.capture));
-      });
-    }
+    getIt<HistoryRep>().updateHistory();
   }
 
   @override
