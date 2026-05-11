@@ -3,14 +3,11 @@ import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/history/view_item.dart';
 import 'package:flutter_demo/pages/history/history_view_dialog.dart';
-import 'package:flutter_demo/pages/history/grid_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 
 class HistoryPageDialog {
   Future<FullViewItem?> show({
@@ -47,13 +44,11 @@ class HistorPage extends StatefulWidget {
 }
 
 class _State extends State<HistorPage> with TickerProviderStateMixin {
-  final _model = HistoryViewModel();
   final _scrollController = ScrollController();
   late final SelectionRep _selectRep;
   late AnimationController _animationController;
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _scaleAnimationReversed;
-  var _selectionActive = false;
   final _dispStream = DisposableStream();
   Timer? _testTimer;
   final tag = 'historyView';
@@ -64,45 +59,22 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
 
     _selectRep = SelectionRep();
 
-    Timer(const Duration(milliseconds: 1000), () async {
-      await getIt<HistoryRep>().updateHistory();
-
-      // if (!mounted || history.firstOrNull == null) return;
-      // var v = history.firstWhereOrNull((e) {
-      //   return e.folderName == widget.history.folderName;
-      // });
-      // if (v != null && v.items.isNotEmpty) {
-      //   _model.setHistory(v.items);
-      // }
-      // if (_model.history.isEmpty) {
-      //   Navigator.of(context).pop();
-      // }
-    });
-
-    // _dispStream.add(getIt<HistoryRep>().onHistory.listen((history) {
-    //   var v = history.firstWhereOrNull((e) {
-    //     return e.folderName == widget.history.folderName;
-    //   });
-    //   if (v != null && v.items.isNotEmpty) {
-    //     _model.setHistory(v.items);
-    //     _selectRep.history = v.items;
-    //   }
-    // }));
-
     _dispStream.add(_selectRep.selectedStream.listen((value) {
-      if (value == 0) {
+      var count = value.length;
+      if (count == 0) {
         _animationController.reverse().orCancel;
-      } else {
-        if (!_selectionActive) {
-          if (_animationController.isForwardOrCompleted) {
-            _animationController.reverse().orCancel;
-          } else {
-            _animationController.forward().orCancel;
-          }
+      } else if (count == 1) {
+        if (_animationController.isForwardOrCompleted) {
+          _animationController.reverse().orCancel;
+        } else {
+          _animationController.forward().orCancel;
         }
       }
-      _selectionActive = value > 0;
     }));
+
+    Timer(const Duration(milliseconds: 1000), () async {
+      await getIt<HistoryRep>().updateHistory();
+    });
 
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
@@ -131,73 +103,77 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
     _testTimer?.cancel();
     _dispStream.dispose();
     _selectRep.dispose();
-    _model.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: _model,
-        builder: (context, child) {
-          return Scaffold(
-              appBar: AppBar(
+    return StreamBuilder(
+        stream: _selectRep.selectedStream,
+        builder: (context, snapshot) {
+          var selection = snapshot.data?.length ?? 0;
+          return PopScope(
+              canPop: selection == 0,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+                _selectRep.stopSelection();
+              },
+              child: SafeArea(
+                  child: Scaffold(
+                appBar: AppBar(
                   automaticallyImplyLeading: false,
                   titleSpacing: 0,
-                  title: _header()),
-              body: Column(children: [_view()]));
+                  title: _header(),
+                ),
+                body: _view(),
+              )));
         });
   }
 
   Widget _view() {
     final screenWidth = MediaQuery.of(context).size.width;
     final itemWidth = screenWidth / 3;
-    return Flexible(
-        child: Column(children: [
+    var history = widget.history;
+    if (history.items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(children: [
       Flexible(
-          child: StreamBuilder(
-              stream: getIt<HistoryRep>().onHistory,
-              builder: (context, snapshot) {
-                var history = snapshot.data;
-                if (history == null) {
-                  return const SizedBox.shrink();
-                }
-                return GridView.builder(
-                    itemCount: history.length,
-                    padding: EdgeInsets.zero,
-                    shrinkWrap: true,
-                    physics: const ClampingScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 3),
-                    itemBuilder: (context, index) {
-                      var model = history[index];
-                      return ViewItem(
-                          history: model,
-                          size: itemWidth.toInt() - 2,
-                          selectionRep: _selectRep,
-                          padding: const EdgeInsets.all(1),
-                          onPressed: () {
-                            FullViewDialog().show(
-                                context: context,
-                                models: history,
-                                initialIndex: index);
-                          });
+          child: GridView.builder(
+              itemCount: history.items.length,
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: const ClampingScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+              ),
+              itemBuilder: (context, index) {
+                var model = history.items[index];
+                return ViewItem(
+                    history: model,
+                    size: itemWidth.toInt() - 2,
+                    selectionRep: _selectRep,
+                    padding: const EdgeInsets.all(1),
+                    onPressed: () {
+                      FullViewDialog().show(
+                        context: context,
+                        models: history.items,
+                        initialIndex: index,
+                        selectRep: _selectRep,
+                      );
                     });
               }))
-    ]));
+    ]);
   }
 
   Widget _header() {
     return SizedBox(
-        height: kToolbarHeight,
+        height: kToolbarHeight + 20,
         child: StreamBuilder(
             stream: _selectRep.selectedStream,
             builder: (context, snapshot) {
-              var cnt = snapshot.data ?? 0;
-              var model = context.watch<HistoryViewModel>();
-              // var label = model.history.firstOrNull?.dateHeader ?? '';
-              var label = 'label';
+              var label = widget.history.dateHeader;
+              var selectedCount = snapshot.data?.length ?? 0;
               return Row(children: [
                 Expanded(
                     child: Row(children: [
@@ -211,13 +187,13 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                         bottom: 0,
                         child: Align(
                             alignment: Alignment.centerLeft,
-                            child: cnt == 0
+                            child: selectedCount == 0
                                 ? ScaleTransition(
                                     scale: _scaleAnimationReversed,
                                     child: Text(label,
                                         maxLines: 1,
                                         style: const TextStyle(fontSize: 22)))
-                                : Text('$cnt',
+                                : Text('$selectedCount',
                                     maxLines: 1,
                                     style: const TextStyle(fontSize: 18)))),
                     Positioned(
@@ -241,10 +217,9 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                                   useScaleAnimation: true,
                                   iconData: Icons.delete_outline,
                                   onPressed: (v) async {
-                                    var v = _selectRep.getSelected(
-                                        type: SearchType.media,
-                                        resetSelection: false);
+                                    var v = _selectRep.getSelected();
                                     await getIt<HistoryRep>().deleteHistory(v);
+                                    _selectRep.stopSelection();
                                   }),
                               const SizedBox(width: 15),
                               RoundButton(
@@ -262,7 +237,6 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                                   useScaleAnimation: true,
                                   onPressed: (_) {
                                     var v = _selectRep.getSelected(
-                                        type: SearchType.media,
                                         resetSelection: true);
                                     getIt<HistoryRep>().share(v);
                                   })
@@ -280,7 +254,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                     vertTransform: true,
                     iconData: Icons.close,
                     onPressed: (p0) {
-                      if (cnt > 0) {
+                      if (selectedCount > 0) {
                         _selectRep.stopSelection();
                       } else {
                         Navigator.of(context).pop();

@@ -29,7 +29,7 @@ class Utils {
   Future<String> historySession(DateTime date) async {
     var now = DateTime.now().microsecondsSinceEpoch;
     var dateStr = DateFormat(Constants.recordDateFormat).format(date);
-    var path = '${historyPath()}/$dateStr/$now.jpeg';
+    var path = '${historyPath()}/$dateStr/$now${Constants.frameFileExtension}';
     var directory = File(path).parent;
     await directory.create(recursive: true);
     return path;

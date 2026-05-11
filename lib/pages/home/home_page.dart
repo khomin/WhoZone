@@ -77,7 +77,7 @@ class HomePagePageState extends State<HomePagePage>
       });
     });
 
-    Timer(const Duration(milliseconds: 100), () async {
+    Future.microtask(() async {
       if (await getIt<HistoryRep>().isEmpty()) {
         if (!mounted) return;
         if (_ctrShakeIcon.isForwardOrCompleted) {
@@ -101,31 +101,23 @@ class HomePagePageState extends State<HomePagePage>
     super.dispose();
   }
 
-  void _handleOnSlide() {
-    if (getIt<CameraRep>().onCaptureTime.valueOrNull == null) return;
-    if (_ctrSlideTop.isForwardOrCompleted) {
-      _ctrSlideTop.reverse().orCancel;
-    } else {
-      _ctrSlideTop.forward().orCancel;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: Stack(alignment: Alignment.center, children: [
           Positioned(
-              top: (kToolbarHeight * 2) - 30,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorBgUnderCard,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20))))),
+            top: (kToolbarHeight * 2) - 30,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+                decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.colorBgUnderCard,
+                    borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(20),
+                        topRight: Radius.circular(20)))),
+          ),
           CustomScrollView(
               physics: const ClampingScrollPhysics(),
               controller: _scrollCtr,
@@ -143,10 +135,13 @@ class HomePagePageState extends State<HomePagePage>
                 SliverToBoxAdapter(child: _header()),
                 //
                 DecoratedSliver(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorBgUnderCard,
-                    ),
-                    sliver: SliverToBoxAdapter(child: _gallery()))
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.colorBgUnderCard,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _gallery(),
+                  ),
+                )
               ])
         ]));
   }
@@ -194,6 +189,7 @@ class HomePagePageState extends State<HomePagePage>
                     Flexible(
                         child: HoverClick(
                             onPressedL: (p0) {
+                              // TODO: search
                               // Navigator.push(
                               //     context,
                               //     CupertinoPageRoute(
@@ -204,27 +200,27 @@ class HomePagePageState extends State<HomePagePage>
                               //     ));
                             },
                             child: Stack(children: [
-                              // SizedBox(
-                              //     height: 50,
-                              //     width: double.infinity,
-                              //     child: Row(children: [
-                              //       Expanded(
-                              //           child: Text('Search',
-                              //               style: TextStyle(
-                              //                   color: Theme.of(context)
-                              //                       .colorScheme
-                              //                       .colorTextSecond,
-                              //                   fontSize: 15,
-                              //                   fontWeight: FontWeight.w400))),
-                              //     ])),
+                              SizedBox(
+                                  height: 50,
+                                  width: double.infinity,
+                                  child: Row(children: [
+                                    Expanded(
+                                        child: Text('Search',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .colorTextSecond,
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w400))),
+                                  ])),
                               Positioned(
                                   right: 15,
                                   bottom: 0,
                                   top: 0,
                                   child: StreamBuilder(
-                                      stream: getIt<HistoryRep>().onHistory,
+                                      stream: getIt<HistoryRep>().onHistoryRoot,
                                       initialData: getIt<HistoryRep>()
-                                          .onHistory
+                                          .onHistoryRoot
                                           .valueOrNull,
                                       builder: (context, snapshot) {
                                         var data = snapshot.data ?? [];
@@ -251,11 +247,15 @@ class HomePagePageState extends State<HomePagePage>
 
   Widget _gallery() {
     return StreamBuilder(
-        stream: getIt<HistoryRep>().onHistory,
+        stream: getIt<HistoryRep>().onHistoryRoot,
+        initialData: getIt<HistoryRep>().onHistoryRoot.valueOrNull,
         builder: (context, snapshot) {
           var history = snapshot.data;
           var size = MediaQuery.of(context).size;
-          if (history == null || history.isEmpty) {
+          if (history == null) {
+            return const SizedBox();
+          }
+          if (history.isEmpty) {
             return RotationTransition(
                 turns: _iconRotate,
                 child: SizedBox(

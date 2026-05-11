@@ -81,7 +81,6 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
 
   void _onClick() async {
     if (_slideCtr.animation.isCompleted) {
-      logDebug('BTEST_onTapUp: skip because slide is open');
       await _controller.forward().orCancel;
       _slideCtr.close();
       return;

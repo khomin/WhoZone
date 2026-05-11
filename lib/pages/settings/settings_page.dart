@@ -210,20 +210,21 @@ class SettingsPageState extends State<SettingsPage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Used disk',
-                            style: TextStyle(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .menuFontColor1,
-                                fontSize: Constants.menuFontSize2,
-                                fontWeight: FontWeight.w400))
+                        Text(
+                          'Used disk',
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).colorScheme.menuFontColor1,
+                              fontSize: Constants.menuFontSize2,
+                              fontWeight: FontWeight.w400),
+                        )
                       ]),
                   const Spacer(),
                   const SizedBox(width: 20),
                   StreamBuilder(
-                      stream: getIt<HistoryRep>().onHistorySize,
+                      stream: getIt<HistoryRep>().onUsedDisk,
                       builder: (context, snapshot) {
-                        var size = snapshot.data ?? Int64.ZERO;
+                        var size = Int64(snapshot.data ?? 0);
                         return Text(' ${Converter.convertBytesToKbMbGb(size)}',
                             style: TextStyle(
                                 color: Theme.of(context)

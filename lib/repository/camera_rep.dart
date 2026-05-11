@@ -129,7 +129,7 @@ class CameraRep {
     for (var item in ev.item) {
       boxes.add(DetectionBox.fromProto(item, _classNames));
     }
-    if (boxes.isNotEmpty) {
+    if (captureEnable && boxes.isNotEmpty) {
       final now = DateTime.now();
       var lastDetectionTime = _lastDetectionTime;
       if (lastDetectionTime == null ||
@@ -242,8 +242,7 @@ class CameraRep {
     return null;
   }
 
-  // TODO: store frame in galery
-  // TODO: flip camera
+  // TODO: lock camera layout
   // TODO: UI colors
   // TODO: performance measure
   void detectionEvent({bool force = false}) async {

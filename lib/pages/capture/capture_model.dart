@@ -55,6 +55,10 @@ class CaptureModel with ChangeNotifier {
     var cameras = await getIt<CameraRep>().getCameras();
     var usedCameraId = getIt<SettingsRep>().getCameraUsed();
     var camera = cameras[usedCameraId];
+    if (flip) {
+      var i = cameras.values.firstWhereOrNull((e) => e != camera);
+      camera = i;
+    }
     if (camera == null) {
       var i = cameras.values
           .firstWhereOrNull((e) => e.isFront == Constants.isDefaultFront);
@@ -65,6 +69,10 @@ class CaptureModel with ChangeNotifier {
     if (camera == null) {
       logError('$tag: could not find camera');
       return false;
+    }
+    if (this.camera != null) {
+      this.camera = null;
+      await getIt<CameraRep>().stopCamera();
     }
     var res = await getIt<CameraRep>().startCamera(id: camera.id);
     if (res == null) {
@@ -82,17 +90,6 @@ class CaptureModel with ChangeNotifier {
     await getIt<SettingsRep>().setCameraUsed(camera.id);
     return true;
   }
-
-  //   Camera? _cameraToFlit() {
-  //   var camera = getIt<CameraRep>().cameras;
-  //   var front = camera['front'];
-  //   var back = camera['back'];
-  //   var cur = _model.camera;
-  //   if (front == cur) {
-  //     return back;
-  //   }
-  //   return front;
-  // }
 
   void setCaptureInterval(int v) async {
     captureIntervalSec = v;

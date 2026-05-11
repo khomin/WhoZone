@@ -29,7 +29,7 @@ extension AppColorScheme on ColorScheme {
   Color get menuFontColor2 => colorTextSecond;
 
   Color get colorBar => dark() ? Color(0xFF252525) : Color(0xFFD5D4E8);
-  Color get colorCard => dark() ? Colors.deepOrange : Colors.white;
+  Color get colorCard => dark() ? const Color(0xFF3D3D3D) : Colors.white;
   Color get colorBgUnderCard => dark() ? Color(0xFF35373B) : Color(0xfff1f2f4);
   Color get colorTextAccent => dark() ? const Color(0xFFE5E5E5) : Colors.black;
   Color get colorTextSecond => dark() ? Color(0xFFADADB6) : Color(0xA0515155);

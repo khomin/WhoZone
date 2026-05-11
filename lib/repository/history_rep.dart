@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/semaphore.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/common.dart';
 import 'package:flutter_demo/utils/utils.dart';
 import 'package:jiffy/jiffy.dart';
@@ -21,6 +22,7 @@ class HistoryRoot with ChangeNotifier {
     required this.folderName,
     required this.framesCount,
     required this.diskSpace,
+    required this.items,
   });
   DateTime date;
   String dateHeader;
@@ -30,6 +32,7 @@ class HistoryRoot with ChangeNotifier {
   String path;
   int framesCount;
   int diskSpace;
+  List<History> items;
 }
 
 class History with ChangeNotifier {
@@ -41,22 +44,14 @@ class History with ChangeNotifier {
   DateTime date;
   String dateHeader;
   String path;
-
-  bool get selection => _selection;
-  set selection(bool v) {
-    _selection = v;
-    notifyListeners();
-  }
-
-  bool _selection = false;
 }
 
 class HistoryRep {
-  final onHistory = BehaviorSubject<List<HistoryRoot>>();
-  final onHistorySize = BehaviorSubject<Int64>.seeded(Int64.ZERO);
-  final _mapHistory = <HistoryRoot, List<History>>{};
-  var _inited = false;
+  final onHistoryRoot = BehaviorSubject<List<HistoryRoot>>();
+  final onUsedDisk = BehaviorSubject<int>();
+  final _mapHistory = <DateTime, HistoryRoot>{};
   final _historySemphore = Semaphore(1);
+  var _inited = false;
   final tag = 'historyRep';
 
   void init() {
@@ -71,7 +66,12 @@ class HistoryRep {
     try {
       var dir = Directory(path);
       var directories = await dir.list().toList();
-      return directories.isEmpty;
+      for (var it in directories) {
+        var files = Directory(it.path).listSync();
+        if (files.isNotEmpty) {
+          return false;
+        }
+      }
     } catch (ex) {
       logWarning('$tag: ex');
     }
@@ -80,88 +80,75 @@ class HistoryRep {
 
   Future<void> updateHistory() async {
     await _historySemphore.acquire();
-    // historyCache = [];
     _mapHistory.clear();
-    var dataSize = Int64();
+    var size = 0;
     var path = Utils().historyPath();
-    // TODO: gallery use metadata
     try {
       var dir = Directory(path);
       var directories = await dir.list().toList();
       var now = DateTime.now();
       for (var dir in directories) {
+        var dirName = basename(dir.path);
+        var creationDate = Common().parseDate(basename(dirName));
         var files = Directory(dir.path).listSync();
         if (files.isEmpty) {
           continue;
+        }
+        var items = <History>[];
+        for (var file in files) {
+          items.add(_record(dir, file, now));
+          size += (await file.stat()).size;
         }
         var root = _recordRoot(
           dir: dir,
           file: files.first,
           now: now,
+          items: items,
           fileCount: files.length,
           diskSpace: (await dir.stat()).size,
         );
-        _mapHistory[root] = <History>[];
-        var records = <History>[];
-        for (var file in files) {
-          root.framesCount++;
-          records.add(_record(dir, file, now));
-        }
-        _mapHistory[root]?.addAll(records);
+        _mapHistory[creationDate] = root;
       }
     } catch (ex) {
       logWarning('$tag: ex');
     }
-    var history = _mapHistory.keys.toList();
-    history.sort((a, b) => b.date.compareTo(a.date));
-    onHistory.add(history);
-    onHistorySize.add(dataSize);
+    // root
+    var list = _mapHistory.values.toList();
+    list.sort((a, b) => b.date.compareTo(a.date));
+    onHistoryRoot.add(list);
+    // size
+    onUsedDisk.add(size);
     _historySemphore.release();
   }
 
   Future<void> deleteHistoryRoot(List<HistoryRoot> list) async {
-    // var removeItems = <HistoryRoot>[];
-    // for (var it in list) {
-    //   for (var it2 in it.items) {
-    //     try {
-    //       removeItems.add(it2);
-    //     } catch (ex) {
-    //       logWarning('$tag: delete [$ex]');
-    //     }
-    //   }
-    // }
-    // for (var it in removeItems) {
-    //   // get root item in cache
-    //   var cacheItem = historyCache.firstWhereOrNull((h1) {
-    //     return h1.folderName == it.folderName;
-    //   });
-    //   cacheItem?.items.removeWhere((element) {
-    //     return element.path == it.path;
-    //   });
-    //   await File(it.path).delete();
-    // }
-    // historyCache.removeWhere((element) {
-    //   return element.items.isEmpty;
-    // });
-    // onHistory.add(historyCache);
+    for (var it in list) {
+      var r = _mapHistory.remove(it.date);
+      if (r != null) {
+        for (var it in r.items) {
+          await File(it.path).delete();
+        }
+        var file = File(it.path);
+        await file.parent.delete(recursive: true);
+      }
+    }
+    updateHistory();
   }
 
   Future<void> deleteHistory(List<History> list) async {
-    // if (list.isEmpty) return;
-    // for (var it in list) {
-    //   var v = historyCache.firstWhereOrNull((element) {
-    //     return element.folderName == it.folderName;
-    //   });
-    //   try {
-    //     await File(it.path).delete();
-    //     v?.items.removeWhere((element) {
-    //       return element.path == it.path;
-    //     });
-    //   } catch (ex) {
-    //     logWarning('$tag: delete [$ex]');
-    //   }
-    // }
-    // onHistory.add(historyCache);
+    for (var it in list) {
+      try {
+        var file = File(it.path);
+        await file.delete();
+        var files = await file.parent.listSync();
+        if (files.isEmpty) {
+          await file.parent.delete(recursive: true);
+        }
+      } catch (ex) {
+        logWarning('$tag: delete [$ex]');
+      }
+    }
+    updateHistory();
   }
 
   void share(List<History> list) {
@@ -174,14 +161,16 @@ class HistoryRep {
   }
 
   Future<void> freeData() async {
-    // await deleteHistoryRoot(historyCache);
-    // onHistoryDataSize.add(Int64.ZERO);
+    var root = _mapHistory.values.toList();
+    await deleteHistoryRoot(root);
+    updateHistory();
   }
 
   HistoryRoot _recordRoot({
     required FileSystemEntity dir,
     required FileSystemEntity file,
     required DateTime now,
+    required List<History> items,
     required int fileCount,
     required int diskSpace,
   }) {
@@ -216,6 +205,7 @@ class HistoryRep {
       path: file.path,
       framesCount: fileCount,
       diskSpace: diskSpace,
+      items: items,
     );
   }
 
@@ -225,7 +215,8 @@ class HistoryRep {
     DateTime now,
   ) {
     var name = Utils.getFileName(file.path);
-    var date = Common().parseDate(name);
+    var date = DateTime.fromMicrosecondsSinceEpoch(
+        int.parse(name.replaceAll(Constants.frameFileExtension, '')));
     String header = '';
     var dateJiffy = Jiffy.parseFromDateTime(date);
     var jiffyNow = Jiffy.parseFromDateTime(now);

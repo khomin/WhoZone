@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
+import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +12,9 @@ import 'package:flutter/material.dart';
 class FullViewDialog {
   Future<FullViewItem?> show({
     required BuildContext context,
+    required SelectionRep selectRep,
     GlobalKey? key,
-    required List<HistoryRoot> models,
+    required List<History> models,
     int initialIndex = 0,
   }) {
     return showGeneralDialog(
@@ -29,6 +30,7 @@ class FullViewDialog {
               child: FullViewItem(
                 history: models,
                 initialIndex: initialIndex,
+                selectRep: selectRep,
                 key: key,
               ),
             ),
@@ -43,10 +45,12 @@ class FullViewItem extends StatefulWidget {
   const FullViewItem({
     required this.history,
     required this.initialIndex,
+    required this.selectRep,
     super.key,
   });
-  final List<HistoryRoot> history;
+  final List<History> history;
   final int initialIndex;
+  final SelectionRep selectRep;
 
   @override
   State<FullViewItem> createState() => FullViewItemState();
@@ -55,7 +59,7 @@ class FullViewItem extends StatefulWidget {
 class Current {
   Current({required this.index, required this.model});
   int index;
-  HistoryRoot model;
+  History model;
 }
 
 class ScrollTouch with ChangeNotifier {
@@ -170,10 +174,10 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
-                // TODO: restore
-                // await getIt<HistoryRep>().deleteHistory([_current.model]);
-                // if (!mounted) return;
-                // Navigator.of(context).pop();
+                await getIt<HistoryRep>().deleteHistory([_current.model]);
+                widget.selectRep.releaseSelection(_current.model);
+                if (!mounted) return;
+                Navigator.of(context).pop();
               }),
           const SizedBox(width: 15),
           RoundButton(
@@ -190,8 +194,8 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.share,
               onPressed: (_) {
-                // TODO: restore
-                // getIt<HistoryRep>().share([_current.model]);
+                getIt<HistoryRep>().share([_current.model]);
+                widget.selectRep.releaseSelection(_current.model);
               })
         ]));
   }
@@ -330,37 +334,30 @@ class FullViewItemState extends State<FullViewItem> {
     });
   }
 
-  Widget _item(HistoryRoot model) {
+  Widget _item(History model) {
     return Builder(builder: (context) {
-      return Padding(
-          padding: EdgeInsets.zero, //all(10),
-          child: Column(children: [
-            Expanded(
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                  Stack(alignment: Alignment.center, children: [
-                    Container(
-                        decoration: BoxDecoration(
-                          // borderRadius: BorderRadius.circular(20.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black
-                                  .withValues(alpha: 0.3), // Shadow color
-                              blurRadius: 10.0, // Blur radius
-                              spreadRadius: 1.0, // Spread radius
-                              offset: const Offset(0,
-                                  0), // Offset in horizontal and vertical direction
-                            ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                            // borderRadius: BorderRadius.circular(20.0),
-                            child: Image.file(File(model.path),
-                                fit: BoxFit.contain)))
-                  ])
-                ]))
-          ]));
+      return Column(children: [
+        Expanded(
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Stack(alignment: Alignment.center, children: [
+            Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 10.0,
+                    spreadRadius: 1.0,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                  child: Image.file(File(model.path), fit: BoxFit.contain)),
+            )
+          ])
+        ]))
+      ]);
     });
   }
 }

@@ -33,7 +33,7 @@ class Constants {
   static const appLink =
       'https://play.google.com/store/apps/details?id=com.who.zone';
 
-  static const isDefaultFront = true;
+  static const isDefaultFront = false;
   static const isTestMode = true;
   static get collapseMenuHeight => 150.0;
 
@@ -43,6 +43,7 @@ class Constants {
   static const animationDuraton = const Duration(milliseconds: 150);
 
   static String get recordDateFormat => 'yyyy-MM-dd kk-mm-sss';
+  static get frameFileExtension => '.jpeg';
 
   static const menuFontSize1 = 15.0;
   static const menuFontSize2 = 14.0;
