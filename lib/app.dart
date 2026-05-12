@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/camera_settings_page.dart';
-import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/splash.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/service_api.dart';
@@ -51,17 +50,16 @@ class AppState extends State<App> {
   void _bootstrap() async {
     Loggy.initLoggy(logPrinter: LogPrinter());
 
-    Future.wait([
+    await Future.wait([
       Jiffy.setLocale('uk'),
       Utils.init(),
       ServiceApi().initLib(),
     ]);
+
     _alertModel.init();
-
-    await getIt<CameraRep>().init();
-
     _appModel.setReady(true);
 
+    await getIt<CameraRep>().init();
     getIt<HistoryRep>().updateHistory();
   }
 
@@ -87,124 +85,121 @@ class AppState extends State<App> {
         ],
         builder: (context, child) {
           var collapse = context.select<AppModel, bool>((v) => v.collapse);
-          var size = MediaQuery.sizeOf(context);
           if (!context.select<AppModel, bool>((v) => v.ready)) {
             return const Splash();
           }
           var padding = MediaQuery.paddingOf(context);
-          return RepaintBoundary(
-              child: Container(
-                  color: Theme.of(context).colorScheme.colorBar,
-                  child: SafeArea(
-                      bottom: false,
-                      child: Stack(children: [
-                        const CameraSettingsPage(),
-                        AnimatedPositioned(
-                            duration: Constants.durationPanel,
-                            curve: Curves.easeIn,
-                            top: collapse ? Constants.collapseMenuHeight : 0,
-                            left: 0,
-                            right: 0,
-                            bottom:
-                                collapse ? -Constants.collapseMenuHeight : 0,
-                            child: Stack(children: [
-                              Scaffold(
-                                  body: Stack(children: [
-                                    StreamBuilder(
+          return Container(
+              color: Theme.of(context).colorScheme.colorBar,
+              child: SafeArea(
+                  bottom: false,
+                  child: OrientationBuilder(builder: (context, orientation) {
+                    return Stack(children: [
+                      const CameraSettingsPage(),
+                      AnimatedPositioned(
+                          duration: Constants.durationPanel,
+                          curve: Curves.easeIn,
+                          top: collapse ? Constants.collapseMenuHeight : 0,
+                          left: 0,
+                          right: 0,
+                          bottom: collapse ? -Constants.collapseMenuHeight : 0,
+                          child: Stack(children: [
+                            Scaffold(
+                                body: Stack(children: [
+                                  StreamBuilder(
+                                      stream: NavigatorRep().routeBloc.onGoto,
+                                      builder: (context, snapshot) {
+                                        var page = snapshot.data?.type;
+                                        switch (page) {
+                                          case PageType.home:
+                                            return const HomePagePage();
+                                          case PageType.capture:
+                                            return const CapturePage();
+                                          case PageType.alert:
+                                            return const AlertPage();
+                                          case PageType.settings:
+                                            return const SettingsPage();
+                                          default:
+                                            return const HomePagePage();
+                                        }
+                                      }),
+                                ]),
+                                bottomNavigationBar: Container(
+                                    height: 70 + padding.bottom,
+                                    decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .bottomNavBg,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.2),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 0),
+                                          )
+                                        ]),
+                                    child: StreamBuilder(
                                         stream: NavigatorRep().routeBloc.onGoto,
                                         builder: (context, snapshot) {
                                           var page = snapshot.data?.type;
-                                          switch (page) {
-                                            case PageType.home:
-                                              return const HomePagePage();
-                                            case PageType.capture:
-                                              return const CapturePage();
-                                            case PageType.alert:
-                                              return const AlertPage();
-                                            case PageType.settings:
-                                              return const SettingsPage();
-                                            default:
-                                              return const HomePagePage();
-                                          }
-                                        }),
-                                  ]),
-                                  bottomNavigationBar: Container(
-                                      height: 70 + padding.bottom,
-                                      decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .bottomNavBg,
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black
-                                                  .withValues(alpha: 0.2),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 0),
-                                            )
-                                          ]),
-                                      child: StreamBuilder(
-                                          stream:
-                                              NavigatorRep().routeBloc.onGoto,
-                                          builder: (context, snapshot) {
-                                            var page = snapshot.data?.type;
-                                            return SafeArea(
-                                                child: BottomNavigationBar(
-                                                    elevation: 0,
-                                                    selectedFontSize: 12,
-                                                    unselectedFontSize: 12,
-                                                    type: BottomNavigationBarType
-                                                        .fixed,
-                                                    backgroundColor:
-                                                        Colors.transparent,
-                                                    selectedItemColor: Theme.of(
-                                                            context)
-                                                        .colorScheme
-                                                        .bottomNavIconSelected,
-                                                    unselectedItemColor: Theme
-                                                            .of(context)
-                                                        .colorScheme
-                                                        .bottomNavIconUnselected,
-                                                    selectedLabelStyle:
-                                                        const TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                    items: const <BottomNavigationBarItem>[
-                                                      BottomNavigationBarItem(
-                                                        icon: Icon(Icons.home),
-                                                        label: 'Home',
-                                                      ),
-                                                      BottomNavigationBarItem(
-                                                          icon: Icon(Icons
-                                                              .create_new_folder_rounded),
-                                                          label: 'Capture'),
-                                                      BottomNavigationBarItem(
-                                                          icon: Icon(Icons
-                                                              .notifications),
-                                                          label: 'Alert'),
-                                                      BottomNavigationBarItem(
-                                                          icon: Icon(
-                                                              Icons.settings),
-                                                          label: 'Settings'),
-                                                    ],
-                                                    currentIndex:
-                                                        page?.index ?? 0,
-                                                    onTap: (value) async {
-                                                      if (collapse) {
-                                                        context
-                                                            .read<AppModel>()
-                                                            .setCollapse(false);
-                                                      }
-                                                      NavigatorRep()
-                                                          .routeBloc
-                                                          .goto(Panel(
-                                                              type: PageType
-                                                                      .values[
-                                                                  value]));
-                                                    }));
-                                          })))
-                            ]))
-                      ]))));
+                                          return SafeArea(
+                                              child: BottomNavigationBar(
+                                                  elevation: 0,
+                                                  selectedFontSize: 12,
+                                                  unselectedFontSize: 12,
+                                                  type: BottomNavigationBarType
+                                                      .fixed,
+                                                  backgroundColor:
+                                                      Colors.transparent,
+                                                  selectedItemColor: Theme.of(
+                                                          context)
+                                                      .colorScheme
+                                                      .bottomNavIconSelected,
+                                                  unselectedItemColor: Theme.of(
+                                                          context)
+                                                      .colorScheme
+                                                      .bottomNavIconUnselected,
+                                                  selectedLabelStyle:
+                                                      const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                  items: const <BottomNavigationBarItem>[
+                                                    BottomNavigationBarItem(
+                                                      icon: Icon(Icons.home),
+                                                      label: 'Home',
+                                                    ),
+                                                    BottomNavigationBarItem(
+                                                        icon: Icon(Icons
+                                                            .create_new_folder_rounded),
+                                                        label: 'Capture'),
+                                                    BottomNavigationBarItem(
+                                                        icon: Icon(Icons
+                                                            .notifications),
+                                                        label: 'Alert'),
+                                                    BottomNavigationBarItem(
+                                                        icon: Icon(
+                                                            Icons.settings),
+                                                        label: 'Settings'),
+                                                  ],
+                                                  currentIndex:
+                                                      page?.index ?? 0,
+                                                  onTap: (value) async {
+                                                    if (collapse) {
+                                                      context
+                                                          .read<AppModel>()
+                                                          .setCollapse(false);
+                                                    }
+                                                    NavigatorRep()
+                                                        .routeBloc
+                                                        .goto(Panel(
+                                                            type:
+                                                                PageType.values[
+                                                                    value]));
+                                                  }));
+                                        })))
+                          ]))
+                    ]);
+                  })));
         });
   }
 }

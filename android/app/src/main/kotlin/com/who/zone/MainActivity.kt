@@ -1,5 +1,7 @@
 package com.who.zone
 
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.Surface
@@ -11,6 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlin.collections.get
+import androidx.core.net.toUri
 
 class MainActivity : FlutterFragmentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -97,7 +100,7 @@ class MainActivity : FlutterFragmentActivity() {
                     return@setMethodCallHandler
                 }
                 "get_device_sensor" -> {
-                    applicationContext?.display?.rotation?.let {
+                    display?.rotation?.let {
                         when (it) {
                             Surface.ROTATION_0 -> result.success(0)
                             Surface.ROTATION_90 -> result.success(90)
@@ -105,6 +108,27 @@ class MainActivity : FlutterFragmentActivity() {
                             Surface.ROTATION_270 -> result.success(270)
                         }
                     }
+                    return@setMethodCallHandler
+                }
+                "get_system_sounds" -> {
+                    val map = mutableMapOf<String, Any>()
+                    val manager = RingtoneManager(this)
+                    manager.setType(RingtoneManager.TYPE_NOTIFICATION)
+                    val cursor = manager.cursor
+                    while (cursor.moveToNext()) {
+                        val id = cursor.getString(RingtoneManager.ID_COLUMN_INDEX)
+                        val uri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX)
+                        val name = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                        map["$uri/$id"] = mapOf("uri" to "$uri/$id", "name" to name)
+                    }
+                    result.success(map)
+                    return@setMethodCallHandler
+                }
+                "play_system_sound" -> {
+                    val toneId = args["id"] as String
+                    val tone = RingtoneManager.getRingtone(this, toneId.toUri())
+                    tone.play()
+                    result.success(true)
                     return@setMethodCallHandler
                 }
                 "save_one_frame" -> {

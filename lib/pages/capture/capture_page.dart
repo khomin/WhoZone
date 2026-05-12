@@ -187,26 +187,33 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
-    return Builder(builder: (context) {
-      var targetSize = getIt<CameraRep>().targetSize;
-      var (camera, layout, textureId, recording) = context
-          .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
-        (v) => (v.camera, v.layout, v.textureId, v.recording),
-      );
-      logDebug(
-          'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
-      if (camera == null || targetSize == null) {
-        return const SizedBox();
-      }
-      var sensorWidth = camera.size.width.toDouble();
-      var sensorHeight = camera.size.height.toDouble();
-      return Stack(alignment: Alignment.center, children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          top: 0,
-          child: AspectRatio(
+    // TODO: performance
+    // TODO: swipe gallery
+    // TODO: publish
+    // TODO: search - calendar
+    return Stack(alignment: Alignment.center, children: [
+      Positioned(
+        bottom: 0,
+        left: 0,
+        right: 0,
+        top: 0,
+        child: LayoutBuilder(builder: (context, constraints) {
+          var targetSize = getIt<CameraRep>().targetSize;
+          var (camera, layout, textureId, recording) = context
+              .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
+            (v) => (v.camera, v.layout, v.textureId, v.recording),
+          );
+          logDebug(
+              'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
+          if (camera == null || targetSize == null) {
+            return const SizedBox();
+          }
+          Future.microtask(() async {
+            _captureModel.updateRotation();
+          });
+          var sensorWidth = camera.size.width.toDouble();
+          var sensorHeight = camera.size.height.toDouble();
+          return AspectRatio(
             aspectRatio: targetSize.height / targetSize.width,
             child: Stack(
               children: [
@@ -249,12 +256,12 @@ class CapturePageState extends State<CapturePage>
                 _frameCount()
               ],
             ),
-          ),
-        ),
-        _buttonCenterButton(),
-        _buttonFlip(),
-      ]);
-    });
+          );
+        }),
+      ),
+      _buttonCenterButton(),
+      _buttonFlip(),
+    ]);
   }
 
   Widget _buttonCenterButton() {

@@ -174,6 +174,7 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
+                // TODO: delete remove gallery
                 await getIt<HistoryRep>().deleteHistory([_current.model]);
                 widget.selectRep.releaseSelection(_current.model);
                 if (!mounted) return;
@@ -205,7 +206,6 @@ class FullViewItemState extends State<FullViewItem> {
       var screen = MediaQuery.of(context).size;
       return Expanded(
           child: Container(
-              color: Theme.of(context).colorScheme.colorCard,
               width: screen.width,
               height: screen.height - 100,
               child: Listener(
@@ -271,41 +271,10 @@ class FullViewItemState extends State<FullViewItem> {
     }
   }
 
-  // Widget _header() {
-  //   return Builder(builder: (context) {
-  //     // var fileRec = _current.model?.record.fileRec;
-  //     return Expanded(
-  //         child: Row(children: [
-  //       //
-  //       // file name
-  //       Expanded(
-  //           child: Text(
-  //         'TODO',
-  //         // fileRec?.fileName ?? '',
-  //         maxLines: 1,
-  //         overflow: TextOverflow.ellipsis,
-  //         style: TextStyle(
-  //             // color: Theme.of(context).colorScheme.white,
-  //             fontSize: 15,
-  //             fontWeight: FontWeight.w400),
-  //       )),
-  //       //
-  //       // save file
-  //       // Button2(
-  //       //     iconData: Icons.download,
-  //       //     iconColor: Theme.of(context).colorScheme.white,
-  //       //     onPressed: () {
-  //       //       _saveFile();
-  //       //     })
-  //     ]));
-  //   });
-  // }
-
   Widget _header() {
     return Builder(builder: (context) {
       return SizedBox(
           height: kToolbarHeight,
-          // color: Colors.orange,
           child: Row(children: [
             Row(children: [
               const SizedBox(width: 25),

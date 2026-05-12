@@ -108,11 +108,15 @@ class CaptureModel with ChangeNotifier {
   }
 
   void setSurfaceLayout(SurfaceLayout v) {
+    if (layout.ratio == v.ratio && layout.rotation == v.rotation) {
+      return;
+    }
     layout = v;
     notify();
   }
 
-  void updateRotation() {
+  Future<void> updateRotation() async {
+    devRotation = await getIt<CameraRep>().getDeviceSensor();
     var camera = this.camera;
     if (camera == null) {
       logWarning('$tag: update rotation - not camera');

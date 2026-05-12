@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class AppModel with ChangeNotifier {
@@ -37,6 +39,14 @@ class AppModel with ChangeNotifier {
   void setCollapse(bool v) {
     if (v != collapse) {
       collapse = v;
+      notifyListeners();
+    }
+  }
+
+  void setTheme(ThemeMode v) {
+    if (theme != v) {
+      theme = v;
+      getIt<SettingsRep>().setTheme(v);
       notifyListeners();
     }
   }

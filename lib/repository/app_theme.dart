@@ -17,9 +17,8 @@ extension AppColorScheme on ColorScheme {
   Color get bottomNavIconSelected =>
       dark() ? Color(0xFF8181FB) : Color(0xFF2C2C54);
 
-  Color get cameraButtonIcon => dark()
-      ? const Color.fromARGB(255, 231, 231, 231)
-      : const Color(0xFF43444c);
+  Color get cameraButtonIcon =>
+      dark() ? const Color(0xFFE7E7E7) : const Color(0xFFE7E7E7);
 
   TextStyle get homeCardH1Style => TextStyle(fontSize: 25, color: homeCardH1);
   Color get homeCardH1 =>

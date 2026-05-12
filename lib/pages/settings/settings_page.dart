@@ -5,6 +5,7 @@ import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/alert/alert_model.dart';
+import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/settings/settings_about.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
@@ -148,8 +149,10 @@ class SettingsPageState extends State<SettingsPage> {
                       context: context,
                       barrierColor: Colors.black26,
                       builder: (BuildContext context) {
+                        var padding = MediaQuery.paddingOf(context);
                         return Container(
-                            height: 200,
+                            height: 250,
+                            padding: EdgeInsets.only(bottom: padding.bottom),
                             color:
                                 Theme.of(context).colorScheme.colorBgUnderCard,
                             child: Column(
@@ -252,6 +255,48 @@ class SettingsPageState extends State<SettingsPage> {
                       color: Theme.of(context).colorScheme.menuFontColor2,
                       fontSize: Constants.menuFontSize1,
                       fontWeight: FontWeight.w400))
+            ])),
+        //
+        // dark-light
+        ItemInMenuList(
+            useBorderTop: true,
+            useBorderBot: false,
+            // onClicked: () {
+            //   Utils().shareApp();
+            // },
+            height: _itemHeight,
+            child: Row(children: [
+              Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Dark mode',
+                        style: TextStyle(
+                            color: Theme.of(context).colorScheme.menuFontColor1,
+                            fontSize: Constants.menuFontSize2,
+                            fontWeight: FontWeight.w400))
+                  ]),
+              Spacer(),
+              Builder(builder: (context) {
+                var theme = context.watch<AppModel>().theme;
+                var brightness = MediaQuery.platformBrightnessOf(context);
+                var isDark = false;
+                if (theme == ThemeMode.dark) {
+                  isDark = true;
+                }
+                if (theme == ThemeMode.system) {
+                  isDark = brightness == Brightness.dark;
+                }
+                return Row(children: [
+                  Switch(
+                      value: isDark,
+                      padding: EdgeInsets.zero,
+                      onChanged: (value) async {
+                        context.read<AppModel>().setTheme(
+                            isDark ? ThemeMode.light : ThemeMode.dark);
+                      })
+                ]);
+              })
             ])),
         //
         // share

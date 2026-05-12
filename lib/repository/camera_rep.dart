@@ -232,8 +232,10 @@ class CameraRep {
 
   Future<Size?> getTargetSize() async {
     try {
-      var res = await _channelCmd
-          .invokeMethod('get_model_target_size', <String, dynamic>{});
+      var res = await _channelCmd.invokeMethod(
+        'get_model_target_size',
+        <String, dynamic>{},
+      );
       res as Map;
       return Size(res['width'].toDouble(), res['height'].toDouble());
     } catch (e) {
@@ -242,9 +244,6 @@ class CameraRep {
     return null;
   }
 
-  // TODO: lock camera layout
-  // TODO: UI colors
-  // TODO: performance measure
   void detectionEvent({bool force = false}) async {
     await _saveFrame();
     if (!force) {

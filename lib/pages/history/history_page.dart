@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 import 'package:flutter_demo/components/circle_button.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/history/view_item.dart';
@@ -133,34 +134,44 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
   Widget _view() {
     final screenWidth = MediaQuery.of(context).size.width;
     final itemWidth = screenWidth / 3;
-    var history = widget.history;
-    if (history.items.isEmpty) {
+    if (widget.history.items.isEmpty) {
       return const SizedBox.shrink();
     }
     return Column(children: [
       Flexible(
-          child: GridView.builder(
-              itemCount: history.items.length,
-              padding: EdgeInsets.zero,
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-              ),
-              itemBuilder: (context, index) {
-                var model = history.items[index];
-                return ViewItem(
-                    history: model,
-                    size: itemWidth.toInt() - 2,
-                    selectionRep: _selectRep,
-                    padding: const EdgeInsets.all(1),
-                    onPressed: () {
-                      FullViewDialog().show(
-                        context: context,
-                        models: history.items,
-                        initialIndex: index,
-                        selectRep: _selectRep,
-                      );
+          child: StreamBuilder(
+              stream: getIt<HistoryRep>().onHistoryRoot,
+              builder: (context, snapshot) {
+                var root = snapshot.data;
+                var history =
+                    root?.firstWhereOrNull((e) => e == widget.history);
+                if (history == null || history.items.isEmpty) {
+                  return const SizedBox();
+                }
+                return GridView.builder(
+                    itemCount: history.items.length,
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: const ClampingScrollPhysics(),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                    ),
+                    itemBuilder: (context, index) {
+                      var model = history.items[index];
+                      return ViewItem(
+                          history: model,
+                          size: itemWidth.toInt() - 2,
+                          selectionRep: _selectRep,
+                          padding: const EdgeInsets.all(1),
+                          onPressed: () {
+                            FullViewDialog().show(
+                              context: context,
+                              models: history.items,
+                              initialIndex: index,
+                              selectRep: _selectRep,
+                            );
+                          });
                     });
               }))
     ]);
@@ -217,6 +228,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                                   useScaleAnimation: true,
                                   iconData: Icons.delete_outline,
                                   onPressed: (v) async {
+                                    // TODO: delete remove gallery
                                     var v = _selectRep.getSelected();
                                     await getIt<HistoryRep>().deleteHistory(v);
                                     _selectRep.stopSelection();

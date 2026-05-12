@@ -68,17 +68,21 @@ class SettingsAboutState extends State<SettingsAbout> {
                 RoundButton(
                     padding: const EdgeInsets.only(left: 10),
                     color: Colors.transparent,
-                    iconColor: Colors.black,
+                    iconColor: Theme.of(context).colorScheme.menuFontColor1,
                     size: 50,
                     iconSize: 22,
                     iconData: Icons.arrow_back_ios,
-                    onPressed: (p0) {
+                    onPressed: (_) {
                       Navigator.of(context).pop();
                     }),
                 Container(
                     width: 100,
                     margin: const EdgeInsets.only(left: 25),
-                    child: const Text('About', style: TextStyle(fontSize: 25))),
+                    child: Text('About',
+                        style: TextStyle(
+                          fontSize: 25,
+                          color: Theme.of(context).colorScheme.menuFontColor1,
+                        ))),
                 const Spacer()
               ])))
     ]);
@@ -106,56 +110,53 @@ class SettingsAboutState extends State<SettingsAbout> {
 
   Widget _view() {
     return Builder(builder: (context) {
-      var size = MediaQuery.of(context).size;
+      var size = MediaQuery.sizeOf(context);
+      final _textStyle = TextStyle(
+          color: Theme.of(context).colorScheme.menuFontColor1,
+          fontSize: Constants.menuFontSize1,
+          fontWeight: FontWeight.w400);
+
       return SizedBox(
           height: size.height / 1.5,
           child: Stack(alignment: Alignment.center, children: [
             Positioned(
-                top: 40,
+                top: 20,
                 left: 20,
                 right: 20,
                 child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('You may be wondering what this app is for',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.menuFontColor1,
-                              fontSize: Constants.menuFontSize1,
-                              fontWeight: FontWeight.w400)),
+                      Text(
+                        'WhoZone is a high-performance motion detection and object tracking utility designed for real-time outdoor activity monitoring.\nBuilt with a custom C++ backend and a YOLOv11 AI engine, it provides low-latency detection without the need for subscriptions.',
+                        style: _textStyle,
+                      ),
                       SizedBox(height: 8),
                       Text(
-                          'Perhaps you remember the day or days when you saw poop in your yard without any idea where it came from',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.menuFontColor1,
-                              fontSize: Constants.menuFontSize1,
-                              fontWeight: FontWeight.w400)),
+                        'How to Use\nSetup: Position your device with a clear, stable view of the area you want to monitor.',
+                        style: _textStyle,
+                      ),
                       SizedBox(height: 8),
                       Text(
-                          'Then you will agree that there is nothing more unpleasant then cleaning poop',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.menuFontColor1,
-                              fontSize: Constants.menuFontSize1,
-                              fontWeight: FontWeight.w400)),
+                        'Detection:',
+                        style: _textStyle,
+                      ),
                       SizedBox(height: 8),
                       Text(
-                          'Hope this app can help you find out the cause of that',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.menuFontColor1,
-                              fontSize: Constants.menuFontSize1,
-                              fontWeight: FontWeight.w400)),
+                        'Tap the Record button to begin the live analysis.\nThe AI will highlight detected objects with bounding boxes in real-time.',
+                        style: _textStyle,
+                      ),
                       SizedBox(height: 8),
                       Text(
-                        'Just stick your phone to the window, press capture and see what it will catch',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.menuFontColor1,
-                            fontSize: Constants.menuFontSize1,
-                            fontWeight: FontWeight.w400),
-                      )
+                        'Monitoring:',
+                        style: _textStyle,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Keep an eye on the session timer.\nThe app is optimized for high FPS to ensure you don\'t miss quick movements.\nPrivacy: All processing happens locally on your device.\nNo data is ever sent to the cloud.',
+                        style: _textStyle,
+                      ),
+                      SizedBox(height: 8),
                     ]))
           ]));
     });
