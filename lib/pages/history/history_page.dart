@@ -58,25 +58,6 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _selectRep = SelectionRep();
-
-    _dispStream.add(_selectRep.selectedStream.listen((value) {
-      var count = value.length;
-      if (count == 0) {
-        _animationController.reverse().orCancel;
-      } else if (count == 1) {
-        if (_animationController.isForwardOrCompleted) {
-          _animationController.reverse().orCancel;
-        } else {
-          _animationController.forward().orCancel;
-        }
-      }
-    }));
-
-    Timer(const Duration(milliseconds: 1000), () async {
-      await getIt<HistoryRep>().updateHistory();
-    });
-
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -95,6 +76,17 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
     ).animate(CurvedAnimation(
         parent: _animationController.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
+
+    _selectRep = SelectionRep();
+
+    _dispStream.add(_selectRep.selectedStream.listen((value) {
+      var count = value.length;
+      if (count == 0) {
+        _animationController.reverse().orCancel;
+      } else if (count == 1) {
+        _animationController.forward().orCancel;
+      }
+    }));
   }
 
   @override
@@ -132,19 +124,20 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
   }
 
   Widget _view() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = screenWidth / 3;
     if (widget.history.items.isEmpty) {
       return const SizedBox.shrink();
     }
+    final width = MediaQuery.sizeOf(context).width;
+    final itemWidth = width / 3;
     return Column(children: [
       Flexible(
           child: StreamBuilder(
               stream: getIt<HistoryRep>().onHistoryRoot,
               builder: (context, snapshot) {
                 var root = snapshot.data;
-                var history =
-                    root?.firstWhereOrNull((e) => e == widget.history);
+                var history = root?.firstWhereOrNull(
+                  (e) => e.date == widget.history.date,
+                );
                 if (history == null || history.items.isEmpty) {
                   return const SizedBox();
                 }
@@ -178,7 +171,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
   }
 
   Widget _header() {
-    return SizedBox(
+    return Container(
         height: kToolbarHeight + 20,
         child: StreamBuilder(
             stream: _selectRep.selectedStream,
@@ -228,7 +221,6 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                                   useScaleAnimation: true,
                                   iconData: Icons.delete_outline,
                                   onPressed: (v) async {
-                                    // TODO: delete remove gallery
                                     var v = _selectRep.getSelected();
                                     await getIt<HistoryRep>().deleteHistory(v);
                                     _selectRep.stopSelection();

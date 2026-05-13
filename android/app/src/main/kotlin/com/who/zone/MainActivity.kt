@@ -14,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlin.collections.get
 import androidx.core.net.toUri
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : FlutterFragmentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
@@ -80,23 +82,33 @@ class MainActivity : FlutterFragmentActivity() {
                     textureRep.unregisterTexture(id)
                 }
                 "start_camera" -> {
-                    try {
-                        val cameraId = args["camera_id"] as String
-                        val textureId = (args["texture_id"] as Number).toLong()
-                        val texture = textureRep.getTexture(textureId)
-                        var success = false
-                        if(texture != null) {
-                            success = cameraSession.startCamera(cameraId, texture.producer.surface)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        try {
+                            val cameraId = args["camera_id"] as String
+                            val textureId = (args["texture_id"] as Number).toLong()
+                            val texture = textureRep.getTexture(textureId)
+                            var success = false
+                            if (texture != null) {
+                                success = cameraSession.startCamera(cameraId, texture.producer.surface)
+                            }
+                            withContext(Dispatchers.Main) {
+                                result.success(success)
+                            }
+                        } catch (e: SecurityException) {
+                            withContext(Dispatchers.Main) {
+                                result.error(TAG, e.message, e)
+                            }
                         }
-                        result.success(success)
-                    } catch (e: SecurityException) {
-                        result.error(TAG, e.message, e)
                     }
                     return@setMethodCallHandler
                 }
                 "stop_camera" -> {
-                    cameraSession.stopCamera()
-                    result.success(true)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        cameraSession.stopCamera()
+                        withContext(Dispatchers.Main) {
+                            result.success(true)
+                        }
+                    }
                     return@setMethodCallHandler
                 }
                 "get_device_sensor" -> {
@@ -111,17 +123,21 @@ class MainActivity : FlutterFragmentActivity() {
                     return@setMethodCallHandler
                 }
                 "get_system_sounds" -> {
-                    val map = mutableMapOf<String, Any>()
-                    val manager = RingtoneManager(this)
-                    manager.setType(RingtoneManager.TYPE_NOTIFICATION)
-                    val cursor = manager.cursor
-                    while (cursor.moveToNext()) {
-                        val id = cursor.getString(RingtoneManager.ID_COLUMN_INDEX)
-                        val uri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX)
-                        val name = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
-                        map["$uri/$id"] = mapOf("uri" to "$uri/$id", "name" to name)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val map = mutableMapOf<String, Any>()
+                        val manager = RingtoneManager(this@MainActivity)
+                        manager.setType(RingtoneManager.TYPE_NOTIFICATION)
+                        val cursor = manager.cursor
+                        while (cursor.moveToNext()) {
+                            val id = cursor.getString(RingtoneManager.ID_COLUMN_INDEX)
+                            val uri = cursor.getString(RingtoneManager.URI_COLUMN_INDEX)
+                            val name = cursor.getString(RingtoneManager.TITLE_COLUMN_INDEX)
+                            map["$uri/$id"] = mapOf("uri" to "$uri/$id", "name" to name)
+                        }
+                        withContext(Dispatchers.Main) {
+                            result.success(map)
+                        }
                     }
-                    result.success(map)
                     return@setMethodCallHandler
                 }
                 "play_system_sound" -> {
@@ -132,9 +148,13 @@ class MainActivity : FlutterFragmentActivity() {
                     return@setMethodCallHandler
                 }
                 "save_one_frame" -> {
-                    val path = args["path"] as String
-                    WhoZoneRep.nativeSaveOneFrame(path)
-                    result.success(true)
+                    coroutineScope.launch(Dispatchers.IO) {
+                        val path = args["path"] as String
+                        WhoZoneRep.nativeSaveOneFrame(path)
+                        withContext(Dispatchers.Main) {
+                            result.success(true)
+                        }
+                    }
                     return@setMethodCallHandler
                 }
             }

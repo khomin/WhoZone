@@ -174,7 +174,6 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
-                // TODO: delete remove gallery
                 await getIt<HistoryRep>().deleteHistory([_current.model]);
                 widget.selectRep.releaseSelection(_current.model);
                 if (!mounted) return;
