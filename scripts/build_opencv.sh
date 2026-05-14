@@ -11,8 +11,8 @@ SOURCE_DIR="$SCRIPT_DIR/.opencv"
 CHECKOUT_TAG="4.10.0"
 TEMP_DIR=".build-$PLATFORM_ARG"
 
-if [[ ! "$PLATFORM_ARG" =~ ^(macos|android|windows|linux|ios)$ ]]; then
-    echo "Usage: $0 {macos|android|windows|linux|ios}"
+if [[ ! "$PLATFORM_ARG" =~ ^(macos|android)$ ]]; then
+    echo "Usage: $0 {macos|android}"
     exit 1
 fi
 
@@ -30,22 +30,24 @@ mkdir -p $TEMP_DIR
 cd $TEMP_DIR
 
 build() {
-    local BUILD_NAME=$1
+    local PLATFORM_NAME=$1
     local ARCH=$2
     local EXTRA_ARGS=$3
-    echo "Building $BUILD_NAME-$ARCH arguments=$EXTRA_ARGS (this may take a minute)..."
-    INSTALL_DIR="$PROJECT_DIR/.lib_pack/$BUILD_NAME/opencv"
-    cmake -S ../ -B "$BUILD_NAME" \
-        -Dprotobuf_BUILD_TESTS=OFF \
+    local BUILD_DIR=${ARCH:-"default_build"}
+    echo "Building $PLATFORM_NAME, build in $BUILD_DIR, arguments=$EXTRA_ARGS (this may take a minute)..."
+    if [ -z "$ARCH" ]; then
+        INSTALL_DIR="$PROJECT_DIR/.lib_pack/$PLATFORM_NAME/opencv"
+    else
+        INSTALL_DIR="$PROJECT_DIR/.lib_pack/$PLATFORM_NAME/opencv/$ARCH"
+    fi
+    cmake -S ../ -B "$BUILD_DIR" \
+        -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_CXX_STANDARD=17 \
-        -DCMAKE_MACOSX_BUNDLE=OFF \
         -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
         $EXTRA_ARGS
-    cmake --build $BUILD_NAME --config Release
-    cmake --install $BUILD_NAME --config Release --prefix ${INSTALL_DIR}/$ARCH
+    cmake --build $BUILD_DIR --config Release
+    cmake --install $BUILD_DIR --config Release --prefix ${INSTALL_DIR}
 }
-
-echo "PLATFORM_ARG=$PLATFORM_ARG"
 
 case $PLATFORM_ARG in
     macos)
@@ -79,9 +81,27 @@ case $PLATFORM_ARG in
         echo "USING-NDK: ${NDK}"
         echo "USING-CMAKE_SYSROOT: ${CMAKE_SYSROOT}"
         echo "USING-TOOLCHAIN: ${TOOLCHAIN}"
+
         build "android" "arm64-v8a" "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN
             -DCMAKE_BUILD_TYPE=Release \
             -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-26 \
+            -DCMAKE_ANDROID_NDK=${NDK} \
+            -DBUILD_SAMPLES=OFF \
+            -DBUILD_SHARED_LIBS=ON \
+            -DBUILD_opencv_java=ON \
+            -DBUILD_opencv_dnn=ON \
+            -DBUILD_opencv_world=OFF \
+            -DBUILD_ANDROID_PROJECTS=OFF \
+            -DWITH_OPENCL=ON \
+            -DENABLE_NEON=OFF \
+            -DCPU_BASELINE=DETECT \
+            -DCPU_DISPATCH=NEON,FP16,DOTPROD
+            -DBUILD_opencv_dnn=ON"
+
+        build "android" "x86_64" "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN
+            -DCMAKE_BUILD_TYPE=Release \
+            -DANDROID_ABI=x86_64 \
             -DANDROID_PLATFORM=android-26 \
             -DCMAKE_ANDROID_NDK=${NDK} \
             -DBUILD_SAMPLES=OFF \

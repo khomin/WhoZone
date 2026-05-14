@@ -54,7 +54,7 @@ android {
         versionName = flutter.versionName
         externalNativeBuild {
             cmake {
-                abiFilters.addAll(listOf("arm64-v8a"))
+                abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
                 arguments.addAll(listOf("-DANDROID_ARM_NEON=TRUE", "-DANDROID_TOOLCHAIN=clang", "-DCMAKE_CXX_FLAGS=\"-llog\"", "-DANDROID_STL=c++_shared"))
                 cFlags.addAll(listOf("-D__STDC_FORMAT_MACROS -D__ANDROID__ -fPIC -Wl -Bsymbolic"))
                 cppFlags.addAll(listOf("-std=c++17", "-fPIC", "-frtti", "-fexceptions", "--build-id", "-Wl", "-Bsymbolic"))
@@ -63,7 +63,7 @@ android {
         }
         ndk {
             ldLibs?.add("log")
-            abiFilters.addAll(listOf("arm64-v8a"))
+            abiFilters.addAll(listOf("arm64-v8a", "x86_64"))
         }
     }
     externalNativeBuild {

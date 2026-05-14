@@ -83,8 +83,10 @@ target_include_directories(${PROJECT} PUBLIC
 )
 
 target_link_libraries(${PROJECT} PUBLIC
+    -Wl,--start-group
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libprotobuf.a
     ${PROTO_ABSL_LIBS}
+    -Wl,--end-group
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_validity.a
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_range.a
     ${OPENCV_LIBS}
