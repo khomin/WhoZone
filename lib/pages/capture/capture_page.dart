@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/animated_camera_button.dart';
-import 'package:flutter_demo/components/circle_button.dart';
+import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/round_box.dart';
 import 'package:flutter_demo/pages/app_model.dart';
@@ -187,7 +187,6 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
-    // TODO: performance
     // TODO: publish
     // TODO: search - calendar
     return Stack(alignment: Alignment.center, children: [

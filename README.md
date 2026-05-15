@@ -6,7 +6,7 @@ This app is currently under active development.
 
 It serves as a personal playground for exploring high-performance mobile architecture and integrating advanced ML models.
 
-Dection events are sent from cpp via protobuf -> FFI -> dart
+Detection events are sent from cpp via protobuf -> FFI -> dart
 
 Boxes are drawn in flutter using normalized coordinates, the goal is 60 FPS
 

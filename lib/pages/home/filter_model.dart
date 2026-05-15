@@ -4,8 +4,8 @@ import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:intl/intl.dart';
 
-class SearchModel with ChangeNotifier {
-  bool searchBusy = false;
+class FilterModel with ChangeNotifier {
+  bool busy = false;
   List<HistoryRoot> result = [];
   String? search;
   Timer? _searchThrottleTm;
@@ -17,8 +17,8 @@ class SearchModel with ChangeNotifier {
   }
 
   void setSearchBusy(bool v) {
-    if (searchBusy != v) {
-      searchBusy = v;
+    if (busy != v) {
+      busy = v;
       notifyListeners();
     }
   }

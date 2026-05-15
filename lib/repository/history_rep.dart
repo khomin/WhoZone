@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/semaphore.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/common.dart';
 import 'package:flutter_demo/utils/utils.dart';
+import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:loggy/loggy.dart';
 import 'package:path/path.dart';
@@ -46,8 +46,23 @@ class History with ChangeNotifier {
   String path;
 }
 
+class HistoryState {
+  HistoryState({
+    required this.list,
+    this.startTime,
+    this.startTimeString,
+    this.endTime,
+    this.endTimeString,
+  });
+  final List<HistoryRoot> list;
+  final DateTime? startTime;
+  final String? startTimeString;
+  final DateTime? endTime;
+  final String? endTimeString;
+}
+
 class HistoryRep {
-  final onHistoryRoot = BehaviorSubject<List<HistoryRoot>>();
+  final onHistoryRoot = BehaviorSubject<HistoryState>();
   final onUsedDisk = BehaviorSubject<int>();
   final _mapHistory = <DateTime, HistoryRoot>{};
   final _historySemphore = Semaphore(1);
@@ -78,7 +93,7 @@ class HistoryRep {
     return true;
   }
 
-  Future<void> updateHistory() async {
+  Future<void> updateHistory({DateTime? startTime, DateTime? endTime}) async {
     await _historySemphore.acquire();
     _mapHistory.clear();
     var size = 0;
@@ -96,9 +111,19 @@ class HistoryRep {
         }
         var items = <History>[];
         for (var file in files) {
-          items.add(_record(dir, file, now));
+          var record = _record(dir, file, now);
+          if (startTime != null && record.date.isBefore(startTime)) {
+            continue;
+          }
+          if (endTime != null) {
+            if (record.date.isAfter(endTime)) {
+              continue;
+            }
+          }
+          items.add(record);
           size += (await file.stat()).size;
         }
+        if (items.isEmpty) continue;
         var root = _recordRoot(
           dir: dir,
           file: files.first,
@@ -115,7 +140,15 @@ class HistoryRep {
     // root
     var list = _mapHistory.values.toList();
     list.sort((a, b) => b.date.compareTo(a.date));
-    onHistoryRoot.add(list);
+    onHistoryRoot.add(HistoryState(
+      list: list,
+      startTime: startTime,
+      startTimeString:
+          startTime != null ? DateFormat('yyyy-MM-dd').format(startTime) : null,
+      endTimeString:
+          endTime != null ? DateFormat('yyyy-MM-dd').format(endTime) : null,
+      endTime: endTime,
+    ));
     // size
     onUsedDisk.add(size);
     _historySemphore.release();

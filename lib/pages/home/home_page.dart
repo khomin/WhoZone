@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/circle_button.dart';
+import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/history/history_page.dart';
 import 'package:flutter_demo/pages/history/view_root.dart';
+import 'package:flutter_demo/pages/home/filter_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
@@ -189,58 +191,89 @@ class HomePagePageState extends State<HomePagePage>
                     Flexible(
                         child: HoverClick(
                             onPressedL: (p0) {
-                              // TODO: search
-                              // Navigator.push(
-                              //     context,
-                              //     CupertinoPageRoute(
-                              //       settings: const RouteSettings(),
-                              //       builder: (context) {
-                              //         return const SearchPage();
-                              //       },
-                              //     ));
+                              Navigator.push(
+                                  context,
+                                  CupertinoPageRoute(
+                                      settings: const RouteSettings(),
+                                      builder: (context) {
+                                        return StreamBuilder(
+                                          stream:
+                                              getIt<HistoryRep>().onHistoryRoot,
+                                          builder: (context, snapshot) {
+                                            var v = snapshot.data;
+                                            return FilterPage(
+                                              startDate: v?.startTime,
+                                              endDate: v?.endTime,
+                                              onApply: (start, end) {
+                                                getIt<HistoryRep>()
+                                                    .updateHistory(
+                                                  startTime: start,
+                                                  endTime: end,
+                                                );
+                                              },
+                                              onReset: () {
+                                                getIt<HistoryRep>()
+                                                    .updateHistory();
+                                              },
+                                              key: ValueKey('filter-${v}'),
+                                            );
+                                          },
+                                        );
+                                      }));
                             },
-                            child: Stack(children: [
-                              SizedBox(
-                                  height: 50,
-                                  width: double.infinity,
-                                  child: Row(children: [
-                                    Expanded(
-                                        child: Text('Search',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .colorTextSecond,
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.w400))),
-                                  ])),
-                              Positioned(
-                                  right: 15,
-                                  bottom: 0,
-                                  top: 0,
-                                  child: StreamBuilder(
-                                      stream: getIt<HistoryRep>().onHistoryRoot,
-                                      initialData: getIt<HistoryRep>()
-                                          .onHistoryRoot
-                                          .valueOrNull,
-                                      builder: (context, snapshot) {
-                                        var data = snapshot.data ?? [];
-                                        var countDay =
-                                            snapshot.data?.length ?? 0;
-                                        var count = 0;
-                                        for (var it in data) {
-                                          count += it.framesCount;
-                                        }
-                                        return Center(
-                                            child: Text('$countDay/$count',
+                            child: StreamBuilder(
+                                stream: getIt<HistoryRep>().onHistoryRoot,
+                                initialData: getIt<HistoryRep>()
+                                    .onHistoryRoot
+                                    .valueOrNull,
+                                builder: (context, snapshot) {
+                                  var items = snapshot.data?.list ?? [];
+                                  var count = 0;
+                                  for (var it in items) {
+                                    count += it.framesCount;
+                                  }
+                                  var startTime =
+                                      snapshot.data?.startTimeString;
+                                  var endTime = snapshot.data?.endTimeString;
+                                  String title;
+                                  if (startTime != null) {
+                                    title = startTime;
+                                    if (endTime != null) {
+                                      title = '$title / ${endTime}';
+                                    }
+                                  } else {
+                                    title = 'Search by date';
+                                  }
+                                  return Stack(children: [
+                                    SizedBox(
+                                        height: 50,
+                                        width: double.infinity,
+                                        child: Row(children: [
+                                          Expanded(
+                                              child: Text(title,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .colorTextSecond,
+                                                      fontSize: 15,
+                                                      fontWeight:
+                                                          FontWeight.w400))),
+                                        ])),
+                                    Positioned(
+                                        right: 15,
+                                        bottom: 0,
+                                        top: 0,
+                                        child: Center(
+                                            child: Text('$count',
                                                 style: TextStyle(
                                                     color: Theme.of(context)
                                                         .colorScheme
                                                         .colorTextSecond,
                                                     fontSize: 15,
                                                     fontWeight:
-                                                        FontWeight.w400)));
-                                      }))
-                            ])))
+                                                        FontWeight.w400))))
+                                  ]);
+                                })))
                   ])))
         ]));
   }
@@ -250,11 +283,11 @@ class HomePagePageState extends State<HomePagePage>
         stream: getIt<HistoryRep>().onHistoryRoot,
         initialData: getIt<HistoryRep>().onHistoryRoot.valueOrNull,
         builder: (context, snapshot) {
-          var history = snapshot.data;
-          var size = MediaQuery.of(context).size;
+          var history = snapshot.data?.list;
           if (history == null) {
             return const SizedBox();
           }
+          var size = MediaQuery.of(context).size;
           if (history.isEmpty) {
             return RotationTransition(
                 turns: _iconRotate,

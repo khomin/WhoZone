@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
-import 'package:flutter_demo/components/circle_button.dart';
+import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/history/view_item.dart';
 import 'package:flutter_demo/pages/history/history_view_dialog.dart';
@@ -135,7 +135,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
               stream: getIt<HistoryRep>().onHistoryRoot,
               builder: (context, snapshot) {
                 var root = snapshot.data;
-                var history = root?.firstWhereOrNull(
+                var history = root?.list.firstWhereOrNull(
                   (e) => e.date == widget.history.date,
                 );
                 if (history == null || history.items.isEmpty) {
