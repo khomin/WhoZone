@@ -65,7 +65,7 @@ class ServiceApi {
             completer.complete(null);
           },
           description: 'init');
-      _initApi(out.taskId, out.data, out.len);
+      _initApi(out.taskId);
     } catch (ex) {
       logError('$tag: init failed: ${ex.toString()}');
       completer.complete('Error while starting: ${ex.toString()}');

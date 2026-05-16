@@ -31,11 +31,13 @@ void unregister_event_port(Dart_Port send_port) {
 
 void sendToDart(google::protobuf::MessageLite* proto, uint32_t taskId) {
     auto res = new DartResult(taskId);
-    auto len = proto->ByteSizeLong();
-    res->protoBuf = static_cast<uint8_t*>(malloc(len));
-    res->len = (int) len;
-    memset(res->protoBuf, 0, len);
-    proto->SerializeToArray(res->protoBuf, len);
+    if(proto != nullptr) {
+        auto len = proto->ByteSizeLong();
+        res->protoBuf = static_cast<uint8_t*>(malloc(len));
+        res->len = (int) len;
+        memset(res->protoBuf, 0, len);
+        proto->SerializeToArray(res->protoBuf, len);
+    }
     NotifyDart(res);
 }
 

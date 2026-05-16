@@ -1,7 +1,7 @@
 #include "api_lib.h"
 #include "BS_thread_pool.hpp"
 #include "app.pb.h"
-#include "dart_api.h"
+#include "dart_lib.h"
 
 #include <queue>
 #include <thread>
@@ -12,6 +12,7 @@ std::mutex threadLock;
 void initApi(uint32_t taskId) {
     GOOGLE_PROTOBUF_VERIFY_VERSION;
     std::lock_guard<std::mutex> lk(threadLock);
+    sendToDart(nullptr, taskId);
 }
 
 void destroyAll() {

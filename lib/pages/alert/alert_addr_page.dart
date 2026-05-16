@@ -76,10 +76,11 @@ class AlertAddrPageState extends State<AlertAddrPage> {
                             physics: const ClampingScrollPhysics(),
                             slivers: [
                               SliverAppBar(
-                                  backgroundColor:
-                                      Theme.of(context).colorScheme.colorBar,
-                                  automaticallyImplyLeading: false,
-                                  flexibleSpace: _sliverAppBar()),
+                                backgroundColor:
+                                    Theme.of(context).colorScheme.colorBar,
+                                automaticallyImplyLeading: false,
+                                flexibleSpace: _sliverAppBar(),
+                              ),
                               SliverToBoxAdapter(child: _header()),
                               DecoratedSliver(
                                   decoration: BoxDecoration(
@@ -106,10 +107,10 @@ class AlertAddrPageState extends State<AlertAddrPage> {
                 RoundButton(
                     padding: const EdgeInsets.only(left: 10),
                     color: Colors.transparent,
-                    iconColor: Colors.black,
+                    iconColor: Theme.of(context).colorScheme.menuFontColor1,
+                    iconData: Icons.arrow_back_ios,
                     size: 50,
                     iconSize: 22,
-                    iconData: Icons.arrow_back_ios,
                     onPressed: (p0) {
                       Navigator.of(context).pop();
                     }),

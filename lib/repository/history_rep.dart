@@ -80,15 +80,17 @@ class HistoryRep {
     var path = Utils().historyPath();
     try {
       var dir = Directory(path);
-      var directories = await dir.list().toList();
-      for (var it in directories) {
-        var files = Directory(it.path).listSync();
-        if (files.isNotEmpty) {
-          return false;
+      if (await dir.exists()) {
+        var directories = await dir.list().toList();
+        for (var it in directories) {
+          var files = Directory(it.path).listSync();
+          if (files.isNotEmpty) {
+            return false;
+          }
         }
       }
     } catch (ex) {
-      logWarning('$tag: ex');
+      logWarning('$tag: ex $ex');
     }
     return true;
   }
@@ -100,42 +102,44 @@ class HistoryRep {
     var path = Utils().historyPath();
     try {
       var dir = Directory(path);
-      var directories = await dir.list().toList();
-      var now = DateTime.now();
-      for (var dir in directories) {
-        var dirName = basename(dir.path);
-        var creationDate = Common().parseDate(basename(dirName));
-        var files = Directory(dir.path).listSync();
-        if (files.isEmpty) {
-          continue;
-        }
-        var items = <History>[];
-        for (var file in files) {
-          var record = _record(dir, file, now);
-          if (startTime != null && record.date.isBefore(startTime)) {
+      if (await dir.exists()) {
+        var directories = await dir.list().toList();
+        var now = DateTime.now();
+        for (var dir in directories) {
+          var dirName = basename(dir.path);
+          var creationDate = Common().parseDate(basename(dirName));
+          var files = Directory(dir.path).listSync();
+          if (files.isEmpty) {
             continue;
           }
-          if (endTime != null) {
-            if (record.date.isAfter(endTime)) {
+          var items = <History>[];
+          for (var file in files) {
+            var record = _record(dir, file, now);
+            if (startTime != null && record.date.isBefore(startTime)) {
               continue;
             }
+            if (endTime != null) {
+              if (record.date.isAfter(endTime)) {
+                continue;
+              }
+            }
+            items.add(record);
+            size += (await file.stat()).size;
           }
-          items.add(record);
-          size += (await file.stat()).size;
+          if (items.isEmpty) continue;
+          var root = _recordRoot(
+            dir: dir,
+            file: files.first,
+            now: now,
+            items: items,
+            fileCount: files.length,
+            diskSpace: (await dir.stat()).size,
+          );
+          _mapHistory[creationDate] = root;
         }
-        if (items.isEmpty) continue;
-        var root = _recordRoot(
-          dir: dir,
-          file: files.first,
-          now: now,
-          items: items,
-          fileCount: files.length,
-          diskSpace: (await dir.stat()).size,
-        );
-        _mapHistory[creationDate] = root;
       }
     } catch (ex) {
-      logWarning('$tag: ex');
+      logWarning('$tag: ex $ex');
     }
     // root
     var list = _mapHistory.values.toList();

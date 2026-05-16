@@ -29,13 +29,14 @@ class CameraRep {
   final onCaptureTime = BehaviorSubject<CaptureTime?>();
   var onDetection = StreamController<List<DetectionBox>>.broadcast();
   var onDetectionCount = BehaviorSubject<int>();
-  final onTexture = BehaviorSubject<int>();
+  final onTexture = BehaviorSubject<int?>();
   bool captureEnable = false;
   Size? targetSize;
   Function(String path)? onCapture;
   Function()? onFirstFrame;
 
   var _frameSize = const Size(0, 0);
+  int? _textureId;
   Timer? _captureTm;
   DateTime? _captureStartedDate;
   int _captureIntervalSec = 0;
@@ -103,6 +104,7 @@ class CameraRep {
         'texture_id': textureId,
       });
       _frameSize = Size(size.width.toDouble(), size.height.toDouble());
+      _textureId = textureId;
       onTexture.add(textureId);
       onFrameSize.add(_frameSize);
       return StartResult(textureId);
@@ -115,6 +117,14 @@ class CameraRep {
   Future<void> stopCamera() async {
     try {
       await _channelCmd.invokeMethod('stop_camera', <String, dynamic>{});
+      var textureId = _textureId;
+      if (textureId != null) {
+        _textureId = null;
+        onTexture.add(null);
+        await _channelCmd.invokeMethod('unregister_texture', <String, dynamic>{
+          'id': textureId,
+        });
+      }
     } on PlatformException catch (e) {
       logError('$tag: error: ${e.message}');
     }

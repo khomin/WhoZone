@@ -188,7 +188,8 @@ class CapturePageState extends State<CapturePage>
 
   Widget _camera() {
     // TODO: publish
-    // TODO: search - calendar
+    // TODO: tensorflow
+    // TODO: doc
     return Stack(alignment: Alignment.center, children: [
       Positioned(
         bottom: 0,

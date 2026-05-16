@@ -45,13 +45,14 @@ class _FilterPageState extends State<FilterPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select date'),
+        backgroundColor: Theme.of(context).colorScheme.colorBar,
         leading: RoundButton(
+            padding: const EdgeInsets.only(left: 10),
             color: Colors.transparent,
-            iconColor: Colors.black,
+            iconColor: Theme.of(context).colorScheme.menuFontColor1,
+            iconData: Icons.arrow_back_ios,
             size: 50,
             iconSize: 22,
-            padding: const EdgeInsets.only(left: 10),
-            iconData: Icons.arrow_back_ios,
             onPressed: (v) async {
               Navigator.pop(context);
             }),

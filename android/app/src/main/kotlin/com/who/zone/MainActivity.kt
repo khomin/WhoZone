@@ -78,7 +78,7 @@ class MainActivity : FlutterFragmentActivity() {
                     return@setMethodCallHandler
                 }
                 "unregister_texture" -> {
-                    val id = args["id"] as Long
+                    val id = (args["id"] as Number).toLong()
                     textureRep.unregisterTexture(id)
                 }
                 "start_camera" -> {

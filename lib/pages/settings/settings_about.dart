@@ -69,9 +69,9 @@ class SettingsAboutState extends State<SettingsAbout> {
                     padding: const EdgeInsets.only(left: 10),
                     color: Colors.transparent,
                     iconColor: Theme.of(context).colorScheme.menuFontColor1,
+                    iconData: Icons.arrow_back_ios,
                     size: 50,
                     iconSize: 22,
-                    iconData: Icons.arrow_back_ios,
                     onPressed: (_) {
                       Navigator.of(context).pop();
                     }),
