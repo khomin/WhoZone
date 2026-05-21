@@ -168,83 +168,84 @@ void Detector::processNeural(FrameItem& frameItem) {
     int64 time_start = cv::getTickCount();
     // --- Pre-processing (Image to Blob) ---
     cv::Mat blob;
-    cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(_model_width, _model_height), cv::Scalar(), true, false);
-    _net.setInput(blob);
-
-    // --- Inference (Forward Pass) ---
-    auto now_start = std::chrono::steady_clock::now();
     try {
+        cv::dnn::blobFromImage(frame, blob, 1/255.0, cv::Size(_model_width, _model_height), cv::Scalar(), true, false);
+        _net.setInput(blob);
+
+        // --- Inference (Forward Pass) ---
+        auto now_start = std::chrono::steady_clock::now();
         _net.forward(outs, _net.getUnconnectedOutLayersNames());
+
+        auto now_end = std::chrono::steady_clock::now();
+        auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
+        auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();
+        // LOGD("DETECTION-_net.forward: time lapsed: %dms", end_ms - start_ms);
+
+        // outs[0] is [1, 84, 8400]
+        cv::Mat output = outs[0];
+        if (output.dims == 3) {
+            // Reshape to [84, 8400]
+            output = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>());
+        }
+        // Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
+        cv::Mat data = output.t();
+
+        for (int i = 0; i < data.rows; i++) {
+            // In YOLO11, there is no separate "Objectness" score.
+            // You find the max class score directly.
+            cv::Mat row = data.row(i);
+            cv::Mat scores = row.colRange(4, 84); // 80 class scores
+
+            cv::Point class_id_point;
+            double max_score;
+            minMaxLoc(scores, 0, &max_score, 0, &class_id_point);
+
+            if (max_score > CONF_THRESHOLD) {
+                float cx = row.at<float>(0);
+                float cy = row.at<float>(1);
+                float ow = row.at<float>(2);
+                float oh = row.at<float>(3);
+
+                // Standard YOLO scaling
+                float x_factor = frame.cols / _model_width;
+                float y_factor = frame.rows / _model_height;
+
+                int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
+                int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
+                int width = static_cast<int>(ow * x_factor);
+                int height = static_cast<int>(oh * y_factor);
+
+                detections.push_back(cv::Rect(x, y, width, height));
+                det_class_ids.push_back(class_id_point.x);
+                det_confidences.push_back(static_cast<float>(max_score));
+            }
+        }
+        // NMS
+        std::vector<int> indexes;
+        cv::dnn::NMSBoxes(detections, det_confidences, 0.25f, 0.50f, indexes);
+
+        // keep only NMSed lists
+        std::vector<cv::Rect> nms_boxes;
+        std::vector<int> nms_class_ids;
+        std::vector<float> nms_confidences;
+        for (int idx : indexes) {
+            nms_boxes.push_back(detections[idx]);
+            nms_class_ids.push_back(det_class_ids[idx]);
+            nms_confidences.push_back(det_confidences[idx]);
+        }
+        detections.swap(nms_boxes);
+        det_class_ids.swap(nms_class_ids);
+        det_confidences.swap(nms_confidences);
+
+        // --- Update trackers with detections ---
+        processPredictionsAndUpdateTrackers(frame, outs[0], _colors, time_start,
+                                            detections, det_class_ids, det_confidences,
+                                            _trackers);
+        outs.clear();
     } catch (const cv::Exception& e) {
-        std::cerr << "OpenCV Forward Error: " << e.what() << std::endl;
+        std::cerr << "OpenCV processNeural exception: " << e.what() << std::endl;
         return;
     }
-    auto now_end = std::chrono::steady_clock::now();
-    auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
-    auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();
-    LOGD("DETECTION-_net.forward: time lapsed: %dms", end_ms - start_ms);
-
-    // outs[0] is [1, 84, 8400]
-    cv::Mat output = outs[0];
-    if (output.dims == 3) {
-        // Reshape to [84, 8400]
-        output = cv::Mat(output.size[1], output.size[2], CV_32F, output.ptr<float>());
-    }
-    // Transpose it so it becomes [8400, 84] (back to "v5 style" rows)
-    cv::Mat data = output.t();
-
-    for (int i = 0; i < data.rows; i++) {
-        // In YOLO11, there is no separate "Objectness" score.
-        // You find the max class score directly.
-        cv::Mat row = data.row(i);
-        cv::Mat scores = row.colRange(4, 84); // 80 class scores
-
-        cv::Point class_id_point;
-        double max_score;
-        minMaxLoc(scores, 0, &max_score, 0, &class_id_point);
-
-        if (max_score > CONF_THRESHOLD) {
-            float cx = row.at<float>(0);
-            float cy = row.at<float>(1);
-            float ow = row.at<float>(2);
-            float oh = row.at<float>(3);
-
-            // Standard YOLO scaling
-            float x_factor = frame.cols / _model_width;
-            float y_factor = frame.rows / _model_height;
-
-            int x = static_cast<int>((cx - 0.5f * ow) * x_factor);
-            int y = static_cast<int>((cy - 0.5f * oh) * y_factor);
-            int width = static_cast<int>(ow * x_factor);
-            int height = static_cast<int>(oh * y_factor);
-
-            detections.push_back(cv::Rect(x, y, width, height));
-            det_class_ids.push_back(class_id_point.x);
-            det_confidences.push_back(static_cast<float>(max_score));
-        }
-    }
-    // NMS
-    std::vector<int> indexes;
-    cv::dnn::NMSBoxes(detections, det_confidences, 0.25f, 0.50f, indexes);
-
-    // keep only NMSed lists
-    std::vector<cv::Rect> nms_boxes;
-    std::vector<int> nms_class_ids;
-    std::vector<float> nms_confidences;
-    for (int idx : indexes) {
-        nms_boxes.push_back(detections[idx]);
-        nms_class_ids.push_back(det_class_ids[idx]);
-        nms_confidences.push_back(det_confidences[idx]);
-    }
-    detections.swap(nms_boxes);
-    det_class_ids.swap(nms_class_ids);
-    det_confidences.swap(nms_confidences);
-
-    // --- Update trackers with detections ---
-    processPredictionsAndUpdateTrackers(frame, outs[0], _colors, time_start,
-                                        detections, det_class_ids, det_confidences,
-                                        _trackers);
-    outs.clear();
 }
 
 void Detector::send_result(std::vector<cv::Rect>& detections,

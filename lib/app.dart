@@ -41,6 +41,8 @@ class AppState extends State<App> {
 
     _captureModel = CaptureModel(
       captureIntervalSec: getIt<SettingsRep>().getCaptureIntervalSec(),
+      cameraRep: getIt<CameraRep>(),
+      settingsRep: getIt<SettingsRep>(),
     );
     _alertModel = AlertModel();
 

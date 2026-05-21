@@ -1,8 +1,6 @@
 package com.who.zone
 
 import android.media.RingtoneManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.Surface
 import androidx.activity.result.contract.ActivityResultContracts
@@ -21,6 +19,7 @@ class MainActivity : FlutterFragmentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
     private lateinit var cameraSession: CameraSession
     private var cameraPermissionResult: MethodChannel.Result ?= null
+    private lateinit var channel: MethodChannel
 
     val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         cameraPermissionResult?.success(isGranted)
@@ -36,7 +35,7 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
 
         val registry = flutterEngine.renderer
-        val channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
+        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_NAME)
         val textureRep = TextureRepository(registry) {}
 
         channel.setMethodCallHandler { call, result ->

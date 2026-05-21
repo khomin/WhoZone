@@ -127,8 +127,8 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
     if (widget.history.items.isEmpty) {
       return const SizedBox.shrink();
     }
-    final width = MediaQuery.sizeOf(context).width;
-    final itemWidth = width / 3;
+    // final width = MediaQuery.sizeOf(context).width;
+    // final itemWidth = width / 3;
     return Column(children: [
       Flexible(
           child: StreamBuilder(
@@ -154,7 +154,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                       var model = history.items[index];
                       return ViewItem(
                           history: model,
-                          size: itemWidth.toInt() - 2,
+                          // size: itemWidth.toInt() - 2,
                           selectionRep: _selectRep,
                           padding: const EdgeInsets.all(1),
                           onPressed: () {
@@ -179,10 +179,10 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
               var label = widget.history.dateHeader;
               var selectedCount = snapshot.data?.length ?? 0;
               return Row(children: [
-                Expanded(
+                Flexible(
                     child: Row(children: [
                   const SizedBox(width: 25),
-                  Expanded(
+                  Flexible(
                       child: Stack(alignment: Alignment.centerLeft, children: [
                     Positioned(
                         left: 0,
@@ -256,6 +256,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                     size: 50,
                     radius: 18,
                     vertTransform: true,
+                    margin: EdgeInsets.only(right: 8),
                     iconData: Icons.close,
                     onPressed: (p0) {
                       if (selectedCount > 0) {
@@ -264,7 +265,6 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
                         Navigator.of(context).pop();
                       }
                     }),
-                const SizedBox(width: 8)
               ]);
             }));
   }

@@ -60,8 +60,9 @@ class Button3 extends StatelessWidget {
                   child: Text(
                     text!,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.colorTextAccent,
+                      color: colorText,
                       fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ))
           ],

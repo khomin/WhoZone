@@ -49,6 +49,7 @@ class CameraRep {
   Future<void> init() async {
     if (_inited) return;
     targetSize = await getTargetSize();
+    // coco
     final data = await rootBundle.loadString('assets/coco.names');
     _classNames = data.split('\n');
     _inited = true;

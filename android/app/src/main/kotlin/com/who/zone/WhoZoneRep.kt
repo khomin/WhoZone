@@ -59,8 +59,8 @@ object WhoZoneRep {
         return modelFile.absolutePath
     }
 
-    private external fun init(toByteArray: ByteArray, len: Int)
+    private external fun init(data: ByteArray, len: Int)
     external fun nativeInitImageReader(): Surface
-    external fun setCameraSensorRotation(rotation: Int)
+    external fun setCameraMeta(data: ByteArray, len: Int)
     external fun nativeSaveOneFrame(path: String)
 }

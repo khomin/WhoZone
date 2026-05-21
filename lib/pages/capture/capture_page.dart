@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/animated_camera_button.dart';
 import 'package:flutter_demo/components/round_button.dart';
@@ -11,12 +12,15 @@ import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
 import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/utils/common.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
+import 'dart:math' as math;
 import 'package:flutter_demo/main.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 class CapturePage extends StatefulWidget {
   const CapturePage({super.key});
@@ -39,6 +43,8 @@ class CapturePageState extends State<CapturePage>
   @override
   void initState() {
     super.initState();
+
+    RotationSensor.coordinateSystem = CoordinateSystem.device();
 
     Future.microtask(() async {
       var res = await _captureModel.start();
@@ -96,10 +102,10 @@ class CapturePageState extends State<CapturePage>
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    _updateLayoutTm?.cancel();
-    _updateLayoutTm = Timer(const Duration(milliseconds: 300), () async {
-      _captureModel.updateRotation();
-    });
+    // _updateLayoutTm?.cancel();
+    // _updateLayoutTm = Timer(const Duration(milliseconds: 300), () async {
+    //   _captureModel.updateRotation();
+    // });
   }
 
   @override
@@ -187,9 +193,12 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
-    // TODO: publish
+    // TODO: don't close in background
+    // TODO: fixed layout + rotation
+    // TODO: bloc
     // TODO: tensorflow
     // TODO: doc
+    // TODO: publish
     return Stack(alignment: Alignment.center, children: [
       Positioned(
         bottom: 0,
@@ -197,64 +206,67 @@ class CapturePageState extends State<CapturePage>
         right: 0,
         top: 0,
         child: LayoutBuilder(builder: (context, constraints) {
-          var targetSize = getIt<CameraRep>().targetSize;
           var (camera, layout, textureId, recording) = context
               .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
             (v) => (v.camera, v.layout, v.textureId, v.recording),
           );
-          logDebug(
-              'BTEST: width=${camera?.size.width}, height=${camera?.size.height}, rotation-surface=${layout.rotation}, ratio=${layout.ratio}');
-          if (camera == null || targetSize == null) {
+          if (camera == null) {
             return const SizedBox();
           }
-          Future.microtask(() async {
-            _captureModel.updateRotation();
-          });
-          var sensorWidth = camera.size.width.toDouble();
-          var sensorHeight = camera.size.height.toDouble();
-          return AspectRatio(
-            aspectRatio: targetSize.height / targetSize.width,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: ClipRect(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: RotatedBox(
-                        quarterTurns: layout.rotation,
-                        child: Container(
-                          width: sensorWidth,
-                          height: sensorHeight,
-                          child: Texture(textureId: textureId!),
-                        ),
-                      ),
-                    ),
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: ClipRect(
+                  child: FittedBox(
+                    fit: BoxFit.cover,
+                    child: camera.isFront
+                        ? Transform.flip(
+                            flipX: true,
+                            child: RotatedBox(
+                                quarterTurns: layout.rotation,
+                                child: Container(
+                                  width: camera.size.width.toDouble(),
+                                  height: camera.size.height.toDouble(),
+                                  child: Texture(textureId: textureId!),
+                                )))
+                        : RotatedBox(
+                            quarterTurns: layout.rotation,
+                            child: SizedBox(
+                              width: camera.size.width.toDouble(),
+                              height: camera.size.height.toDouble(),
+                              child: Texture(textureId: textureId!),
+                            ),
+                          ),
                   ),
                 ),
-                Positioned.fill(
-                    child: Container(
-                  width: sensorWidth,
-                  height: sensorHeight,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    border: Border.all(
-                        color: recording
-                            ? Theme.of(context).colorScheme.colorButtonRed
-                            : Colors.transparent,
-                        width: 2),
-                  ),
-                )),
-                // overlay
-                Positioned.fill(
-                  child: CameraPreviewWithOverlay(
-                    boxes: getIt<CameraRep>().onDetection.stream,
-                  ),
+              ),
+              if (kDebugMode)
+                Positioned(
+                  child: _debugLabels(),
                 ),
-                //
-                // frame-shots count
-                _frameCount()
-              ],
-            ),
+              // border
+              Positioned.fill(
+                  child: Container(
+                width: camera.size.width.toDouble(),
+                height: camera.size.height.toDouble(),
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  border: Border.all(
+                      color: recording
+                          ? Theme.of(context).colorScheme.colorButtonRed
+                          : Colors.transparent,
+                      width: 2),
+                ),
+              )),
+              // overlay
+              Positioned.fill(
+                child: CameraPreviewWithOverlay(
+                  boxes: getIt<CameraRep>().onDetection.stream,
+                ),
+              ),
+              // frame-shots count
+              _frameCount()
+            ],
           );
         }),
       ),
@@ -342,5 +354,17 @@ class CapturePageState extends State<CapturePage>
                     ]);
                   }))),
     );
+  }
+
+  Widget _debugLabels() {
+    return Builder(builder: (context) {
+      var camera = context.select<CaptureModel, app.Camera?>((v) => v.camera);
+      var cameraSensor = camera?.sensor ?? 0;
+      final sensorRadians = (cameraSensor * math.pi / 180.0);
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('camera.sensor: ${camera?.sensor}'),
+        Text('sensorRadians: $sensorRadians'),
+      ]);
+    });
   }
 }

@@ -46,6 +46,7 @@ class _FilterPageState extends State<FilterPage> {
       appBar: AppBar(
         title: const Text('Select date'),
         backgroundColor: Theme.of(context).colorScheme.colorBar,
+        titleSpacing: 0,
         leading: RoundButton(
             padding: const EdgeInsets.only(left: 10),
             color: Colors.transparent,
@@ -62,7 +63,8 @@ class _FilterPageState extends State<FilterPage> {
                 padding: EdgeInsets.only(right: 8),
                 child: Button3(
                     text: 'Reset',
-                    color: Theme.of(context).colorScheme.buttonOption1,
+                    color: Theme.of(context).colorScheme.buttonOption,
+                    colorText: Theme.of(context).colorScheme.buttonOptionText,
                     onPressed: () {
                       setState(() {
                         _selectedRange = null;
@@ -97,7 +99,8 @@ class _FilterPageState extends State<FilterPage> {
                 margin: EdgeInsets.only(top: 20, left: 20, right: 20),
                 child: Button3(
                     text: 'Apply',
-                    color: Theme.of(context).colorScheme.buttonOption1,
+                    color: Theme.of(context).colorScheme.buttonOption,
+                    colorText: Theme.of(context).colorScheme.buttonOptionText,
                     onPressed: _selectedRange?.startDate == null
                         ? null
                         : () {

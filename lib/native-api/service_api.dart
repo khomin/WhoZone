@@ -17,7 +17,6 @@ class ServiceApi {
   static late Function _testMethod;
   int _nativePort = -1;
   static late DynamicLibrary _dylib;
-
   static late Pointer<NativeFunction<NativeEventPtr>> cbPtr;
   static final Map<int, TaskIsolate> _isolateMap = {};
   static int _isolateUniqueCnt = 0;

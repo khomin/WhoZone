@@ -31,7 +31,7 @@ bool FrameSourceOpenCV::open() {
                 int64 time_start = cv::getTickCount();
                 FrameItem frame_item = FrameItem();
                 frame_item.frame = std::move(frame);
-                frame_item.frame_index = frame_index++;
+                frame_item._frame_count = frame_index++;
                 frame_item.timestamp = time_start;
                 onFrame(frame_item);
             }

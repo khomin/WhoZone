@@ -59,6 +59,8 @@ extension AppColorScheme on ColorScheme {
       ? const Color(0xFF1c1e23)
       : const Color.fromARGB(255, 238, 238, 238);
 
-  Color get buttonOption1 => Color(0xFF6F63AA);
+  Color get buttonOption => Color(0xFF6F63AA);
+  Color get buttonOptionText => Color(0xFFEAEAEA);
+
   Color get menuBorderColor => Color.fromARGB(159, 211, 211, 212);
 }

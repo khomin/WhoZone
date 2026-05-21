@@ -144,9 +144,10 @@ class FullViewItemState extends State<FullViewItem> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            automaticallyImplyLeading: false,
-            titleSpacing: 0,
-            title: _header()),
+          automaticallyImplyLeading: false,
+          titleSpacing: 0,
+          title: _header(),
+        ),
         body: Column(children: [
           //
           _page(),
@@ -156,9 +157,9 @@ class FullViewItemState extends State<FullViewItem> {
   }
 
   Widget _buttons() {
-    return Container(
+    return SafeArea(
+      child: Container(
         height: kToolbarHeight,
-        margin: const EdgeInsets.only(bottom: 50),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           RoundButton(
               color: Theme.of(context)
@@ -197,16 +198,18 @@ class FullViewItemState extends State<FullViewItem> {
                 getIt<HistoryRep>().share([_current.model]);
                 widget.selectRep.releaseSelection(_current.model);
               })
-        ]));
+        ]),
+      ),
+    );
   }
 
   Widget _page() {
     return Builder(builder: (context) {
-      var screen = MediaQuery.of(context).size;
+      var size = MediaQuery.sizeOf(context);
       return Expanded(
           child: Container(
-              width: screen.width,
-              height: screen.height - 100,
+              width: size.width,
+              height: size.height - kToolbarHeight,
               child: Listener(
                   onPointerDown: (opm) {
                     _scrollTouch.savePointerPosition(opm.pointer);
@@ -224,7 +227,6 @@ class FullViewItemState extends State<FullViewItem> {
                       value: _scrollTouch,
                       builder: (context, child) {
                         var scroll = context.watch<ScrollTouch>();
-
                         return PageView.builder(
                             physics:
                                 scroll._touchPositions.length > 1 || scroll.zoom
@@ -236,18 +238,19 @@ class FullViewItemState extends State<FullViewItem> {
                             itemBuilder: (context, index) {
                               var model = widget.history[index];
                               return InteractiveViewer(
-                                  maxScale: 5.0,
-                                  minScale: 1.0,
-                                  panEnabled: scroll.zoom,
-                                  panAxis: PanAxis.free,
-                                  onInteractionStart: _onInteractionStart,
-                                  onInteractionUpdate: (details) =>
-                                      _onInteractionUpdate(details, index),
-                                  onInteractionEnd: (details) =>
-                                      _onInteractionEnd(details, index),
-                                  transformationController:
-                                      _controllerList[index],
-                                  child: _item(model));
+                                maxScale: 5.0,
+                                minScale: 1.0,
+                                panEnabled: scroll.zoom,
+                                panAxis: PanAxis.free,
+                                onInteractionStart: _onInteractionStart,
+                                onInteractionUpdate: (details) =>
+                                    _onInteractionUpdate(details, index),
+                                onInteractionEnd: (details) =>
+                                    _onInteractionEnd(details, index),
+                                transformationController:
+                                    _controllerList[index],
+                                child: _item(model),
+                              );
                             });
                       }))));
     });
@@ -271,62 +274,53 @@ class FullViewItemState extends State<FullViewItem> {
   }
 
   Widget _header() {
-    return Builder(builder: (context) {
-      return SizedBox(
-          height: kToolbarHeight,
-          child: Row(children: [
-            Row(children: [
-              const SizedBox(width: 25),
-              Text(widget.history.first.dateHeader,
-                  style: const TextStyle(fontSize: 22)),
-              const SizedBox(width: 10),
-              Text('${_current.index + 1} of ${widget.history.length}',
-                  style: const TextStyle(fontSize: 18))
-            ]),
-            const Spacer(),
-            RoundButton(
-                color: Colors.transparent,
-                iconColor: Theme.of(context)
-                    .colorScheme
-                    .colorTextAccent
-                    .withValues(alpha: 0.8),
-                size: 50,
-                radius: 18,
-                vertTransform: true,
-                iconData: Icons.close,
-                onPressed: (p0) {
-                  Navigator.of(context).pop();
-                }),
-            const SizedBox(width: 8)
-          ]));
-    });
+    return SizedBox(
+        height: kToolbarHeight,
+        child:
+            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          Row(children: [
+            const SizedBox(width: 25),
+            Text(widget.history.first.dateHeader,
+                style: const TextStyle(fontSize: 22)),
+            const SizedBox(width: 10),
+            Text('${_current.index + 1} of ${widget.history.length}',
+                style: const TextStyle(fontSize: 18))
+          ]),
+          RoundButton(
+              margin: EdgeInsets.only(right: 8),
+              color: Colors.transparent,
+              iconColor: Theme.of(context)
+                  .colorScheme
+                  .colorTextAccent
+                  .withValues(alpha: 0.8),
+              size: 50,
+              radius: 18,
+              vertTransform: true,
+              iconData: Icons.close,
+              onPressed: (p0) {
+                Navigator.of(context).pop();
+              }),
+        ]));
   }
 
   Widget _item(History model) {
-    return Builder(builder: (context) {
-      return Column(children: [
-        Expanded(
-            child:
-                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-          Stack(alignment: Alignment.center, children: [
-            Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 10.0,
-                    spreadRadius: 1.0,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              child: ClipRRect(
-                  child: Image.file(File(model.path), fit: BoxFit.contain)),
-            )
-          ])
-        ]))
-      ]);
-    });
+    return Stack(alignment: Alignment.center, children: [
+      Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 10.0,
+              spreadRadius: 1.0,
+              offset: const Offset(0, 0),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          child: Image.file(File(model.path), fit: BoxFit.contain),
+        ),
+      )
+    ]);
   }
 }
 

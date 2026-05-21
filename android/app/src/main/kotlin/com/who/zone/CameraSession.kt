@@ -41,7 +41,9 @@ class CameraSession(val context: Context) {
     fun startCamera(cameraId: String, viewSurface: Surface) : Boolean {
         val manager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val info = getCameraInfo(cameraId) ?: return false
-        WhoZoneRep.setCameraSensorRotation(info.sensorRotation)
+        info.toByteArray().let {
+            WhoZoneRep.setCameraMeta(it, it.size)
+        }
         manager.openCamera(cameraId, object : CameraDevice.StateCallback() {
             override fun onOpened(camera: CameraDevice) {
                 XLog.tag(TAG).i( "onOpened: id=${camera.id}")
@@ -87,9 +89,10 @@ class CameraSession(val context: Context) {
         try {
             val info = getCameraInfo(device.id) ?: return
             val range = info.fpsRangesList.last()
-            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
-            builder.addTarget(viewSurface)
+            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             builder.addTarget(codecSurface)
+            builder.addTarget(viewSurface)
+//            builder.set(CaptureRequest.JPEG_ORIENTATION, info.sensorRotation)
             builder.set(
                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                 Range(range.lower, range.upper)
