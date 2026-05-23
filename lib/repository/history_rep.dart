@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/semaphore.dart';
 import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/utils/common.dart';
+import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';

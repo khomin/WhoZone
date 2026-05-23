@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
-import 'package:flutter_demo/pages/capture/detection_box.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/utils.dart';
@@ -23,15 +23,16 @@ class StartResult {
 }
 
 class CameraRep {
+  final cameraStream = BehaviorSubject<void>();
+  final frameSizeStream = BehaviorSubject<Size>.seeded(const Size(0, 0));
+  final captureTimeStream = BehaviorSubject<CaptureTime?>();
+  final detectionStream = StreamController<List<DetectionBox>>.broadcast();
+  final detectionEventCount = BehaviorSubject<int>();
+  final textureStream = BehaviorSubject<int?>();
   var cameras = <String, app.CameraInfo>{};
-  final onCameraChanged = BehaviorSubject<void>();
-  final onFrameSize = BehaviorSubject<Size>.seeded(const Size(0, 0));
-  final onCaptureTime = BehaviorSubject<CaptureTime?>();
-  var onDetection = StreamController<List<DetectionBox>>.broadcast();
-  var onDetectionCount = BehaviorSubject<int>();
-  final onTexture = BehaviorSubject<int?>();
   bool captureEnable = false;
   Size? targetSize;
+
   Function(String path)? onCapture;
   Function()? onFirstFrame;
 
@@ -39,7 +40,7 @@ class CameraRep {
   int? _textureId;
   Timer? _captureTm;
   DateTime? _captureStartedDate;
-  int _captureIntervalSec = 0;
+  Duration _captureIntervalSec = Duration.zero;
   DateTime? _lastDetectionTime;
   final _channelCmd = MethodChannel('channel_cmd');
   List<String> _classNames = [];
@@ -64,7 +65,7 @@ class CameraRep {
         var camera = app.CameraInfo.fromBuffer(res[key]);
         cameras[key] = camera;
       }
-      onCameraChanged.add(null);
+      cameraStream.add(null);
       return cameras;
     } catch (e) {
       logError('$tag: error: $e');
@@ -106,8 +107,8 @@ class CameraRep {
       });
       _frameSize = Size(size.width.toDouble(), size.height.toDouble());
       _textureId = textureId;
-      onTexture.add(textureId);
-      onFrameSize.add(_frameSize);
+      textureStream.add(textureId);
+      frameSizeStream.add(_frameSize);
       return StartResult(textureId);
     } on PlatformException catch (e) {
       logError('$tag: error: ${e.message}');
@@ -121,7 +122,7 @@ class CameraRep {
       var textureId = _textureId;
       if (textureId != null) {
         _textureId = null;
-        onTexture.add(null);
+        textureStream.add(null);
         await _channelCmd.invokeMethod('unregister_texture', <String, dynamic>{
           'id': textureId,
         });
@@ -131,8 +132,8 @@ class CameraRep {
     }
   }
 
-  void updateConfiguration({required int captureIntervalSec}) async {
-    this._captureIntervalSec = captureIntervalSec;
+  void updateConfiguration({required Duration captureInterval}) async {
+    this._captureIntervalSec = captureInterval;
   }
 
   void detection(app.Detection ev) {
@@ -144,12 +145,13 @@ class CameraRep {
       final now = DateTime.now();
       var lastDetectionTime = _lastDetectionTime;
       if (lastDetectionTime == null ||
-          now.difference(lastDetectionTime).inSeconds >= _captureIntervalSec) {
+          now.difference(lastDetectionTime).inSeconds >=
+              _captureIntervalSec.inSeconds) {
         _lastDetectionTime = now;
         detectionEvent();
       }
     }
-    onDetection.add(boxes);
+    detectionStream.add(boxes);
   }
 
   Future<int> getDeviceSensor() async {
@@ -163,21 +165,20 @@ class CameraRep {
     return 0;
   }
 
-  void startCapture({required int captureIntervalSec}) {
+  void startCapture({required Duration captureInterval}) {
     if (captureEnable) return;
     captureEnable = true;
-    this._captureIntervalSec = captureIntervalSec;
+    _captureIntervalSec = captureInterval;
     _captureStartedDate = DateTime.now();
     _captureTm?.cancel();
     _captureTm = Timer.periodic(const Duration(seconds: 1), (tm) {
-      var duration = (_captureStartedDate?.difference(DateTime.now()).abs()) ??
-          Duration.zero;
-      onCaptureTime.add(CaptureTime(
-        duration: duration,
+      var duration = _captureStartedDate?.difference(DateTime.now()).abs();
+      captureTimeStream.add(CaptureTime(
+        duration: duration ?? Duration.zero,
         isFirstEvent: false,
       ));
     });
-    onCaptureTime.add(CaptureTime(
+    captureTimeStream.add(CaptureTime(
       duration: const Duration(),
       isFirstEvent: true,
     ));
@@ -188,8 +189,8 @@ class CameraRep {
     captureEnable = false;
     _captureStartedDate = null;
     _captureTm?.cancel();
-    onCaptureTime.add(null);
-    onDetectionCount.add(0);
+    captureTimeStream.add(null);
+    detectionEventCount.add(0);
   }
 
   Future<List<Sound>> getSounds() async {
@@ -270,7 +271,7 @@ class CameraRep {
       }
     }
     // update counter
-    onDetectionCount.add((onDetectionCount.valueOrNull ?? 0) + 1);
+    detectionEventCount.add((detectionEventCount.valueOrNull ?? 0) + 1);
   }
 
   Future<void> _saveFrame({bool debug = false}) async {

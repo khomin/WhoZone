@@ -16,8 +16,6 @@ class SettingsRep {
 
   SettingsRep(this.prefs);
 
-  Future<void> init() async {}
-
   ThemeMode getTheme() {
     var theme = prefs.getInt(_themeKey);
     if (theme == null) {
@@ -42,12 +40,14 @@ class SettingsRep {
     return prefs.getString(_usedCameraIdKey);
   }
 
-  int getCaptureIntervalSec() {
-    return prefs.getInt(_captIntValSecKey) ?? Constants.minCaptIntvalDefault;
+  Duration getCaptureIntervalSec() {
+    return Duration(
+        seconds:
+            prefs.getInt(_captIntValSecKey) ?? Constants.minCaptIntvalDefault);
   }
 
-  Future<void> setCaptureIntervalSec(int v) async {
-    await prefs.setInt(_captIntValSecKey, v);
+  Future<void> setCaptureIntervalSec(Duration v) async {
+    await prefs.setInt(_captIntValSecKey, v.inSeconds);
   }
 
   Sound? getSound() {

@@ -7,7 +7,9 @@ import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/utils/log_printer.dart';
 import 'package:get_it/get_it.dart';
+import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,18 +28,18 @@ void main() async {
 
   AppConfig.instantiate(FlavorType.google);
 
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  await Future.wait([
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]),
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge),
+    initDependencies()
+  ]);
 
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
     systemNavigationBarColor: Colors.transparent,
     systemNavigationBarContrastEnforced: false,
     statusBarColor: Colors.transparent,
   ));
-
-  await initDependencies();
-
-  await getIt<SettingsRep>().init();
+  Loggy.initLoggy(logPrinter: LogPrinter());
 
   runApp(
     ChangeNotifierProvider(

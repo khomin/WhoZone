@@ -1,26 +1,23 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/animated_camera_button.dart';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/round_box.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/camera_center_button.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
+import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/pages/app_model.dart';
-import 'package:flutter_demo/pages/capture/capture_model.dart';
-import 'package:flutter_demo/pages/capture/detection_painter.dart';
+import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
-import 'package:flutter_rotation_sensor/flutter_rotation_sensor.dart';
-import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_demo/utils/common.dart';
-import 'package:rxdart/rxdart.dart';
+import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
 import 'dart:math' as math;
-import 'package:flutter_demo/main.dart';
-import 'package:sensors_plus/sensors_plus.dart';
 
 class CapturePage extends StatefulWidget {
   const CapturePage({super.key});
@@ -32,9 +29,7 @@ class CapturePage extends StatefulWidget {
 class CapturePageState extends State<CapturePage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final _dispStream = DisposableStream();
-  late CaptureModel _captureModel;
-  final _onStopRecordStream = PublishSubject<bool>();
-  Timer? _updateLayoutTm;
+  late final CaptureModel _captureModel;
   AppLifecycleListener? _listener;
   late final Animation<double> _slideHeight;
   late AnimationController _ctrSlideTop;
@@ -44,7 +39,11 @@ class CapturePageState extends State<CapturePage>
   void initState() {
     super.initState();
 
-    RotationSensor.coordinateSystem = CoordinateSystem.device();
+    _captureModel = CaptureModel(
+      captureInterval: getIt<SettingsRep>().getCaptureIntervalSec(),
+      cameraRep: getIt<CameraRep>(),
+      settingsRep: getIt<SettingsRep>(),
+    );
 
     Future.microtask(() async {
       var res = await _captureModel.start();
@@ -58,14 +57,16 @@ class CapturePageState extends State<CapturePage>
 
     _listener = AppLifecycleListener(onStateChange: (value) {
       switch (value) {
-        case AppLifecycleState.inactive:
         case AppLifecycleState.hidden:
         case AppLifecycleState.detached:
         case AppLifecycleState.paused:
           _captureModel.stop();
+        case AppLifecycleState.inactive:
           break;
         case AppLifecycleState.resumed:
-          _captureModel.start();
+          if (!_captureModel.started) {
+            _captureModel.start();
+          }
           break;
       }
     });
@@ -85,27 +86,9 @@ class CapturePageState extends State<CapturePage>
   void dispose() {
     _listener?.dispose();
     _dispStream.dispose();
-    _onStopRecordStream.close();
-    _captureModel.stop(shouldNotify: false);
-    getIt<CameraRep>().onCapture = null;
-    getIt<CameraRep>().onFirstFrame = null;
+    _captureModel.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _captureModel = context.read<CaptureModel>();
-  }
-
-  @override
-  void didChangeMetrics() {
-    super.didChangeMetrics();
-    // _updateLayoutTm?.cancel();
-    // _updateLayoutTm = Timer(const Duration(milliseconds: 300), () async {
-    //   _captureModel.updateRotation();
-    // });
   }
 
   @override
@@ -125,7 +108,9 @@ class CapturePageState extends State<CapturePage>
                       flexibleSpace: _sliverAppBar(),
                     );
                   }),
-              SliverFillRemaining(child: _camera())
+              SliverFillRemaining(
+                child: _camera(),
+              )
             ]));
   }
 
@@ -157,23 +142,20 @@ class CapturePageState extends State<CapturePage>
                             width: 110,
                             height: 30,
                             child: Stack(children: [
-                              StreamBuilder(
-                                  stream: getIt<CameraRep>().onCaptureTime,
-                                  initialData: getIt<CameraRep>()
-                                      .onCaptureTime
-                                      .valueOrNull,
-                                  builder: (context, snapshot) {
-                                    var duration = snapshot.data;
-                                    if (duration == null)
-                                      return const SizedBox();
-                                    return RoundBox(
-                                        text: duration.duration.format(),
-                                        useRightMargin: false,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .colorButtonRed,
-                                        borderRadius: 40);
-                                  })
+                              Builder(builder: (context) {
+                                var duration =
+                                    context.select<CaptureModel, Duration?>(
+                                        (v) => v.captureTimeElapsed);
+                                if (duration == null) return const SizedBox();
+                                return RoundBox(
+                                  text: duration.format(),
+                                  useRightMargin: false,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .colorButtonRed,
+                                  borderRadius: 40,
+                                );
+                              })
                             ]))),
                     RoundButton(
                         color: Colors.transparent,
@@ -193,9 +175,7 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
-    // TODO: don't close in background
-    // TODO: fixed layout + rotation
-    // TODO: bloc
+    // TODO: clean architecture
     // TODO: tensorflow
     // TODO: doc
     // TODO: publish
@@ -208,7 +188,7 @@ class CapturePageState extends State<CapturePage>
         child: LayoutBuilder(builder: (context, constraints) {
           var (camera, layout, textureId, recording) = context
               .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
-            (v) => (v.camera, v.layout, v.textureId, v.recording),
+            (v) => (v.camera, v.layout, v.textureId, v.captureEnabled),
           );
           if (camera == null) {
             return const SizedBox();
@@ -244,6 +224,7 @@ class CapturePageState extends State<CapturePage>
                 Positioned(
                   child: _debugLabels(),
                 ),
+              //
               // border
               Positioned.fill(
                   child: Container(
@@ -258,102 +239,32 @@ class CapturePageState extends State<CapturePage>
                       width: 2),
                 ),
               )),
+              //
               // overlay
               Positioned.fill(
                 child: CameraPreviewWithOverlay(
-                  boxes: getIt<CameraRep>().onDetection.stream,
+                  boxes: _captureModel.detectionBoxesStream,
                 ),
               ),
+              //
               // frame-shots count
-              _frameCount()
+              CameraFrameCount()
             ],
           );
         }),
       ),
-      _buttonCenterButton(),
-      _buttonFlip(),
+      //
+      // camera button
+      CameraCenterButton(
+        captureEnabled: _captureModel.captureEnabled,
+        onMakeOneShot: () {
+          _captureModel.makeOneShot();
+        },
+      ),
+      //
+      // flip camera button
+      CameraFlipButton(),
     ]);
-  }
-
-  Widget _buttonCenterButton() {
-    return Positioned(
-        left: 0,
-        bottom: 0,
-        right: 0,
-        child: RepaintBoundary(
-            child: SizedBox(
-                height: 130,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AnimatedCameraButton(
-                          activeDefault: getIt<CameraRep>().captureEnable,
-                          onStopOutsideStream: _onStopRecordStream,
-                          onCapture: () async {
-                            _captureModel.startCapture();
-                          },
-                          onStop: () async {
-                            _captureModel.stopCapture();
-                          }),
-                    ]))));
-  }
-
-  Widget _buttonFlip() {
-    return Positioned(
-        right: 30,
-        top: 30,
-        child: SizedBox(
-            height: 60,
-            width: 60,
-            child: RepaintBoundary(child: Builder(builder: (context) {
-              var camera =
-                  context.select<CaptureModel, app.Camera?>((v) => v.camera);
-              return AnimatedRotation(
-                  turns: camera?.isFront == Constants.isDefaultFront ? 0 : 0.5,
-                  duration: Constants.duration * 2,
-                  child: RoundButton(
-                      color: Theme.of(context).colorScheme.colorButton,
-                      iconColor: Theme.of(context).colorScheme.cameraButtonIcon,
-                      size: 55,
-                      radius: 90,
-                      useScaleAnimation: true,
-                      iconData: Icons.flip_camera_android,
-                      onPressed: (v) async {
-                        if (_captureModel.flipWait) return;
-                        _captureModel.setFlipWait(true);
-                        _captureModel.start(flip: true);
-                        _captureModel.setFlipWait(false);
-                      }));
-            }))));
-  }
-
-  Widget _frameCount() {
-    final color = Theme.of(context).colorScheme.cameraButtonIcon;
-    return Positioned(
-      bottom: 10,
-      left: 10,
-      child: RepaintBoundary(
-          child: SizedBox(
-              width: 80,
-              height: 30,
-              child: StreamBuilder(
-                  stream: getIt<CameraRep>().onDetectionCount.stream,
-                  builder: (context, snapshot) {
-                    var count = snapshot.data ?? 0;
-                    if (count == 0) return const SizedBox();
-                    return Row(children: [
-                      Icon(Icons.camera, color: color),
-                      Flexible(
-                          child: Text(
-                        count.toString(),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 17, color: color),
-                      ))
-                    ]);
-                  }))),
-    );
   }
 
   Widget _debugLabels() {

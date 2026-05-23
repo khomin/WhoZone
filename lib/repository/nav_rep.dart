@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/utils/common.dart';
+import 'package:flutter_demo/core/utils/common.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum PageType { home, capture, alert, settings, search }

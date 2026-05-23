@@ -1,26 +1,22 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/camera_settings_page.dart';
+import 'package:flutter_demo/features/capture_settings/presentation/pages/capture_settings_page.dart';
 import 'package:flutter_demo/components/splash.dart';
 import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/native-api/service_api.dart';
 import 'package:flutter_demo/pages/alert/alert_model.dart';
 import 'package:flutter_demo/pages/alert/alert_page.dart';
-import 'package:flutter_demo/pages/capture/capture_page.dart';
+import 'package:flutter_demo/features/capture/presentation/pages/capture_page.dart';
 import 'package:flutter_demo/pages/home/home_page.dart';
-import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/pages/settings/settings_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/nav_rep.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/utils.dart';
-import 'package:flutter_demo/utils/log_printer.dart';
 import 'package:jiffy/jiffy.dart';
-import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
 
 class App extends StatefulWidget {
@@ -33,31 +29,22 @@ class App extends StatefulWidget {
 class AppState extends State<App> {
   late AppModel _appModel;
   late final AlertModel _alertModel;
-  late final CaptureModel _captureModel;
 
   @override
   void initState() {
     super.initState();
 
-    _captureModel = CaptureModel(
-      captureIntervalSec: getIt<SettingsRep>().getCaptureIntervalSec(),
-      cameraRep: getIt<CameraRep>(),
-      settingsRep: getIt<SettingsRep>(),
-    );
     _alertModel = AlertModel();
 
     _bootstrap();
   }
 
   void _bootstrap() async {
-    Loggy.initLoggy(logPrinter: LogPrinter());
-
     await Future.wait([
       Jiffy.setLocale('uk'),
       Utils.init(),
       ServiceApi().initLib(),
     ]);
-
     _alertModel.init();
     _appModel.setReady(true);
 
@@ -74,7 +61,6 @@ class AppState extends State<App> {
   @override
   void dispose() {
     _alertModel.dispose();
-    _captureModel.dispose();
     super.dispose();
   }
 
@@ -82,7 +68,6 @@ class AppState extends State<App> {
   Widget build(BuildContext context) {
     return MultiProvider(
         providers: [
-          ChangeNotifierProvider<CaptureModel>.value(value: _captureModel),
           ChangeNotifierProvider<AlertModel>.value(value: _alertModel)
         ],
         builder: (context, child) {
@@ -97,7 +82,9 @@ class AppState extends State<App> {
                   bottom: false,
                   child: OrientationBuilder(builder: (context, orientation) {
                     return Stack(children: [
-                      const CameraSettingsPage(),
+                      //
+                      CaptureSettingsPage(),
+                      //
                       AnimatedPositioned(
                           duration: Constants.durationPanel,
                           curve: Curves.easeIn,

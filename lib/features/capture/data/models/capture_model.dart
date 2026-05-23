@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/utils/common.dart';
+import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 
 class SurfaceLayout {
@@ -14,32 +17,47 @@ class SurfaceLayout {
   double ratio;
 }
 
+@injectable
 class CaptureModel with ChangeNotifier {
-  CameraRep _cameraRep;
-  SettingsRep _settingsRep;
-  int captureIntervalSec = Constants.minCaptIntvalDefault;
-  bool recording = false;
+  bool captureEnabled = false;
   bool flipWait = false;
   bool orientationpWait = false;
   double flipTurns = 0.0;
   Camera? camera;
+  Duration? captureTimeElapsed;
+  Duration captureInterval = Duration.zero;
   int? textureId;
+  int detectionCount = 0;
+  var started = false;
+  Stream<List<DetectionBox>> get detectionBoxesStream =>
+      cameraRep.detectionStream.stream;
   SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
+  CameraRep cameraRep;
+  SettingsRep settingsRep;
   final _dispStream = DisposableStream();
   var _disposed = false;
   final tag = 'captureModel';
 
   CaptureModel({
-    required this.captureIntervalSec,
-    required CameraRep cameraRep,
-    required SettingsRep settingsRep,
-  })  : _cameraRep = cameraRep,
-        _settingsRep = settingsRep {}
+    required this.cameraRep,
+    required this.settingsRep,
+    required this.captureInterval,
+  }) {
+    _dispStream.add(cameraRep.detectionEventCount.stream.listen((v) {
+      detectionCount = v;
+      notify();
+    }));
+    _dispStream.add(cameraRep.captureTimeStream.stream.listen((v) {
+      captureTimeElapsed = v?.duration;
+      notify();
+    }));
+  }
 
   @override
   void dispose() {
     _disposed = true;
     _dispStream.dispose();
+    stop(fromDispose: true);
     super.dispose();
   }
 
@@ -48,19 +66,20 @@ class CaptureModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void stop({bool shouldNotify = true}) async {
-    recording = false;
+  void stop({bool fromDispose = false}) async {
+    started = false;
+    captureEnabled = false;
     camera = null;
-    if (shouldNotify) {
-      notify();
-    }
-    await _cameraRep.stopCamera();
-    _cameraRep.stopCapture();
+    if (!fromDispose) notify();
+    await cameraRep.stopCamera();
+    cameraRep.stopCapture();
+    cameraRep.onCapture = null;
+    cameraRep.onFirstFrame = null;
   }
 
   Future<bool> start({bool flip = false}) async {
-    var cameras = await _cameraRep.getCameras();
-    var usedCameraId = _settingsRep.getCameraUsed();
+    var cameras = await cameraRep.getCameras();
+    var usedCameraId = settingsRep.getCameraUsed();
     var camera = cameras[usedCameraId];
     if (flip) {
       var i = cameras.values.firstWhereOrNull((e) => e != camera);
@@ -79,9 +98,9 @@ class CaptureModel with ChangeNotifier {
     }
     if (this.camera != null) {
       this.camera = null;
-      await _cameraRep.stopCamera();
+      await cameraRep.stopCamera();
     }
-    var res = await _cameraRep.startCamera(id: camera.id);
+    var res = await cameraRep.startCamera(id: camera.id);
     if (res == null) {
       return false;
     }
@@ -92,19 +111,18 @@ class CaptureModel with ChangeNotifier {
       sensor: camera.sensorRotation,
       size: camera.cameraSizes.first,
     );
+    started = true;
     notify();
     updateRotation();
-    await _settingsRep.setCameraUsed(camera.id);
+    await settingsRep.setCameraUsed(camera.id);
     return true;
   }
 
-  void setCaptureInterval(int v) async {
-    captureIntervalSec = v;
+  void setCaptureInterval(Duration v) async {
+    captureInterval = v;
+    cameraRep.updateConfiguration(captureInterval: captureInterval);
+    settingsRep.setCaptureIntervalSec(v);
     notify();
-    _cameraRep.updateConfiguration(
-      captureIntervalSec: captureIntervalSec,
-    );
-    await _settingsRep.setCaptureIntervalSec(v);
   }
 
   void setFlipWait(bool v) {
@@ -146,16 +164,20 @@ class CaptureModel with ChangeNotifier {
   }
 
   void startCapture() {
-    _cameraRep.startCapture(
-      captureIntervalSec: _settingsRep.getCaptureIntervalSec(),
+    cameraRep.startCapture(
+      captureInterval: settingsRep.getCaptureIntervalSec(),
     );
-    recording = true;
+    captureEnabled = true;
     notify();
   }
 
   void stopCapture() async {
-    _cameraRep.stopCapture();
-    recording = false;
+    cameraRep.stopCapture();
+    captureEnabled = false;
     notify();
+  }
+
+  void makeOneShot() {
+    cameraRep.detectionEvent(force: true);
   }
 }

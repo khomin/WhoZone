@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/pages/capture/detection_box.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 
 class CameraPreviewWithOverlay extends StatefulWidget {
   final Stream<List<DetectionBox>> boxes;

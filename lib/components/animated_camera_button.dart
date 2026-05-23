@@ -1,19 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
-import 'package:flutter_demo/main.dart';
-import 'package:flutter_demo/pages/capture/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
-class ExpandModel with ChangeNotifier {
-  bool isExpanded = false;
+class AnimatedModel with ChangeNotifier {
+  bool expanded = false;
+
   void setExpanded(bool v) {
-    if (isExpanded != v) {
-      isExpanded = v;
+    if (expanded != v) {
+      expanded = v;
       notifyListeners();
     }
   }
@@ -23,14 +21,15 @@ class AnimatedCameraButton extends StatefulWidget {
   const AnimatedCameraButton({
     required this.onCapture,
     required this.onStop,
-    required this.onStopOutsideStream,
-    this.activeDefault = false,
+    required this.onImagePressed,
+    required this.activeDefault,
     super.key,
   });
   final Function() onCapture;
   final Function() onStop;
   final bool activeDefault;
-  final PublishSubject<bool> onStopOutsideStream;
+  final Function() onImagePressed;
+
   @override
   State<AnimatedCameraButton> createState() => AnimatedCameraButtonState();
 }
@@ -42,7 +41,7 @@ class TabInfo {
 
 class AnimatedCameraButtonState extends State<AnimatedCameraButton>
     with TickerProviderStateMixin {
-  final _expandModel = ExpandModel();
+  final _animatedModel = AnimatedModel();
   late final Animation<double> _opacity1;
   late final Animation<double> _opacity2;
   late final Animation<double> _width;
@@ -85,27 +84,16 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
     _opacity2 = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
+
     if (widget.activeDefault) {
-      _expandModel.setExpanded(true);
+      _animatedModel.expanded = true;
       _controller.forward().orCancel;
     }
-    _dispStream.add(widget.onStopOutsideStream.listen((v) async {
-      if (v) {
-        if (_expandModel.isExpanded) {
-          if (_controller.isForwardOrCompleted) {
-            await _controller.reverse().orCancel;
-          } else {
-            await _controller.forward().orCancel;
-          }
-          _expandModel.setExpanded(false);
-        }
-      }
-    }));
   }
 
   Future<void> _switchAnimation() async {
     try {
-      if (_expandModel.isExpanded) {
+      if (_animatedModel.expanded) {
         widget.onStop();
       } else {
         widget.onCapture();
@@ -127,8 +115,8 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<ExpandModel>.value(
-        value: _expandModel,
+    return ChangeNotifierProvider<AnimatedModel>.value(
+        value: _animatedModel,
         builder: (context, child) {
           return AnimatedBuilder(
               animation: _controller,
@@ -144,14 +132,14 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                           opacity: _opacity1.value,
                           child: Builder(builder: (context) {
                             var expanded = context
-                                .select<ExpandModel, bool>((v) => v.isExpanded);
+                                .select<AnimatedModel, bool>((v) => v.expanded);
                             return IgnorePointer(
                                 ignoring: expanded,
                                 child: _recordButton(
                                   () {
                                     _switchAnimation();
                                     context
-                                        .read<ExpandModel>()
+                                        .read<AnimatedModel>()
                                         .setExpanded(!expanded);
                                   },
                                 ));
@@ -163,8 +151,8 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                 opacity: _opacity2.value,
                                 child: Builder(builder: (context) {
                                   var expanded =
-                                      context.select<ExpandModel, bool>(
-                                          (v) => v.isExpanded);
+                                      context.select<AnimatedModel, bool>(
+                                          (v) => v.expanded);
                                   return IgnorePointer(
                                       ignoring: !expanded,
                                       child: ButtonRoundCorner(
@@ -181,16 +169,15 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                               topLeft: Radius.circular(90),
                                               bottomLeft: Radius.circular(90)),
                                           onPressed: () {
-                                            getIt<CameraRep>()
-                                                .detectionEvent(force: true);
+                                            widget.onImagePressed();
                                           }));
                                 })),
                             Opacity(
                                 opacity: _opacity2.value,
                                 child: Builder(builder: (context) {
                                   var expanded =
-                                      context.select<ExpandModel, bool>(
-                                          (v) => v.isExpanded);
+                                      context.select<AnimatedModel, bool>(
+                                          (v) => v.expanded);
                                   return IgnorePointer(
                                       ignoring: !expanded,
                                       child: ButtonRoundCorner(
@@ -209,7 +196,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                           onPressed: () {
                                             _switchAnimation();
                                             context
-                                                .read<ExpandModel>()
+                                                .read<AnimatedModel>()
                                                 .setExpanded(!expanded);
                                           }));
                                 }))
