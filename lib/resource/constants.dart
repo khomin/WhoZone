@@ -1,3 +1,5 @@
+import 'package:flutter/src/painting/edge_insets.dart';
+
 enum FlavorType { google }
 
 class AppConfig {
@@ -58,4 +60,9 @@ class Constants {
 
   static const packetPrefix = 'move';
   static const packetPort = 1000;
+
+  static EdgeInsets get marginCard =>
+      EdgeInsets.only(top: 8, bottom: 8, left: 15, right: 15);
+
+  static double get menuIconSize => 25;
 }

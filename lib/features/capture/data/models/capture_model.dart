@@ -19,9 +19,9 @@ class SurfaceLayout {
 @injectable
 class CaptureModel with ChangeNotifier {
   bool captureEnabled = false;
-  bool flipWait = false;
   bool orientationpWait = false;
   double flipTurns = 0.0;
+  bool flipBusy = false;
   Camera? camera;
   Duration? captureTimeElapsed;
   Duration captureInterval = Duration.zero;
@@ -74,43 +74,50 @@ class CaptureModel with ChangeNotifier {
   }
 
   Future<bool> start({bool flip = false}) async {
-    var cameras = await cameraRep.getCameras();
-    var usedCameraId = settingsRep.getCameraUsed();
-    var camera = cameras[usedCameraId];
-    if (flip) {
-      var i = cameras.values.firstWhereOrNull((e) => e != camera);
-      camera = i;
-    }
-    if (camera == null) {
-      var i = cameras.values
-          .firstWhereOrNull((e) => e.isFront == Constants.isDefaultFront);
-      if (i != null) {
+    try {
+      var cameras = await cameraRep.getCameras();
+      var usedCameraId = settingsRep.getCameraUsed();
+      var camera = cameras[usedCameraId];
+      if (flip) {
+        var i = cameras.values.firstWhereOrNull((e) => e != camera);
         camera = i;
+        setFlip(true);
+      }
+      if (camera == null) {
+        var i = cameras.values
+            .firstWhereOrNull((e) => e.isFront == Constants.isDefaultFront);
+        if (i != null) {
+          camera = i;
+        }
+      }
+      if (camera == null) {
+        logError('$tag: could not find camera');
+        return false;
+      }
+      if (this.camera != null) {
+        this.camera = null;
+        await cameraRep.stopCamera();
+      }
+      var res = await cameraRep.startCamera(id: camera.id);
+      if (res == null) {
+        return false;
+      }
+      textureId = res.textureId;
+      this.camera = Camera(
+        id: camera.id,
+        isFront: camera.isFront,
+        sensor: camera.sensorRotation,
+        size: camera.cameraSizes.first,
+      );
+      started = true;
+      notify();
+      updateRotation();
+      await settingsRep.setCameraUsed(camera.id);
+    } finally {
+      if (flip) {
+        setFlip(false);
       }
     }
-    if (camera == null) {
-      logError('$tag: could not find camera');
-      return false;
-    }
-    if (this.camera != null) {
-      this.camera = null;
-      await cameraRep.stopCamera();
-    }
-    var res = await cameraRep.startCamera(id: camera.id);
-    if (res == null) {
-      return false;
-    }
-    textureId = res.textureId;
-    this.camera = Camera(
-      id: camera.id,
-      isFront: camera.isFront,
-      sensor: camera.sensorRotation,
-      size: camera.cameraSizes.first,
-    );
-    started = true;
-    notify();
-    updateRotation();
-    await settingsRep.setCameraUsed(camera.id);
     return true;
   }
 
@@ -121,11 +128,12 @@ class CaptureModel with ChangeNotifier {
     notify();
   }
 
-  void setFlipWait(bool v) {
-    if (flipWait != v) {
-      flipWait = v;
-      notify();
+  void setFlip(bool v) {
+    if (v) {
+      flipTurns += 0.5;
     }
+    flipBusy = v;
+    notify();
   }
 
   Future<void> updateRotation() async {

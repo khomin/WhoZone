@@ -31,7 +31,7 @@ extension AppColorScheme on ColorScheme {
   Color get colorCard => dark() ? const Color(0xFF3D3D3D) : Colors.white;
   Color get colorBgUnderCard => dark() ? Color(0xFF35373B) : Color(0xfff1f2f4);
   Color get colorTextAccent => dark() ? const Color(0xFFE5E5E5) : Colors.black;
-  Color get colorTextSecond => dark() ? Color(0xFFADADB6) : Color(0xA0515155);
+  Color get colorTextSecond => dark() ? Color(0xFFADADB6) : Color(0xFF414141);
 
   Color get colorPrimary => Color.fromARGB(255, 139, 135, 219);
   Color get colorSecondary => Color.fromARGB(255, 170, 167, 225);
@@ -62,5 +62,6 @@ extension AppColorScheme on ColorScheme {
   Color get buttonOption => Color(0xFF6F63AA);
   Color get buttonOptionText => Color(0xFFEAEAEA);
 
-  Color get menuBorderColor => Color.fromARGB(159, 211, 211, 212);
+  Color get menuBorderColor =>
+      dark() ? Color(0xFF494949) : Color.fromARGB(255, 222, 222, 222);
 }

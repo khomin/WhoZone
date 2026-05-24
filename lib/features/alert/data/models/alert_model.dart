@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/alert/domain/entities/packet.dart';
 import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
-import 'package:flutter_demo/features/alert/domain/repo/alert_repo.dart';
+import 'package:flutter_demo/features/alert/data/repo/alert_repo.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
@@ -10,7 +10,7 @@ import 'package:collection/collection.dart';
 @injectable
 class AlertModel with ChangeNotifier {
   var useSound = false;
-  Sound? sound;
+  Sound? currentSound;
   var sounds = <Sound>[];
   var usePacket = false;
   var packetValue = 'TCP';
@@ -28,28 +28,27 @@ class AlertModel with ChangeNotifier {
 
   Future<void> _init() async {
     // whether sound used
-    Sound? usedSound = _settingsRep.getSound();
+    Sound? sound = _settingsRep.getCurrentSound();
     // all system sounds
-    setSoundList(await _alertRep.getSounds());
-    if (sounds.isNotEmpty) {
-      if (usedSound != null) {
-        // check if used is in system sounds
-        var found = sounds.firstWhereOrNull((it) {
-          return it.uri == usedSound.uri;
-        });
-        if (found != null) {
-          setSound(found);
-        } else {
-          // take first default
-          setSound(sounds.first);
-          _settingsRep.setSound(sounds.first);
-        }
+    setSounds(_alertRep.sounds);
+    // set current sound
+    if (sounds.isNotEmpty && sound != null) {
+      // check if used is in system sounds
+      var found = sounds.firstWhereOrNull((it) {
+        return it.uri == sound.uri;
+      });
+      if (found != null) {
+        setCurrentSound(found);
+      } else {
+        // take first default
+        setCurrentSound(sounds.first);
+        _settingsRep.setCurrentSound(sounds.first);
       }
     } else {
       logError('$tag: no sounds');
     }
-    // whether use packet sending
-    Packet? packetUri = await _settingsRep.getPacketUri();
+    // when use packet sending
+    Packet? packetUri = _settingsRep.getPacketUri();
     if (packetUri != null) {
       setPacketToAddr(v: packetUri.address, saveConfig: false);
       setUsePacket(value: true, saveConfig: false);
@@ -59,16 +58,16 @@ class AlertModel with ChangeNotifier {
     }
   }
 
-  void setSound(Sound? v) {
-    if (sound != v) {
-      sound = v;
+  void setCurrentSound(Sound? v) {
+    if (currentSound != v) {
+      currentSound = v;
       useSound = v != null;
-      _settingsRep.setSound(v);
+      _settingsRep.setCurrentSound(v);
       notifyListeners();
     }
   }
 
-  void setSoundList(List<Sound> list) {
+  void setSounds(List<Sound> list) {
     if (sounds != list) {
       sounds = list;
       notifyListeners();
@@ -113,5 +112,9 @@ class AlertModel with ChangeNotifier {
       }
       notifyListeners();
     }
+  }
+
+  void playSound({required Sound sound}) {
+    _alertRep.playSound(sound: sound);
   }
 }

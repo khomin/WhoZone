@@ -8,7 +8,6 @@ import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
 import 'package:flutter_demo/features/alert/presentation/pages/alert_addr_page.dart';
 import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
@@ -57,17 +56,19 @@ class AlertPageState extends State<AlertPage> {
                     physics: const ClampingScrollPhysics(),
                     slivers: [
                       SliverAppBar(
-                          backgroundColor:
-                              Theme.of(context).colorScheme.colorBar,
-                          automaticallyImplyLeading: false,
-                          flexibleSpace: _sliverAppBar()),
-                      SliverToBoxAdapter(child: _header()),
+                        backgroundColor: Theme.of(context).colorScheme.colorBar,
+                        automaticallyImplyLeading: false,
+                        flexibleSpace: _sliverAppBar(),
+                      ),
+                      SliverToBoxAdapter(
+                        child: _header(),
+                      ),
                       DecoratedSliver(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.colorBgUnderCard,
-                          ),
-                          sliver: _list())
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.colorBgUnderCard,
+                        ),
+                        sliver: _list(),
+                      )
                     ])
               ]));
         });
@@ -104,7 +105,7 @@ class AlertPageState extends State<AlertPage> {
               left: 0,
               right: 0,
               child: Container(
-                  height: 40,
+                  height: 30,
                   width: 100,
                   decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.colorBgUnderCard,
@@ -132,8 +133,7 @@ class AlertPageState extends State<AlertPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Padding(
-                padding: const EdgeInsets.only(
-                    top: 10, bottom: 30, left: 25, right: 25),
+                padding: Constants.marginCard,
                 child: Row(children: [
                   Text('Motion detection',
                       style: TextStyle(
@@ -155,134 +155,131 @@ class AlertPageState extends State<AlertPage> {
             //
             // use sound
             ItemInMenuList(
-                height: 80,
-                useBorderTop: true,
-                useBorderBot: false,
-                child: Row(children: [
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Flexible(
-                            child: Text('Sound notification',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .menuFontColor1,
-                                    fontSize: Constants.fontSize1,
-                                    fontWeight: FontWeight.w400))),
-                        const SizedBox(height: 4),
-                        Flexible(
-                            child: Text('For every capture',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .menuFontColor2,
-                                    fontSize: Constants.fontSize3,
-                                    fontWeight: FontWeight.w400)))
-                      ]),
-                  const Spacer(),
-                  Switch(
-                      value: useSound,
-                      onChanged: (bool value) {
-                        var model = context.read<AlertModel>();
-                        if (value) {
-                          var i = model.sounds.firstOrNull;
-                          model.setSound(i);
-                        } else {
-                          model.setSound(null);
-                        }
-                      })
-                ])),
+              useBorderTop: true,
+              useBorderBot: false,
+              margin: Constants.marginCard,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                          Text('Sound notification',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .menuFontColor1,
+                                fontSize: Constants.fontSize1,
+                                fontWeight: FontWeight.w400,
+                              )),
+                          const SizedBox(height: 4),
+                          Text('Every capture event',
+                              style: TextStyle(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .menuFontColor2,
+                                  fontSize: Constants.fontSize3,
+                                  fontWeight: FontWeight.w400))
+                        ])),
+                    Switch(
+                        value: useSound,
+                        onChanged: (bool value) {
+                          var model = context.read<AlertModel>();
+                          if (value) {
+                            var i = model.sounds.firstOrNull;
+                            model.setCurrentSound(i);
+                          } else {
+                            model.setCurrentSound(null);
+                          }
+                        })
+                  ]),
+            ),
             //
             // sound
             IgnorePointer(
-                ignoring: !useSound,
-                child: SizedBox(
-                    height: 80,
-                    child: AnimatedOpacity(
-                        opacity: useSound ? 1 : 0.5,
-                        duration: Constants.animationDuraton,
-                        child: ItemInMenuList(
-                            height: double.infinity,
-                            useBorderTop: true,
-                            useBorderBot: false,
-                            child: Row(children: [
-                              Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Flexible(
-                                        child: Text('Sound',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .menuFontColor1,
-                                                fontSize: Constants.fontSize1,
-                                                fontWeight: FontWeight.w400))),
-                                    const SizedBox(height: 4),
-                                    Flexible(
-                                        child: Text('Particular type',
-                                            style: TextStyle(
-                                                color: Theme.of(context)
-                                                    .colorScheme
-                                                    .menuFontColor2,
-                                                fontSize: Constants.fontSize3,
-                                                fontWeight: FontWeight.w400)))
-                                  ]),
-                              const Spacer(),
-                              RoundButton(
-                                  color: Colors.transparent,
-                                  iconColor: Theme.of(context)
-                                      .colorScheme
-                                      .colorPrimary,
-                                  size: 70,
-                                  iconData: Icons.play_circle_fill,
-                                  onPressed: (p0) async {
-                                    var sound =
-                                        context.read<AlertModel>().sound;
-                                    if (sound == null) return;
-                                    getIt<CameraRep>()
-                                        .playSound(sound: sound.uri);
-                                  }),
-                              Expanded(
-                                  flex: 2,
-                                  child: Row(children: [
-                                    Expanded(
-                                        child: DropdownButton<Sound>(
-                                            padding:
-                                                const EdgeInsets.only(right: 6),
-                                            value: context
-                                                .watch<AlertModel>()
-                                                .sound,
-                                            isExpanded: true,
-                                            onChanged: (Sound? value) {
-                                              context
-                                                  .read<AlertModel>()
-                                                  .setSound(value);
-                                            },
-                                            items: soundList
-                                                .map<DropdownMenuItem<Sound>>(
-                                                    (Sound value) {
-                                              return DropdownMenuItem<Sound>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value.name,
-                                                    maxLines: 1,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .colorPrimary,
-                                                        fontSize: Constants
-                                                            .fontSize2),
-                                                  ));
-                                            }).toList()))
-                                  ]))
-                            ])))))
+              ignoring: !useSound,
+              child: SizedBox(
+                height: 80,
+                child: AnimatedOpacity(
+                  opacity: useSound ? 1 : 0.5,
+                  duration: Constants.animationDuraton,
+                  child: ItemInMenuList(
+                    useBorderTop: false,
+                    useBorderBot: false,
+                    margin: Constants.marginCard,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Sound',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .menuFontColor1,
+                                        fontSize: Constants.fontSize1,
+                                        fontWeight: FontWeight.w400)),
+                                const SizedBox(height: 4),
+                                Text('Particular type',
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .menuFontColor2,
+                                        fontSize: Constants.fontSize3,
+                                        fontWeight: FontWeight.w400))
+                              ]),
+                          Row(children: [
+                            RoundButton(
+                                color: Colors.transparent,
+                                iconColor:
+                                    Theme.of(context).colorScheme.colorPrimary,
+                                size: 50,
+                                iconData: Icons.play_circle_fill,
+                                onPressed: (p0) async {
+                                  var model = context.read<AlertModel>();
+                                  var sound = model.currentSound;
+                                  if (sound == null) return;
+                                  model.playSound(sound: sound);
+                                }),
+                            Row(children: [
+                              DropdownButton<Sound>(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  value:
+                                      context.watch<AlertModel>().currentSound,
+                                  onChanged: (Sound? value) {
+                                    context
+                                        .read<AlertModel>()
+                                        .setCurrentSound(value);
+                                  },
+                                  items: soundList.map<DropdownMenuItem<Sound>>(
+                                      (Sound value) {
+                                    return DropdownMenuItem<Sound>(
+                                        value: value,
+                                        child: Text(
+                                          value.name,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .colorPrimary,
+                                              fontSize: Constants.fontSize2),
+                                        ));
+                                  }).toList())
+                            ])
+                          ]),
+                        ]),
+                  ),
+                ),
+              ),
+            )
           ]);
     });
   }
@@ -299,103 +296,110 @@ class AlertPageState extends State<AlertPage> {
         ItemInMenuList(
             useBorderTop: true,
             useBorderBot: false,
-            height: 80,
-            child: Row(children: [
-              Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Packet sending',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.menuFontColor1,
-                            fontSize: Constants.fontSize1,
-                            fontWeight: FontWeight.w400)),
-                    const SizedBox(height: 4),
-                    Text('For every capture',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.menuFontColor2,
-                            fontSize: Constants.fontSize3,
-                            fontWeight: FontWeight.w400))
-                  ]),
-              const Spacer(),
-              Switch(
-                  value: usePacket,
-                  onChanged: (bool value) {
-                    context
-                        .read<AlertModel>()
-                        .setUsePacket(value: value, saveConfig: true);
-                  })
-            ])),
+            margin: Constants.marginCard,
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Packet sending',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .menuFontColor1,
+                                fontSize: Constants.fontSize1,
+                                fontWeight: FontWeight.w400)),
+                        const SizedBox(height: 4),
+                        Text('Every capture event',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .menuFontColor2,
+                                fontSize: Constants.fontSize3,
+                                fontWeight: FontWeight.w400))
+                      ]),
+                  Switch(
+                      value: usePacket,
+                      onChanged: (bool value) {
+                        context
+                            .read<AlertModel>()
+                            .setUsePacket(value: value, saveConfig: true);
+                      })
+                ])),
         //
         // tcp/udp mode
         IgnorePointer(
-            ignoring: !usePacket,
-            child: SizedBox(
-                height: 80,
-                child: AnimatedOpacity(
-                    opacity: usePacket ? 1 : 0.5,
-                    duration: Constants.animationDuraton,
-                    child: ItemInMenuList(
-                        height: double.infinity,
-                        useBorderTop: true,
-                        useBorderBot: false,
-                        child: Row(children: [
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                    child: Text('TCP/UDP',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .menuFontColor1,
-                                            fontSize: Constants.fontSize1,
-                                            fontWeight: FontWeight.w400))),
-                                const SizedBox(height: 4),
-                                Flexible(
-                                    child: Text('One of protocols',
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .menuFontColor2,
-                                            fontSize: Constants.fontSize3,
-                                            fontWeight: FontWeight.w400)))
-                              ]),
-                          const Spacer(),
-                          SizedBox(
-                              height: 50,
-                              child: packets.isNotEmpty
-                                  ? DropdownButton<String>(
-                                      padding: const EdgeInsets.only(right: 6),
-                                      value: packet,
-                                      onChanged: (String? value) {
-                                        if (value == null) return;
-                                        context
-                                            .read<AlertModel>()
-                                            .setPacketValue(
-                                                v: value, saveConfig: true);
-                                      },
-                                      items: packets
-                                          .map<DropdownMenuItem<String>>(
-                                              (String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(value,
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: Constants.fontSize2,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .colorPrimary)),
-                                        );
-                                      }).toList())
-                                  : const SizedBox())
-                        ]))))),
+          ignoring: !usePacket,
+          child: SizedBox(
+            height: 80,
+            child: AnimatedOpacity(
+              opacity: usePacket ? 1 : 0.5,
+              duration: Constants.animationDuraton,
+              child: ItemInMenuList(
+                useBorderTop: true,
+                useBorderBot: false,
+                margin: Constants.marginCard,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(
+                                child: Text('TCP/UDP',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .menuFontColor1,
+                                        fontSize: Constants.fontSize1,
+                                        fontWeight: FontWeight.w400))),
+                            const SizedBox(height: 4),
+                            Flexible(
+                                child: Text('One of protocols',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .menuFontColor2,
+                                        fontSize: Constants.fontSize3,
+                                        fontWeight: FontWeight.w400)))
+                          ]),
+                      SizedBox(
+                          height: 50,
+                          child: packets.isNotEmpty
+                              ? DropdownButton<String>(
+                                  padding: const EdgeInsets.only(right: 6),
+                                  value: packet,
+                                  onChanged: (String? value) {
+                                    if (value == null) return;
+                                    context.read<AlertModel>().setPacketValue(
+                                        v: value, saveConfig: true);
+                                  },
+                                  items: packets.map<DropdownMenuItem<String>>(
+                                      (String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(value,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: Constants.fontSize2,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .colorPrimary)),
+                                    );
+                                  }).toList())
+                              : const SizedBox())
+                    ]),
+              ),
+            ),
+          ),
+        ),
         //
         // IP/URI
         IgnorePointer(
@@ -406,72 +410,79 @@ class AlertPageState extends State<AlertPage> {
                     opacity: usePacket ? 1 : 0.5,
                     duration: Constants.animationDuraton,
                     child: ItemInMenuList(
-                        height: double.infinity,
-                        useBorderTop: true,
+                        useBorderTop: false,
                         useBorderBot: true,
-                        child: Row(children: [
-                          Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Flexible(
-                                    child: Text('IP/URI',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .menuFontColor1,
-                                            fontSize: Constants.fontSize1,
-                                            fontWeight: FontWeight.w400))),
-                                const SizedBox(height: 4),
-                                Flexible(
-                                    child: Text('Destination address',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .menuFontColor2,
-                                            fontSize: Constants.fontSize3,
-                                            fontWeight: FontWeight.w400)))
-                              ]),
-                          const Spacer(),
-                          Expanded(
-                              flex: 2,
-                              child: HoverClick(
-                                onPressedL: (p0) {
-                                  final alertModel = context.read<AlertModel>();
-                                  Navigator.push(
-                                      context,
-                                      CupertinoPageRoute(
-                                          settings: const RouteSettings(),
-                                          builder: (context) {
-                                            return ChangeNotifierProvider.value(
-                                                value: alertModel,
-                                                child: AlertAddrPage());
-                                          }));
-                                },
-                                child: SizedBox(
-                                    height: 40,
-                                    child: Container(
-                                        decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .colorCard,
-                                            borderRadius:
-                                                BorderRadius.circular(8)),
-                                        width: 150,
-                                        child: Center(
-                                          child: Text(
-                                              packetToAddr ?? 'ex: 192.168.1.1',
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                              style: TextStyle(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .colorTextSecond,
-                                                  fontSize: Constants.fontSize2,
-                                                  fontWeight: FontWeight.w400)),
-                                        ))),
-                              ))
-                        ])))))
+                        margin: Constants.marginCard,
+                        child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                        child: Text('IP/URI',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .menuFontColor1,
+                                                fontSize: Constants.fontSize1,
+                                                fontWeight: FontWeight.w400))),
+                                    const SizedBox(height: 4),
+                                    Flexible(
+                                        child: Text('Destination address',
+                                            style: TextStyle(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .menuFontColor2,
+                                                fontSize: Constants.fontSize3,
+                                                fontWeight: FontWeight.w400)))
+                                  ]),
+                              Flexible(
+                                  flex: 2,
+                                  child: HoverClick(
+                                    onPressedL: (_) {
+                                      final alertModel =
+                                          context.read<AlertModel>();
+                                      Navigator.push(
+                                          context,
+                                          CupertinoPageRoute(
+                                              settings: const RouteSettings(),
+                                              builder: (context) {
+                                                return ChangeNotifierProvider
+                                                    .value(
+                                                        value: alertModel,
+                                                        child: AlertAddrPage());
+                                              }));
+                                    },
+                                    child: SizedBox(
+                                        height: 40,
+                                        child: Container(
+                                            decoration: BoxDecoration(
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .colorCard,
+                                                borderRadius:
+                                                    BorderRadius.circular(8)),
+                                            width: 150,
+                                            child: Center(
+                                              child: Text(
+                                                  packetToAddr ??
+                                                      'ex: 192.168.1.1',
+                                                  maxLines: 1,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  style: TextStyle(
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .colorTextSecond,
+                                                      fontSize:
+                                                          Constants.fontSize2,
+                                                      fontWeight:
+                                                          FontWeight.w400)),
+                                            ))),
+                                  ))
+                            ])))))
       ]);
     });
   }

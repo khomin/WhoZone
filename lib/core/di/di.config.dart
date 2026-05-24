@@ -15,7 +15,7 @@ import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 
 import '../../features/alert/data/models/alert_model.dart' as _i389;
-import '../../features/alert/domain/repo/alert_repo.dart' as _i764;
+import '../../features/alert/data/repo/alert_repo.dart' as _i925;
 import '../../features/capture/data/models/capture_model.dart' as _i161;
 import '../../features/capture_settings/data/models/capture_settings_model.dart'
     as _i979;
@@ -48,15 +48,16 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i30.HistoryModel>(() => _i30.HistoryModel());
     gh.factory<_i392.FilterModel>(() => _i392.FilterModel());
     gh.factory<_i878.SettingsModel>(() => _i878.SettingsModel());
+    gh.lazySingleton<_i987.ServiceApi>(() => _i987.ServiceApi());
     gh.lazySingleton<_i837.HistoryRep>(() => _i837.HistoryRep());
-    gh.lazySingleton<_i764.AlertRep>(
-        () => _i764.AlertRep(gh<_i987.ServiceApi>()));
-    gh.factory<_i248.AppModel>(
-        () => _i248.AppModel(theme: gh<_i409.ThemeMode>()));
+    gh.lazySingleton<_i925.AlertRep>(
+        () => _i925.AlertRep(gh<_i987.ServiceApi>()));
     gh.lazySingleton<_i973.CameraRep>(() => _i973.CameraRep(
           gh<_i987.ServiceApi>(),
-          gh<_i764.AlertRep>(),
+          gh<_i925.AlertRep>(),
         ));
+    gh.factory<_i248.AppModel>(
+        () => _i248.AppModel(theme: gh<_i409.ThemeMode>()));
     gh.lazySingleton<_i68.SettingsRep>(
         () => _i68.SettingsRep(gh<_i460.SharedPreferences>()));
     gh.factory<_i161.CaptureModel>(() => _i161.CaptureModel(
@@ -65,7 +66,7 @@ extension GetItInjectableX on _i174.GetIt {
         ));
     gh.factory<_i389.AlertModel>(() => _i389.AlertModel(
           gh<_i68.SettingsRep>(),
-          gh<_i764.AlertRep>(),
+          gh<_i925.AlertRep>(),
         ));
     gh.factory<_i979.CaptureSettingsModel>(() => _i979.CaptureSettingsModel(
           gh<_i973.CameraRep>(),

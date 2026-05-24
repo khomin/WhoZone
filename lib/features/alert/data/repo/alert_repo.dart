@@ -10,10 +10,18 @@ import 'package:loggy/loggy.dart';
 
 @lazySingleton
 class AlertRep {
+  var sounds = <Sound>[];
+
   final ServiceApi _serviceApi;
   final tag = 'alertRep';
 
-  AlertRep(this._serviceApi);
+  AlertRep(this._serviceApi) {
+    _init();
+  }
+
+  Future<void> _init() async {
+    sounds = await getSounds();
+  }
 
   Future<List<Sound>> getSounds() async {
     var list = <Sound>[];
@@ -29,10 +37,10 @@ class AlertRep {
     return list;
   }
 
-  Future<bool> playSound({required String sound}) async {
+  Future<bool> playSound({required Sound sound}) async {
     try {
       var r = await _serviceApi.channelCmd.invokeMethod(
-          'play_system_sound', <String, dynamic>{'id': sound}) as bool;
+          'play_system_sound', <String, dynamic>{'id': sound.uri}) as bool;
       return r;
     } catch (e) {
       logError('$tag: error: $e');

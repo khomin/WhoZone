@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 
 class ItemInMenuList extends StatelessWidget {
   const ItemInMenuList({
     required this.useBorderTop,
     required this.useBorderBot,
-    required this.height,
     required this.child,
-    this.onClicked,
+    this.padding,
+    this.margin,
+    this.onPressed,
+    this.duration,
+    this.minHeight,
     super.key,
   });
   final bool useBorderTop;
   final bool useBorderBot;
-  final double height;
+  final double? minHeight;
   final Widget child;
-  final Function()? onClicked;
+  final EdgeInsets? padding;
+  final EdgeInsets? margin;
+  final Function(Offset pos)? onPressed;
+  final Duration? duration;
 
   @override
   Widget build(BuildContext context) {
     return Container(
         width: double.infinity,
-        height: height,
+        padding: margin,
+        constraints: BoxConstraints(
+          minHeight: minHeight ?? 0.0,
+        ),
         decoration: BoxDecoration(
             border: Border(
                 top: useBorderTop
@@ -33,28 +43,42 @@ class ItemInMenuList extends StatelessWidget {
                         color: Theme.of(context).colorScheme.menuBorderColor,
                         width: 1)
                     : BorderSide.none)),
-        child: onClicked != null
-            ? ElevatedButton(
-                onPressed: () {
-                  onClicked?.call();
+        child: onPressed != null
+            ? HoverClick(
+                // right click for desktops
+                onPressedR: (p0) {
+                  RenderBox box = context.findRenderObject() as RenderBox;
+                  Offset pos = box.localToGlobal(Offset.zero);
+                  onPressed?.call(pos);
                 },
-                autofocus: false,
-                style: ElevatedButton.styleFrom(
-                    shape: RoundedRectangleBorder(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    RenderBox box = context.findRenderObject() as RenderBox;
+                    Offset pos = box.localToGlobal(Offset.zero);
+                    if (duration != null) {
+                      await Future.delayed(duration!);
+                    }
+                    onPressed?.call(pos);
+                  },
+                  autofocus: false,
+                  style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
-                        side: BorderSide.none),
-                    padding: EdgeInsets.zero,
-                    alignment: Alignment.center,
-                    animationDuration: Duration.zero,
-                    shadowColor: Colors.transparent,
-                    backgroundColor: Colors.transparent,
-                    textStyle: const TextStyle(
-                        fontWeight: FontWeight.w300, fontSize: 12)),
-                child: Padding(
-                    padding: const EdgeInsets.only(left: 25, right: 25),
-                    child: child))
-            : Padding(
-                padding: const EdgeInsets.only(left: 25, right: 25),
-                child: child));
+                        side: BorderSide.none,
+                      ),
+                      padding: padding ?? EdgeInsets.zero,
+                      visualDensity: VisualDensity.defaultDensityForPlatform(
+                        TargetPlatform.android,
+                      ),
+                      alignment: Alignment.center,
+                      animationDuration: Duration.zero,
+                      shadowColor: Colors.transparent,
+                      backgroundColor: Colors.transparent,
+                      textStyle: const TextStyle(
+                          fontWeight: FontWeight.w300, fontSize: 12)),
+                  child: child,
+                ),
+              )
+            : child);
   }
 }

@@ -19,30 +19,32 @@ class CaptureSettingsPage extends StatelessWidget {
               body: Stack(children: [
                 Column(children: [
                   Container(
-                      color: Theme.of(context).colorScheme.colorBar,
-                      height: kToolbarHeight,
-                      child: Row(children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 25),
-                          child: Text('Camera settings',
-                              style: Theme.of(context)
+                    color: Theme.of(context).colorScheme.colorBar,
+                    height: kToolbarHeight,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(left: 25),
+                            child: Text('Camera settings',
+                                style: Theme.of(context)
+                                    .colorScheme
+                                    .homeCardH1Style),
+                          ),
+                          RoundButton(
+                              color: Colors.transparent,
+                              iconColor: Theme.of(context)
                                   .colorScheme
-                                  .homeCardH1Style),
-                        ),
-                        const Spacer(),
-                        RoundButton(
-                            color: Colors.transparent,
-                            iconColor: Theme.of(context)
-                                .colorScheme
-                                .colorTextAccent
-                                .withValues(alpha: 0.8),
-                            size: 70,
-                            iconData: Icons.close_sharp,
-                            onPressed: (p0) async {
-                              var model = context.read<AppModel>();
-                              model.setCollapse(!model.collapse);
-                            })
-                      ])),
+                                  .colorTextAccent
+                                  .withValues(alpha: 0.8),
+                              size: 70,
+                              iconData: Icons.close_sharp,
+                              onPressed: (p0) async {
+                                var model = context.read<AppModel>();
+                                model.setCollapse(!model.collapse);
+                              }),
+                        ]),
+                  ),
                   Container(
                       margin: const EdgeInsets.only(top: 15),
                       child: Column(

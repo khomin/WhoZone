@@ -17,11 +17,13 @@ class CameraFlipButton extends StatelessWidget {
         width: 60,
         child: RepaintBoundary(
           child: Builder(builder: (context) {
-            var camera =
-                context.select<CaptureModel, app.Camera?>((v) => v.camera);
+            var (camera, flipTurns) =
+                context.select<CaptureModel, (app.Camera?, double)>(
+              (v) => (v.camera, v.flipTurns),
+            );
             return AnimatedRotation(
-                turns: camera?.isFront == Constants.isDefaultFront ? 0 : 0.5,
-                duration: Constants.duration * 2,
+                turns: flipTurns,
+                duration: Constants.duration,
                 child: RoundButton(
                     color: Theme.of(context).colorScheme.colorButton,
                     iconColor: Theme.of(context).colorScheme.cameraButtonIcon,
@@ -31,10 +33,8 @@ class CameraFlipButton extends StatelessWidget {
                     iconData: Icons.flip_camera_android,
                     onPressed: (v) async {
                       final model = context.read<CaptureModel>();
-                      if (model.flipWait) return;
-                      model.setFlipWait(true);
+                      if (model.flipBusy) return;
                       model.start(flip: true);
-                      model.setFlipWait(false);
                     }));
           }),
         ),

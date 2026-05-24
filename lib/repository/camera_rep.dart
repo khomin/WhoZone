@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/features/alert/domain/repo/alert_repo.dart';
+import 'package:flutter_demo/features/alert/data/repo/alert_repo.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 import 'package:flutter_demo/native-api/service_api.dart';
@@ -218,9 +218,9 @@ class CameraRep {
     await _saveFrame();
     if (!force) {
       // handle if sound enabled
-      var sound = getIt<SettingsRep>().getSound();
+      var sound = getIt<SettingsRep>().getCurrentSound();
       if (sound != null) {
-        _alertRep.playSound(sound: sound.uri);
+        _alertRep.playSound(sound: sound);
       }
       // handle if packet sending enabled
       var packet = getIt<SettingsRep>().getPacketUri();

@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:flutter_demo/features/alert/domain/entities/packet.dart';
+import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,7 +53,7 @@ class SettingsRep {
     await prefs.setInt(_captIntValSecKey, v.inSeconds);
   }
 
-  Sound? getSound() {
+  Sound? getCurrentSound() {
     var v = prefs.getString(_soundUsedKey);
     if (v != null) {
       try {
@@ -63,7 +64,7 @@ class SettingsRep {
     return null;
   }
 
-  Future<void> setSound(Sound? sound) async {
+  Future<void> setCurrentSound(Sound? sound) async {
     if (sound != null) {
       var map = {'name': sound.name, 'uri': sound.uri};
       var mapJson = jsonEncode(map);
@@ -79,7 +80,10 @@ class SettingsRep {
       try {
         var mapJson = jsonDecode(v);
         return Packet(
-            address: mapJson['uri'], tcp: mapJson['tcp'], udp: mapJson['udp']);
+          address: mapJson['uri'],
+          tcp: mapJson['tcp'],
+          udp: mapJson['udp'],
+        );
       } catch (_) {}
     }
     return null;

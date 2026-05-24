@@ -1,15 +1,16 @@
 import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
+import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 import 'package:protobuf/protobuf.dart';
 import 'package:ffi/ffi.dart';
 
+@lazySingleton
 class ServiceApi {
   static late Function _initApi;
   static late Function _initializeApi;

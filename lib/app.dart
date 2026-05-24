@@ -37,20 +37,18 @@ class AppState extends State<App> {
       Jiffy.setLocale('uk'),
       ServiceApi().initLib(),
     ]);
-    final model = context.read<AppModel>();
-    model.setReady(true);
-
-    getIt<CameraRep>().init();
+    await getIt<CameraRep>().init();
+    context.read<AppModel>().setReady(true);
     getIt<HistoryRep>().updateHistory();
   }
 
   @override
   Widget build(BuildContext context) {
-    var collapse = context.select<AppModel, bool>((v) => v.collapse);
     if (!context.select<AppModel, bool>((v) => v.ready)) {
       return const Splash();
     }
     var padding = MediaQuery.paddingOf(context);
+    var collapse = context.select<AppModel, bool>((v) => v.collapse);
     return Container(
         color: Theme.of(context).colorScheme.colorBar,
         child: SafeArea(

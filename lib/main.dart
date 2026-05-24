@@ -39,6 +39,11 @@ void main() async {
   );
 }
 
+// TODO: clean architecture
+// TODO: tensorflow
+// TODO: doc
+// TODO: publish
+
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
