@@ -47,3 +47,8 @@ dart pub global activate protoc_plugin
 
 ## 📋 Prerequisites
 Macos or Linux, Android studio with NDK
+
+# How to update DI
+```bash
+dart run build_runner build
+```

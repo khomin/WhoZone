@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
 

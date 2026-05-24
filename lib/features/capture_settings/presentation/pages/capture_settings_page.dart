@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/features/capture_settings/data/models/capture_settings_model.dart';
 import 'package:flutter_demo/main.dart';
@@ -79,7 +80,7 @@ class CaptureSettingsPage extends StatelessWidget {
                                         thumbColor: Theme.of(context)
                                             .colorScheme
                                             .colorPrimary,
-                                        label: duration.toString(),
+                                        label: duration.format(),
                                         onChanged: (double v) {
                                           context
                                               .read<CaptureSettingsModel>()
@@ -91,7 +92,7 @@ class CaptureSettingsPage extends StatelessWidget {
                           ]))
                 ]),
                 Builder(builder: (context) {
-                  var size = MediaQuery.of(context).size;
+                  var size = MediaQuery.sizeOf(context);
                   return Positioned(
                       top: (size.height / 3),
                       left: 0,

@@ -6,7 +6,7 @@ import 'package:flutter_demo/components/round_box.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_center_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/pages/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
@@ -39,11 +39,7 @@ class CapturePageState extends State<CapturePage>
   void initState() {
     super.initState();
 
-    _captureModel = CaptureModel(
-      captureInterval: getIt<SettingsRep>().getCaptureIntervalSec(),
-      cameraRep: getIt<CameraRep>(),
-      settingsRep: getIt<SettingsRep>(),
-    );
+    _captureModel = getIt<CaptureModel>();
 
     Future.microtask(() async {
       var res = await _captureModel.start();
@@ -93,7 +89,9 @@ class CapturePageState extends State<CapturePage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider.value(
+      value: _captureModel,
+      child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: CustomScrollView(
             physics: const NeverScrollableScrollPhysics(),
@@ -111,7 +109,9 @@ class CapturePageState extends State<CapturePage>
               SliverFillRemaining(
                 child: _camera(),
               )
-            ]));
+            ]),
+      ),
+    );
   }
 
   Widget _sliverAppBar() {

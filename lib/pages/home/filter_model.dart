@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/main.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
-import 'package:intl/intl.dart';
+import 'package:injectable/injectable.dart';
 
+@injectable
 class FilterModel with ChangeNotifier {
   bool busy = false;
   List<HistoryRoot> result = [];

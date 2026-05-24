@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/repository/selection_repo.dart';

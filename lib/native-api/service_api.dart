@@ -2,7 +2,8 @@ import 'dart:async';
 import 'dart:ffi';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:loggy/loggy.dart';
@@ -20,6 +21,7 @@ class ServiceApi {
   static late Pointer<NativeFunction<NativeEventPtr>> cbPtr;
   static final Map<int, TaskIsolate> _isolateMap = {};
   static int _isolateUniqueCnt = 0;
+  final channelCmd = MethodChannel('channel_cmd');
   static const tag = 'serviceApi';
 
   static ServiceApi? _instance;

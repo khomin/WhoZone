@@ -5,6 +5,7 @@ import 'package:flutter_demo/components/semaphore.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/utils/utils.dart';
+import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
 import 'package:jiffy/jiffy.dart';
 import 'package:loggy/loggy.dart';
@@ -61,6 +62,7 @@ class HistoryState {
   final String? endTimeString;
 }
 
+@lazySingleton
 class HistoryRep {
   final onHistoryRoot = BehaviorSubject<HistoryState>();
   final onUsedDisk = BehaviorSubject<int>();

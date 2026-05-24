@@ -7,7 +7,6 @@ import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
-import 'package:flutter_demo/core/utils/common.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 
@@ -38,11 +37,8 @@ class CaptureModel with ChangeNotifier {
   var _disposed = false;
   final tag = 'captureModel';
 
-  CaptureModel({
-    required this.cameraRep,
-    required this.settingsRep,
-    required this.captureInterval,
-  }) {
+  CaptureModel({required this.cameraRep, required this.settingsRep}) {
+    captureInterval = settingsRep.getCaptureIntervalSec();
     _dispStream.add(cameraRep.detectionEventCount.stream.listen((v) {
       detectionCount = v;
       notify();

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
+import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
+@injectable
 class AppModel with ChangeNotifier {
   bool ready = false;
   bool collapse = false;
@@ -11,17 +13,19 @@ class AppModel with ChangeNotifier {
   var _disposed = false;
 
   AppModel({required this.theme}) {
-    Future.microtask(() async {
-      var packageInfo = await PackageInfo.fromPlatform();
-      appVersion = packageInfo.version;
-      notify();
-    });
+    _init();
   }
 
   @override
   void dispose() {
     _disposed = true;
     super.dispose();
+  }
+
+  void _init() async {
+    var packageInfo = await PackageInfo.fromPlatform();
+    appVersion = packageInfo.version;
+    notify();
   }
 
   void notify() {

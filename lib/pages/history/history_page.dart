@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/pages/history/view_item.dart';
 import 'package:flutter_demo/pages/history/history_view_dialog.dart';
 import 'package:flutter_demo/repository/app_theme.dart';

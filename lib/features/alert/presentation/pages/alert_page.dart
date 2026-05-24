@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
-import 'package:flutter_demo/main.dart';
-import 'package:flutter_demo/pages/alert/alert_addr_page.dart';
-import 'package:flutter_demo/pages/alert/alert_model.dart';
+import 'package:flutter_demo/core/di/di.dart';
+import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
+import 'package:flutter_demo/features/alert/presentation/pages/alert_addr_page.dart';
+import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
@@ -20,16 +21,11 @@ class AlertPage extends StatefulWidget {
 }
 
 class AlertPageState extends State<AlertPage> {
-  late AlertModel _model;
   final tag = 'aletPage';
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() async {
-      _model.init();
-    });
   }
 
   @override
@@ -39,34 +35,42 @@ class AlertPageState extends State<AlertPage> {
 
   @override
   Widget build(BuildContext context) {
-    _model = context.read<AlertModel>();
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.colorBar,
-        body: Stack(alignment: Alignment.center, children: [
-          Positioned(
-              top: (kToolbarHeight * 2) - 30,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorBgUnderCard,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20))))),
-          CustomScrollView(physics: const ClampingScrollPhysics(), slivers: [
-            SliverAppBar(
-                backgroundColor: Theme.of(context).colorScheme.colorBar,
-                automaticallyImplyLeading: false,
-                flexibleSpace: _sliverAppBar()),
-            SliverToBoxAdapter(child: _header()),
-            DecoratedSliver(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.colorBgUnderCard,
-                ),
-                sliver: _list())
-          ])
-        ]));
+    return ChangeNotifierProvider(
+        create: (context) => getIt<AlertModel>(),
+        builder: (context, child) {
+          return Scaffold(
+              backgroundColor: Theme.of(context).colorScheme.colorBar,
+              body: Stack(alignment: Alignment.center, children: [
+                Positioned(
+                    top: (kToolbarHeight * 2) - 30,
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                        decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.colorBgUnderCard,
+                            borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20))))),
+                CustomScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    slivers: [
+                      SliverAppBar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.colorBar,
+                          automaticallyImplyLeading: false,
+                          flexibleSpace: _sliverAppBar()),
+                      SliverToBoxAdapter(child: _header()),
+                      DecoratedSliver(
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).colorScheme.colorBgUnderCard,
+                          ),
+                          sliver: _list())
+                    ])
+              ]));
+        });
   }
 
   Widget _sliverAppBar() {
@@ -433,12 +437,15 @@ class AlertPageState extends State<AlertPage> {
                               flex: 2,
                               child: HoverClick(
                                 onPressedL: (p0) {
+                                  final alertModel = context.read<AlertModel>();
                                   Navigator.push(
                                       context,
                                       CupertinoPageRoute(
                                           settings: const RouteSettings(),
                                           builder: (context) {
-                                            return AlertAddrPage(model: _model);
+                                            return ChangeNotifierProvider.value(
+                                                value: alertModel,
+                                                child: AlertAddrPage());
                                           }));
                                 },
                                 child: SizedBox(

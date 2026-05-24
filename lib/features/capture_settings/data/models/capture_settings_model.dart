@@ -13,9 +13,7 @@ class CaptureSettingsModel with ChangeNotifier {
   var _disposed = false;
   final tag = 'captureSettingsModel';
 
-  CaptureSettingsModel(this._cameraRep, this._settingsRep) {
-    logDebug('ddd');
-  }
+  CaptureSettingsModel(this._cameraRep, this._settingsRep);
 
   @override
   void dispose() {

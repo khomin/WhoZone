@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
+import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 import 'package:collection/collection.dart';
 
+@injectable
 class SettingsModel with ChangeNotifier {
   var useSound = false;
   Sound? sound;
@@ -14,7 +16,7 @@ class SettingsModel with ChangeNotifier {
   var packetValue = 'TCP';
   final packetList = <String>['TCP', 'UDP'];
   String? packetToAddr;
-  final tag = 'alertModel';
+  final tag = 'settingsModel';
 
   Future<void> initData() async {
     // whether sound used

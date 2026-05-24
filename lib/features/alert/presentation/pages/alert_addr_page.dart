@@ -2,14 +2,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
-import 'package:flutter_demo/pages/alert/alert_model.dart';
+import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:provider/provider.dart';
 
 class AlertAddrPage extends StatefulWidget {
-  const AlertAddrPage({required this.model, super.key});
-  final AlertModel model;
+  const AlertAddrPage({super.key});
 
   @override
   State<AlertAddrPage> createState() => AlertAddrPageState();
@@ -18,80 +17,74 @@ class AlertAddrPage extends StatefulWidget {
 class AlertAddrPageState extends State<AlertAddrPage> {
   final _focus = FocusNode();
   final _textCtr = TextEditingController();
-  late final AlertModel _model;
   final tag = 'aletPageAddr';
 
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      _model = widget.model;
-      _textCtr.text = widget.model.packetToAddr ?? '';
-      _focus.requestFocus();
-      _textCtr.addListener(() {
-        var value = _textCtr.text;
-        if (value.isEmpty) {
-          _model.setPacketToAddr(v: null, saveConfig: true);
-        } else if (isValidIP(value) || isValidURI(value)) {
-          _model.setPacketToAddr(v: value, saveConfig: true);
-        } else {
-          _model.setPacketToAddr(v: null, saveConfig: true);
-        }
-      });
+
+    final model = context.read<AlertModel>();
+    _textCtr.text = model.packetToAddr ?? '';
+    _textCtr.addListener(() {
+      var value = _textCtr.text;
+      if (value.isEmpty) {
+        model.setPacketToAddr(v: null, saveConfig: true);
+      } else if (isValidIP(value) || isValidURI(value)) {
+        model.setPacketToAddr(v: value, saveConfig: true);
+      } else {
+        model.setPacketToAddr(v: null, saveConfig: true);
+      }
     });
+    _focus.requestFocus();
   }
 
   @override
   void dispose() {
-    super.dispose();
     _focus.dispose();
     _textCtr.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: widget.model,
-        builder: (context, child) {
-          return Container(
-              color: Theme.of(context).colorScheme.colorBar,
-              child: SafeArea(
-                  child: Scaffold(
-                      backgroundColor: Theme.of(context).colorScheme.colorBar,
-                      body: Stack(alignment: Alignment.center, children: [
-                        Positioned(
-                            top: (kToolbarHeight * 2) - 30,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorBgUnderCard,
-                                    borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(20),
-                                        topRight: Radius.circular(20))))),
-                        CustomScrollView(
-                            physics: const ClampingScrollPhysics(),
-                            slivers: [
-                              SliverAppBar(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.colorBar,
-                                automaticallyImplyLeading: false,
-                                flexibleSpace: _sliverAppBar(),
-                              ),
-                              SliverToBoxAdapter(child: _header()),
-                              DecoratedSliver(
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorBgUnderCard,
-                                  ),
-                                  sliver: SliverToBoxAdapter(child: _address()))
-                            ])
-                      ]))));
-        });
+    return Container(
+        color: Theme.of(context).colorScheme.colorBar,
+        child: SafeArea(
+            child: Scaffold(
+                backgroundColor: Theme.of(context).colorScheme.colorBar,
+                body: Stack(alignment: Alignment.center, children: [
+                  Positioned(
+                      top: (kToolbarHeight * 2) - 30,
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                          decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .colorBgUnderCard,
+                              borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(20),
+                                  topRight: Radius.circular(20))))),
+                  CustomScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      slivers: [
+                        SliverAppBar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.colorBar,
+                          automaticallyImplyLeading: false,
+                          flexibleSpace: _sliverAppBar(),
+                        ),
+                        SliverToBoxAdapter(child: _header()),
+                        DecoratedSliver(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .colorBgUnderCard,
+                            ),
+                            sliver: SliverToBoxAdapter(child: _address()))
+                      ])
+                ]))));
   }
 
   Widget _sliverAppBar() {
@@ -145,7 +138,7 @@ class AlertAddrPageState extends State<AlertAddrPage> {
   }
 
   Widget _address() {
-    var size = MediaQuery.of(context).size;
+    var size = MediaQuery.sizeOf(context);
     return SizedBox(
         height: size.height / 1.5,
         child: HoverClick(
@@ -203,11 +196,11 @@ class AlertAddrPageState extends State<AlertAddrPage> {
                                   },
                                   onChanged: (value) {},
                                   onFieldSubmitted: (value) {
-                                    _model.setPacketToAddr(
+                                    context.read<AlertModel>().setPacketToAddr(
                                         v: value, saveConfig: true);
                                   },
                                   onSaved: (value) {
-                                    _model.setPacketToAddr(
+                                    context.read<AlertModel>().setPacketToAddr(
                                         v: value, saveConfig: true);
                                   },
                                   scrollPadding: EdgeInsets.zero,

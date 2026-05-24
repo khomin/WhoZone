@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
+import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+@lazySingleton
 class SettingsRep {
   SharedPreferences prefs;
   final _usedCameraIdKey = 'camera_id';

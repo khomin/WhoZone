@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
-import 'package:flutter_demo/main.dart';
+import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/pages/history/history_page.dart';
 import 'package:flutter_demo/pages/history/view_root.dart';
 import 'package:flutter_demo/pages/home/filter_page.dart';
@@ -287,7 +287,7 @@ class HomePagePageState extends State<HomePagePage>
           if (history == null) {
             return const SizedBox();
           }
-          var size = MediaQuery.of(context).size;
+          var size = MediaQuery.sizeOf(context);
           if (history.isEmpty) {
             return RotationTransition(
                 turns: _iconRotate,
