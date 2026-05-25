@@ -1,9 +1,10 @@
-import 'dart:async';
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/semaphore.dart';
-import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/core/utils/common.dart';
+import 'package:flutter_demo/core/utils/semaphore.dart';
+import 'package:flutter_demo/features/history/domain/entities/history_record.dart';
+import 'package:flutter_demo/features/history/domain/entities/history_root.dart';
+import 'package:flutter_demo/features/history/domain/entities/history_state.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/utils.dart';
 import 'package:injectable/injectable.dart';
 import 'package:intl/intl.dart';
@@ -12,72 +13,33 @@ import 'package:loggy/loggy.dart';
 import 'package:path/path.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share_plus/share_plus.dart';
-
-class HistoryRoot with ChangeNotifier {
-  HistoryRoot({
-    required this.date,
-    required this.dateHeader,
-    required this.dateSub,
-    required this.dateMonth,
-    required this.path,
-    required this.folderName,
-    required this.framesCount,
-    required this.diskSpace,
-    required this.items,
-  });
-  DateTime date;
-  String dateHeader;
-  String dateSub;
-  String dateMonth;
-  String folderName;
-  String path;
-  int framesCount;
-  int diskSpace;
-  List<History> items;
-}
-
-class History with ChangeNotifier {
-  History({
-    required this.date,
-    required this.dateHeader,
-    required this.path,
-  });
-  DateTime date;
-  String dateHeader;
-  String path;
-}
-
-class HistoryState {
-  HistoryState({
-    required this.list,
-    this.startTime,
-    this.startTimeString,
-    this.endTime,
-    this.endTimeString,
-  });
-  final List<HistoryRoot> list;
-  final DateTime? startTime;
-  final String? startTimeString;
-  final DateTime? endTime;
-  final String? endTimeString;
-}
+import '../../domain/repo/history_repo.dart';
 
 @lazySingleton
-class HistoryRep {
-  final onHistoryRoot = BehaviorSubject<HistoryState>();
-  final onUsedDisk = BehaviorSubject<int>();
+class HistoryRepoImpl implements HistoryRepo {
+  final _historyRootStream = BehaviorSubject<HistoryState>();
+  final _usedDiskStream = BehaviorSubject<int>();
   final _mapHistory = <DateTime, HistoryRoot>{};
   final _historySemphore = Semaphore(1);
   var _inited = false;
   final tag = 'historyRep';
 
+  @override
   void init() {
     if (_inited) return;
     _inited = true;
   }
 
+  @override
   void dispose() {}
 
+  @override
+  BehaviorSubject<HistoryState> get historyRootStream => _historyRootStream;
+
+  @override
+  BehaviorSubject<int> get usedDiskStream => throw _usedDiskStream;
+
+  @override
   Future<bool> isEmpty() async {
     var path = Utils().historyPath();
     try {
@@ -97,6 +59,7 @@ class HistoryRep {
     return true;
   }
 
+  @override
   Future<void> updateHistory({DateTime? startTime, DateTime? endTime}) async {
     await _historySemphore.acquire();
     _mapHistory.clear();
@@ -146,7 +109,7 @@ class HistoryRep {
     // root
     var list = _mapHistory.values.toList();
     list.sort((a, b) => b.date.compareTo(a.date));
-    onHistoryRoot.add(HistoryState(
+    _historyRootStream.add(HistoryState(
       list: list,
       startTime: startTime,
       startTimeString:
@@ -156,10 +119,11 @@ class HistoryRep {
       endTime: endTime,
     ));
     // size
-    onUsedDisk.add(size);
+    _usedDiskStream.add(size);
     _historySemphore.release();
   }
 
+  @override
   Future<void> deleteHistoryRoot(List<HistoryRoot> list) async {
     for (var it in list) {
       var r = _mapHistory.remove(it.date);
@@ -174,6 +138,7 @@ class HistoryRep {
     updateHistory();
   }
 
+  @override
   Future<void> deleteHistory(List<History> list) async {
     for (var it in list) {
       try {
@@ -190,6 +155,7 @@ class HistoryRep {
     updateHistory();
   }
 
+  @override
   void share(List<History> list) {
     if (list.isEmpty) return;
     var listPath = <XFile>[];
@@ -199,6 +165,7 @@ class HistoryRep {
     Share.shareXFiles(listPath, text: 'Check out this image!');
   }
 
+  @override
   Future<void> freeData() async {
     var root = _mapHistory.values.toList();
     await deleteHistoryRoot(root);

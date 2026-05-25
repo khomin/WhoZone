@@ -1,13 +1,12 @@
-import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/pages/app_model.dart';
+import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/pages/settings/settings_about.dart';
+import 'package:flutter_demo/pages/settings/settings_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/history_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/utils/converter.dart';
 import 'package:flutter_demo/utils/utils.dart';
@@ -25,7 +24,9 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return ChangeNotifierProvider(
+      create: (context) => getIt<SettingsModel>(),
+      child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: Stack(alignment: Alignment.center, children: [
           Positioned(
@@ -56,7 +57,9 @@ class SettingsPageState extends State<SettingsPage> {
                   _account(),
                 ]))
           ])
-        ]));
+        ]),
+      ),
+    );
   }
 
   Widget _sliverAppBar() {
@@ -150,8 +153,10 @@ class SettingsPageState extends State<SettingsPage> {
                                       useScaleAnimation: true,
                                       iconData: Icons.delete,
                                       onPressed: (v) async {
+                                        context
+                                            .read<SettingsModel>()
+                                            .freeData();
                                         Navigator.of(context).pop();
-                                        getIt<HistoryRep>().freeData();
                                       }),
                                   const SizedBox(width: 15),
                                   RoundButton(
@@ -184,16 +189,16 @@ class SettingsPageState extends State<SettingsPage> {
                   fontWeight: FontWeight.w400),
             ),
             Row(children: [
-              StreamBuilder(
-                  stream: getIt<HistoryRep>().onUsedDisk,
-                  builder: (context, snapshot) {
-                    var size = Int64(snapshot.data ?? 0);
-                    return Text(' ${Converter.convertBytesToKbMbGb(size)}',
-                        style: TextStyle(
-                            color: Theme.of(context).colorScheme.menuFontColor1,
-                            fontSize: Constants.menuFontSize2,
-                            fontWeight: FontWeight.w400));
-                  }),
+              Builder(builder: (context) {
+                var mode = context.watch<SettingsModel>();
+                return Text(
+                  ' ${Converter.convertBytesToKbMbGb(mode.usedDiskSize)}',
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.menuFontColor1,
+                      fontSize: Constants.menuFontSize2,
+                      fontWeight: FontWeight.w400),
+                );
+              }),
               const SizedBox(width: 20),
               Icon(
                 Icons.delete_rounded,

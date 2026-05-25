@@ -58,6 +58,7 @@ class Constants {
   static int minAreaDefault = 2000;
   static int minCaptIntvalDefault = 1;
 
+  static String get locale => 'en_US';
   static const packetPrefix = 'move';
   static const packetPort = 1000;
 

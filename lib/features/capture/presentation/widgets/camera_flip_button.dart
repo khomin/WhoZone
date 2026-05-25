@@ -4,7 +4,7 @@ import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
+import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 
 class CameraFlipButton extends StatelessWidget {
   @override

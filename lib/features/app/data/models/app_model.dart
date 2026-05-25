@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/core/di/di.dart';
+import 'package:flutter_demo/features/app/domain/entities/page_type.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:injectable/injectable.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -10,7 +11,9 @@ class AppModel with ChangeNotifier {
   bool collapse = false;
   String appVersion = '';
   ThemeMode theme = ThemeMode.system;
+  PageType page = PageType.home;
   var _disposed = false;
+  final tag = 'appModel';
 
   AppModel({required this.theme}) {
     _init();
@@ -31,6 +34,11 @@ class AppModel with ChangeNotifier {
   void notify() {
     if (_disposed) return;
     notifyListeners();
+  }
+
+  void setPage(PageType v) {
+    page = v;
+    notify();
   }
 
   void setReady(bool v) {

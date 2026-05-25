@@ -4,7 +4,7 @@ import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/features/capture_settings/data/models/capture_settings_model.dart';
 import 'package:flutter_demo/main.dart';
-import 'package:flutter_demo/pages/app_model.dart';
+import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:provider/provider.dart';
 

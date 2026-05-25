@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
-import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
+import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';

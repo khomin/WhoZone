@@ -7,16 +7,14 @@ import 'package:flutter_demo/features/capture/presentation/widgets/camera_center
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/pages/app_model.dart';
+import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/camera_rep.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/core/utils/common.dart';
-import 'package:flutter_demo/native-api/protobuf/app.pb.dart' as app;
+import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'dart:math' as math;
 
 class CapturePage extends StatefulWidget {
@@ -29,7 +27,6 @@ class CapturePage extends StatefulWidget {
 class CapturePageState extends State<CapturePage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final _dispStream = DisposableStream();
-  late final CaptureModel _captureModel;
   AppLifecycleListener? _listener;
   late final Animation<double> _slideHeight;
   late AnimationController _ctrSlideTop;
@@ -39,10 +36,8 @@ class CapturePageState extends State<CapturePage>
   void initState() {
     super.initState();
 
-    _captureModel = getIt<CaptureModel>();
-
     Future.microtask(() async {
-      var res = await _captureModel.start();
+      var res = await context.read<CaptureModel>().start();
       if (!res) {
         Common.showTextSnackBar(
           context: context,
@@ -52,16 +47,17 @@ class CapturePageState extends State<CapturePage>
     });
 
     _listener = AppLifecycleListener(onStateChange: (value) {
+      final model = context.read<CaptureModel>();
       switch (value) {
         case AppLifecycleState.hidden:
         case AppLifecycleState.detached:
         case AppLifecycleState.paused:
-          _captureModel.stop();
+          model.stop();
         case AppLifecycleState.inactive:
           break;
         case AppLifecycleState.resumed:
-          if (!_captureModel.started) {
-            _captureModel.start();
+          if (!model.started) {
+            model.start();
           }
           break;
       }
@@ -82,15 +78,14 @@ class CapturePageState extends State<CapturePage>
   void dispose() {
     _listener?.dispose();
     _dispStream.dispose();
-    _captureModel.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _captureModel,
+    return ChangeNotifierProvider(
+      create: (context) => getIt<CaptureModel>(),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
         body: CustomScrollView(
@@ -175,6 +170,7 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
+    final model = context.read<CaptureModel>();
     return Stack(alignment: Alignment.center, children: [
       Positioned(
         bottom: 0,
@@ -229,17 +225,18 @@ class CapturePageState extends State<CapturePage>
                 decoration: BoxDecoration(
                   shape: BoxShape.rectangle,
                   border: Border.all(
-                      color: recording
-                          ? Theme.of(context).colorScheme.colorButtonRed
-                          : Colors.transparent,
-                      width: 2),
+                    color: recording
+                        ? Theme.of(context).colorScheme.colorButtonRed
+                        : Colors.transparent,
+                    width: 2,
+                  ),
                 ),
               )),
               //
               // overlay
               Positioned.fill(
                 child: CameraPreviewWithOverlay(
-                  boxes: _captureModel.detectionBoxesStream,
+                  boxes: model.detectionBoxesStream,
                 ),
               ),
               //
@@ -252,9 +249,9 @@ class CapturePageState extends State<CapturePage>
       //
       // camera button
       CameraCenterButton(
-        captureEnabled: _captureModel.captureEnabled,
+        captureEnabled: model.captureEnabled,
         onMakeOneShot: () {
-          _captureModel.makeOneShot();
+          model.makeOneShot();
         },
       ),
       //

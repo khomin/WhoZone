@@ -2,59 +2,13 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/core/di/di.dart';
+import 'package:flutter_demo/features/history/data/models/history_model.dart';
+import 'package:flutter_demo/features/history/domain/entities/history_record.dart';
+import 'package:flutter_demo/features/history/domain/entities/scroll_touch.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/history_rep.dart';
-import 'package:flutter_demo/repository/selection_repo.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:flutter/material.dart';
-
-class FullViewDialog {
-  Future<FullViewItem?> show({
-    required BuildContext context,
-    required SelectionRep selectRep,
-    GlobalKey? key,
-    required List<History> models,
-    int initialIndex = 0,
-  }) {
-    return showGeneralDialog(
-      context: context,
-      barrierColor: Colors.transparent,
-      barrierDismissible: true,
-      barrierLabel: '',
-      transitionDuration: const Duration(milliseconds: 100),
-      pageBuilder: (_, __, ___) {
-        return Column(
-          children: [
-            Expanded(
-              child: FullViewItem(
-                history: models,
-                initialIndex: initialIndex,
-                selectRep: selectRep,
-                key: key,
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class FullViewItem extends StatefulWidget {
-  const FullViewItem({
-    required this.history,
-    required this.initialIndex,
-    required this.selectRep,
-    super.key,
-  });
-  final List<History> history;
-  final int initialIndex;
-  final SelectionRep selectRep;
-
-  @override
-  State<FullViewItem> createState() => FullViewItemState();
-}
 
 class Current {
   Current({required this.index, required this.model});
@@ -62,29 +16,20 @@ class Current {
   History model;
 }
 
-class ScrollTouch with ChangeNotifier {
-  final Set<int> _touchPositions = {};
-  var zoom = false;
+class HistoryViewItem extends StatefulWidget {
+  const HistoryViewItem({
+    required this.history,
+    required this.initialIndex,
+    super.key,
+  });
+  final List<History> history;
+  final int initialIndex;
 
-  void savePointerPosition(int index) {
-    _touchPositions.add(index);
-    notifyListeners();
-  }
-
-  void clearPointerPosition(int index) {
-    _touchPositions.remove(index);
-    notifyListeners();
-  }
-
-  void setZoom(bool v) {
-    if (zoom != v) {
-      zoom = v;
-      notifyListeners();
-    }
-  }
+  @override
+  State<HistoryViewItem> createState() => HistoryViewItemState();
 }
 
-class FullViewItemState extends State<FullViewItem> {
+class HistoryViewItemState extends State<HistoryViewItem> {
   late Current _current;
   var _doNotScroollToPreviewItem = false;
   final _scrollTouch = ScrollTouch();
@@ -94,8 +39,7 @@ class FullViewItemState extends State<FullViewItem> {
   final ScrollController _scrollController = ScrollController();
   late ListObserverController _observerController;
   late final PageController _controller;
-  Timer? _testTimer;
-  final tag = 'mediaView';
+  final tag = 'historyView';
 
   @override
   void initState() {
@@ -118,7 +62,6 @@ class FullViewItemState extends State<FullViewItem> {
     super.dispose();
     _scrollController.dispose();
     _rawKeyLister.dispose();
-    _testTimer?.cancel();
   }
 
   void _scrollTo(int index) {
@@ -161,6 +104,7 @@ class FullViewItemState extends State<FullViewItem> {
       child: Container(
         height: kToolbarHeight,
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          // delete
           RoundButton(
               color: Theme.of(context)
                   .colorScheme
@@ -175,12 +119,13 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.delete_outline,
               onPressed: (v) async {
-                await getIt<HistoryRep>().deleteHistory([_current.model]);
-                widget.selectRep.releaseSelection(_current.model);
-                if (!mounted) return;
+                var model = context.read<HistoryModel>();
+                model.deleteHistory([_current.model]);
+                model.releaseSelection(_current.model);
                 Navigator.of(context).pop();
               }),
           const SizedBox(width: 15),
+          // share
           RoundButton(
               color: Theme.of(context)
                   .colorScheme
@@ -195,8 +140,9 @@ class FullViewItemState extends State<FullViewItem> {
               useScaleAnimation: true,
               iconData: Icons.share,
               onPressed: (_) {
-                getIt<HistoryRep>().share([_current.model]);
-                widget.selectRep.releaseSelection(_current.model);
+                var model = context.read<HistoryModel>();
+                model.share([_current.model]);
+                model.releaseSelection(_current.model);
               })
         ]),
       ),
@@ -229,7 +175,7 @@ class FullViewItemState extends State<FullViewItem> {
                         var scroll = context.watch<ScrollTouch>();
                         return PageView.builder(
                             physics:
-                                scroll._touchPositions.length > 1 || scroll.zoom
+                                scroll.touchPositions.length > 1 || scroll.zoom
                                     ? const NeverScrollableScrollPhysics()
                                     : const CustomPageViewScrollPhysics(),
                             onPageChanged: _onPageChange,

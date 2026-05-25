@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/app.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/pages/app_model.dart';
+import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
@@ -42,7 +42,8 @@ void main() async {
 // TODO: clean architecture
 // TODO: tensorflow
 // TODO: doc
-// TODO: publish
+// TODO: publish again
+// TODO: reddit posts
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});

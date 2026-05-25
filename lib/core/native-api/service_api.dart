@@ -3,7 +3,7 @@ import 'dart:ffi';
 import 'dart:isolate';
 import 'package:flutter/services.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/native-api/protobuf/app.pb.dart';
+import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart';
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';

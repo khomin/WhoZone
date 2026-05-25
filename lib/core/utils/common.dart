@@ -1,12 +1,8 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/message.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/nav_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:intl/intl.dart';
-
-enum ScreenType { minimum, full }
 
 enum ToastType { normal, error }
 
@@ -15,28 +11,6 @@ extension DurationFormat on Duration {
 }
 
 class Common {
-  static ScreenType rootWidgetLayout(Size size, double devicePixelRatio) {
-    ScreenType layout;
-    var lastValue = NavigatorRep().onLayoutChanged.valueOrNull;
-    if (Platform.isAndroid) {
-      if (size.width >= 600 && size.height > 600) {
-        layout = ScreenType.full;
-      } else {
-        layout = ScreenType.minimum;
-      }
-    } else {
-      if (size.width >= 600 && size.height > 600) {
-        layout = ScreenType.full;
-      } else {
-        layout = ScreenType.minimum;
-      }
-    }
-    if (layout != lastValue) {
-      NavigatorRep().onLayoutChanged.add(layout);
-    }
-    return layout;
-  }
-
   DateTime parseDate(String name) {
     try {
       return DateFormat(Constants.recordDateFormat).parse(name);
