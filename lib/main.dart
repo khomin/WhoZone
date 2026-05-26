@@ -31,9 +31,7 @@ void main() async {
 
   runApp(
     ChangeNotifierProvider(
-      create: (_) => AppModel(
-        theme: getIt<SettingsRep>().getTheme(),
-      ),
+      create: (_) => getIt<AppModel>(),
       child: const MainApp(),
     ),
   );

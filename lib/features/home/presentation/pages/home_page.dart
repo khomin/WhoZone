@@ -32,12 +32,14 @@ class HomePagePageState extends State<HomePagePage>
   Timer? _scrollThrottleTm;
   final _onCloseSlide = BehaviorSubject<bool>.seeded(false);
   final _disp = DisposableStream();
-  final _model = getIt<HomeModel>();
+  late HomeModel _model;
   final tag = 'homePage';
 
   @override
   void initState() {
     super.initState();
+
+    _model = getIt<HomeModel>();
 
     _ctrSlideTop = AnimationController(
       duration: const Duration(milliseconds: 200),

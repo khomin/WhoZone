@@ -12,10 +12,11 @@ class AppModel with ChangeNotifier {
   String appVersion = '';
   ThemeMode theme = ThemeMode.system;
   PageType page = PageType.home;
+  final SettingsRep _settingsRep;
   var _disposed = false;
   final tag = 'appModel';
 
-  AppModel({required this.theme}) {
+  AppModel(this._settingsRep) {
     _init();
   }
 
@@ -25,10 +26,13 @@ class AppModel with ChangeNotifier {
     super.dispose();
   }
 
-  void _init() async {
-    var packageInfo = await PackageInfo.fromPlatform();
-    appVersion = packageInfo.version;
-    notify();
+  void _init() {
+    theme = _settingsRep.getTheme();
+    Future.microtask(() async {
+      var packageInfo = await PackageInfo.fromPlatform();
+      appVersion = packageInfo.version;
+      notify();
+    });
   }
 
   void notify() {
@@ -58,7 +62,7 @@ class AppModel with ChangeNotifier {
   void setTheme(ThemeMode v) {
     if (theme != v) {
       theme = v;
-      getIt<SettingsRep>().setTheme(v);
+      _settingsRep.setTheme(v);
       notifyListeners();
     }
   }

@@ -15,7 +15,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../domain/repo/history_repo.dart';
 
-@lazySingleton
+@LazySingleton(as: HistoryRepo)
 class HistoryRepoImpl implements HistoryRepo {
   final _historyRootStream = BehaviorSubject<HistoryState>();
   final _usedDiskStream = BehaviorSubject<int>();
@@ -23,6 +23,10 @@ class HistoryRepoImpl implements HistoryRepo {
   final _historySemphore = Semaphore(1);
   var _inited = false;
   final tag = 'historyRep';
+
+  HistoryRepoImpl() {
+    init();
+  }
 
   @override
   void init() {

@@ -9,7 +9,6 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'package:flutter/material.dart' as _i409;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
@@ -49,7 +48,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i402.FilterModel>(() => _i402.FilterModel());
     gh.lazySingleton<_i371.ServiceApi>(() => _i371.ServiceApi());
-    gh.lazySingleton<_i392.HistoryRepoImpl>(() => _i392.HistoryRepoImpl());
+    gh.lazySingleton<_i231.HistoryRepo>(() => _i392.HistoryRepoImpl());
     gh.factory<_i948.HistoryModel>(
         () => _i948.HistoryModel(gh<_i231.HistoryRepo>()));
     gh.factory<_i187.HomeModel>(() => _i187.HomeModel(gh<_i231.HistoryRepo>()));
@@ -57,8 +56,6 @@ extension GetItInjectableX on _i174.GetIt {
         () => _i878.SettingsModel(gh<_i231.HistoryRepo>()));
     gh.lazySingleton<_i925.AlertRep>(
         () => _i925.AlertRep(gh<_i371.ServiceApi>()));
-    gh.factory<_i290.AppModel>(
-        () => _i290.AppModel(theme: gh<_i409.ThemeMode>()));
     gh.lazySingleton<_i68.SettingsRep>(
         () => _i68.SettingsRep(gh<_i460.SharedPreferences>()));
     gh.lazySingleton<_i973.CameraRep>(() => _i973.CameraRep(
@@ -73,6 +70,7 @@ extension GetItInjectableX on _i174.GetIt {
           gh<_i973.CameraRep>(),
           gh<_i68.SettingsRep>(),
         ));
+    gh.factory<_i290.AppModel>(() => _i290.AppModel(gh<_i68.SettingsRep>()));
     gh.factory<_i161.CaptureModel>(() => _i161.CaptureModel(
           cameraRep: gh<_i973.CameraRep>(),
           settingsRep: gh<_i68.SettingsRep>(),

@@ -17,6 +17,16 @@ import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'dart:math' as math;
 
+class CapturePageProvilder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => getIt<CaptureModel>(),
+      child: CapturePage(),
+    );
+  }
+}
+
 class CapturePage extends StatefulWidget {
   const CapturePage({super.key});
 
@@ -84,28 +94,25 @@ class CapturePageState extends State<CapturePage>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => getIt<CaptureModel>(),
-      child: Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.colorBar,
-        body: CustomScrollView(
-            physics: const NeverScrollableScrollPhysics(),
-            slivers: [
-              AnimatedBuilder(
-                  animation: _ctrSlideTop,
-                  builder: (context, child) {
-                    return SliverAppBar(
-                      backgroundColor: Theme.of(context).colorScheme.colorBar,
-                      toolbarHeight: _slideHeight.value,
-                      automaticallyImplyLeading: false,
-                      flexibleSpace: _sliverAppBar(),
-                    );
-                  }),
-              SliverFillRemaining(
-                child: _camera(),
-              )
-            ]),
-      ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.colorBar,
+      body: CustomScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            AnimatedBuilder(
+                animation: _ctrSlideTop,
+                builder: (context, child) {
+                  return SliverAppBar(
+                    backgroundColor: Theme.of(context).colorScheme.colorBar,
+                    toolbarHeight: _slideHeight.value,
+                    automaticallyImplyLeading: false,
+                    flexibleSpace: _sliverAppBar(),
+                  );
+                }),
+            SliverFillRemaining(
+              child: _camera(),
+            )
+          ]),
     );
   }
 
