@@ -32,6 +32,7 @@ class HomePagePageState extends State<HomePagePage>
   Timer? _scrollThrottleTm;
   final _onCloseSlide = BehaviorSubject<bool>.seeded(false);
   final _disp = DisposableStream();
+  final _model = getIt<HomeModel>();
   final tag = 'homePage';
 
   @override
@@ -79,17 +80,15 @@ class HomePagePageState extends State<HomePagePage>
         }
       });
     });
-    Future.microtask(() {
-      _disp.add(context.read<HomeModel>().isEmptyStream.listen((isEmpty) {
-        if (isEmpty) {
-          if (_ctrShakeIcon.isForwardOrCompleted) {
-            _ctrShakeIcon.reverse().orCancel;
-          } else {
-            _ctrShakeIcon.forward().orCancel;
-          }
+    _disp.add(_model.isEmptyStream.listen((isEmpty) {
+      if (isEmpty) {
+        if (_ctrShakeIcon.isForwardOrCompleted) {
+          _ctrShakeIcon.reverse().orCancel;
+        } else {
+          _ctrShakeIcon.forward().orCancel;
         }
-      }));
-    });
+      }
+    }));
   }
 
   @override
@@ -97,6 +96,7 @@ class HomePagePageState extends State<HomePagePage>
     _ctrSlideTop.dispose();
     _ctrShakeIcon.dispose();
     _scrollCtr.dispose();
+    _model.dispose();
     _disp.dispose();
     _onCloseSlide.close();
     _scrollThrottleTm?.cancel();
@@ -105,8 +105,8 @@ class HomePagePageState extends State<HomePagePage>
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => getIt<HomeModel>(),
+    return ChangeNotifierProvider.value(
+        value: _model,
         builder: (context, child) {
           return Scaffold(
               backgroundColor: Theme.of(context).colorScheme.colorBar,
