@@ -10,25 +10,24 @@ class CameraFrameCount extends StatelessWidget {
     final count = context.select<CaptureModel, int>(
       (value) => value.detectionCount,
     );
-    if (count == 0) return const SizedBox();
-    return Positioned(
-      bottom: 10,
-      left: 10,
-      child: RepaintBoundary(
-        child: SizedBox(
-          width: 80,
-          height: 30,
-          child: Row(children: [
-            Icon(Icons.camera, color: color),
-            Flexible(
-                child: Text(
-              count.toString(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 17, color: color),
-            ))
-          ]),
-        ),
+    if (count == 0) {
+      return const SizedBox();
+    }
+    return RepaintBoundary(
+      child: SizedBox(
+        width: 80,
+        height: 35,
+        child: Row(children: [
+          Icon(Icons.camera, color: color, size: 25),
+          const SizedBox(width: 4),
+          Flexible(
+              child: Text(
+            count.toString(),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(fontSize: 17, color: color),
+          ))
+        ]),
       ),
     );
   }

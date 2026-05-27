@@ -21,8 +21,7 @@ class ButtonRoundCorner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: width,
-        alignment: Alignment.center,
-        child: Stack(children: [
+        child: Stack(alignment: Alignment.center, children: [
           ElevatedButton(
               onPressed: () => onPressed.call(),
               autofocus: false,
@@ -32,7 +31,7 @@ class ButtonRoundCorner extends StatelessWidget {
                       side: borderColor != null
                           ? BorderSide(width: 1.5, color: borderColor!)
                           : BorderSide.none),
-                  padding: null,
+                  padding: EdgeInsets.zero,
                   alignment: Alignment.center,
                   backgroundColor: color,
                   animationDuration: Duration.zero,

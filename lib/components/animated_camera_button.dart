@@ -43,10 +43,12 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
   final _animatedModel = AnimatedModel();
   late final Animation<double> _opacity1;
   late final Animation<double> _opacity2;
-  late final Animation<double> _width;
+  late final Animation<double> _widthAnimation;
   late final Animation<double> _widthIconExpand;
   late AnimationController _controller;
   final _dispStream = DisposableStream();
+  final _widthStart = 70.0;
+  final _widthEnd = 140.0;
 
   final List<TabInfo> tabs = [
     const TabInfo(icon: Icons.info_outline),
@@ -63,9 +65,9 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
       vsync: this,
     );
 
-    _width = Tween<double>(
-      begin: 70.0,
-      end: 200.0,
+    _widthAnimation = Tween<double>(
+      begin: _widthStart,
+      end: _widthEnd,
     ).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
@@ -121,11 +123,12 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
               animation: _controller,
               builder: (context, child) {
                 return Container(
-                    width: _width.value,
+                    width: _widthAnimation.value,
                     height: 70,
                     decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.colorButton,
-                        borderRadius: BorderRadius.all(Radius.circular(90))),
+                      color: Theme.of(context).colorScheme.colorButton,
+                      borderRadius: BorderRadius.all(Radius.circular(90)),
+                    ),
                     child: Stack(alignment: Alignment.center, children: [
                       Opacity(
                           opacity: _opacity1.value,
@@ -156,7 +159,7 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                       ignoring: !expanded,
                                       child: ButtonRoundCorner(
                                           color: Colors.transparent,
-                                          width: _width.value / 2,
+                                          width: _widthAnimation.value / 2,
                                           icon: Icon(
                                             Icons.camera_sharp,
                                             color: Theme.of(context)
@@ -165,8 +168,9 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                             size: _widthIconExpand.value,
                                           ),
                                           radious: const BorderRadius.only(
-                                              topLeft: Radius.circular(90),
-                                              bottomLeft: Radius.circular(90)),
+                                            topLeft: Radius.circular(90),
+                                            bottomLeft: Radius.circular(90),
+                                          ),
                                           onPressed: () {
                                             widget.onImagePressed();
                                           }));
@@ -177,27 +181,26 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
                                   var expanded =
                                       context.select<AnimatedModel, bool>(
                                           (v) => v.expanded);
-                                  return IgnorePointer(
-                                      ignoring: !expanded,
-                                      child: ButtonRoundCorner(
-                                          color: Colors.transparent,
-                                          width: _width.value / 2,
-                                          icon: Icon(
-                                            Icons.stop_rounded,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .cameraButtonIcon,
-                                            size: _widthIconExpand.value,
-                                          ),
-                                          radious: const BorderRadius.only(
-                                              topRight: Radius.circular(90),
-                                              bottomRight: Radius.circular(90)),
-                                          onPressed: () {
-                                            _switchAnimation();
-                                            context
-                                                .read<AnimatedModel>()
-                                                .setExpanded(!expanded);
-                                          }));
+                                  return ButtonRoundCorner(
+                                      color: Colors.transparent,
+                                      width: _widthAnimation.value / 2,
+                                      icon: Icon(
+                                        Icons.stop_rounded,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .cameraButtonIcon,
+                                        size: _widthIconExpand.value,
+                                      ),
+                                      radious: const BorderRadius.only(
+                                        topRight: Radius.circular(90),
+                                        bottomRight: Radius.circular(90),
+                                      ),
+                                      onPressed: () {
+                                        _switchAnimation();
+                                        context
+                                            .read<AnimatedModel>()
+                                            .setExpanded(!expanded);
+                                      });
                                 }))
                           ])
                     ]));

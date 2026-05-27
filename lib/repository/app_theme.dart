@@ -18,7 +18,7 @@ extension AppColorScheme on ColorScheme {
       dark() ? Color(0xFF8181FB) : Color(0xFF2C2C54);
 
   Color get cameraButtonIcon =>
-      dark() ? const Color(0xFFE7E7E7) : const Color(0xFFE7E7E7);
+      dark() ? const Color(0xFFFFFFFF) : const Color(0xFFE7E7E7);
 
   TextStyle get homeCardH1Style => TextStyle(fontSize: 25, color: homeCardH1);
   Color get homeCardH1 =>
@@ -37,7 +37,7 @@ extension AppColorScheme on ColorScheme {
   Color get colorSecondary => Color.fromARGB(255, 170, 167, 225);
 
   Color get colorButtonBg => Colors.black12;
-  Color get colorButton => Colors.black12;
+  Color get colorButton => Color.fromARGB(47, 69, 69, 69);
 
   Color get colorButtonRed => Color.fromARGB(255, 214, 24, 10);
 

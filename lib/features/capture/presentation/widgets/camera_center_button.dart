@@ -13,27 +13,26 @@ class CameraCenterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Positioned(
-        left: 0,
-        bottom: 0,
-        right: 0,
-        child: RepaintBoundary(
-            child: SizedBox(
-                height: 130,
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AnimatedCameraButton(
-                        activeDefault: captureEnabled,
-                        onCapture: () async {
-                          context.read<CaptureModel>().startCapture();
-                        },
-                        onStop: () async {
-                          context.read<CaptureModel>().stopCapture();
-                        },
-                        onImagePressed: () => onMakeOneShot(),
-                      ),
-                    ]))));
+    return RepaintBoundary(
+      child: Container(
+        height: 70,
+        // color: Colors.amber,
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              AnimatedCameraButton(
+                activeDefault: captureEnabled,
+                onCapture: () async {
+                  context.read<CaptureModel>().startCapture();
+                },
+                onStop: () async {
+                  context.read<CaptureModel>().stopCapture();
+                },
+                onImagePressed: () => onMakeOneShot(),
+              ),
+            ]),
+      ),
+    );
   }
 }
