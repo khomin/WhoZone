@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/custom_radio_box.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/round_box.dart';
+import 'package:flutter_demo/features/alert/presentation/pages/alert_page.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_center_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
@@ -15,6 +16,7 @@ import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/mask_painter.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/core/utils/common.dart';
@@ -181,246 +183,283 @@ class CapturePageState extends State<CapturePage>
   }
 
   Widget _camera() {
-    return Builder(builder: (context) {
-      final model = context.read<CaptureModel>();
-      var padding = MediaQuery.paddingOf(context);
-      var size = MediaQuery.sizeOf(context);
-      return Stack(alignment: Alignment.center, children: [
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          top: 0,
-          child: LayoutBuilder(builder: (context, constraints) {
-            var (camera, layout, textureId, recording) = context
-                .select<CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
-              (v) => (v.camera, v.layout, v.textureId, v.captureEnabled),
-            );
-            if (camera == null) {
-              return const SizedBox();
-            }
-            return Stack(
-              children: [
-                Positioned.fill(
-                  child: ClipRect(
-                    child: FittedBox(
-                      fit: BoxFit.cover,
-                      child: camera.isFront
-                          ? Transform.flip(
-                              flipX: true,
-                              child: RotatedBox(
+    return Builder(
+      builder: (context) {
+        final model = context.read<CaptureModel>();
+        var padding = MediaQuery.paddingOf(context);
+        var size = MediaQuery.sizeOf(context);
+        return Stack(
+          alignment: Alignment.center,
+          children: [
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 0,
+              child: LayoutBuilder(builder: (context, constraints) {
+                var (camera, layout, textureId, recording) = context.select<
+                    CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
+                  (v) => (v.camera, v.layout, v.textureId, v.captureEnabled),
+                );
+                if (camera == null) {
+                  return const SizedBox();
+                }
+                return Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRect(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: camera.isFront
+                              ? Transform.flip(
+                                  flipX: true,
+                                  child: RotatedBox(
+                                      quarterTurns: layout.rotation,
+                                      child: Container(
+                                        width: camera.size.width.toDouble(),
+                                        height: camera.size.height.toDouble(),
+                                        child: Texture(textureId: textureId!),
+                                      )))
+                              : RotatedBox(
                                   quarterTurns: layout.rotation,
-                                  child: Container(
+                                  child: SizedBox(
                                     width: camera.size.width.toDouble(),
                                     height: camera.size.height.toDouble(),
                                     child: Texture(textureId: textureId!),
-                                  )))
-                          : RotatedBox(
-                              quarterTurns: layout.rotation,
-                              child: SizedBox(
-                                width: camera.size.width.toDouble(),
-                                height: camera.size.height.toDouble(),
-                                child: Texture(textureId: textureId!),
-                              ),
-                            ),
-                    ),
-                  ),
-                ),
-                // Positioned.fill(
-                //     child: CustomPaint(
-                //   painter: MaskPainter(),
-                //   size: Size.infinite,
-                // )),
-                // if (kDebugMode)
-                //   Positioned(
-                //     child: _debugLabels(),
-                //   ),
-                //
-                // border
-                Positioned.fill(
-                    child: Container(
-                  width: camera.size.width.toDouble(),
-                  height: camera.size.height.toDouble(),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    border: Border.all(
-                      color: recording
-                          ? Theme.of(context).colorScheme.colorButtonRed
-                          : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                )),
-                //
-                // overlay
-                Positioned.fill(
-                  child: CameraPreviewWithOverlay(
-                    boxes: model.detectionBoxesStream,
-                  ),
-                ),
-                // //
-                // // frame-shots count
-                // CameraFrameCount()
-              ],
-            );
-          }),
-        ),
-        //
-        // top panel
-        Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: Stack(alignment: Alignment.center, children: [
-              ClipRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 1.0, sigmaY: 1.0),
-                  child: Container(
-                    color: const Color(0xFF09090B),
-                    height: kToolbarHeight,
-                  ),
-                ),
-              ),
-              //
-              // frame-shots count
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 0,
-                child: CameraFrameCount(),
-              ),
-              //
-              // settings
-              Positioned(
-                top: 0,
-                bottom: 0,
-                right: 0,
-                child: Icon(Icons.settings, size: 30),
-              ),
-            ])),
-        //
-        // buttom panel
-        // Positioned(
-        //   left: 0,
-        //   right: 0,
-        //   bottom: 0,
-        //   child: Stack(
-        //     alignment: Alignment.center,
-        //     children: [
-        //       // ClipRect(
-        //       //   // child: BackdropFilter(
-        //       //   //   filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-        //       //   child: Container(
-        //       //     // color: const Color.fromARGB(47, 69, 69, 69),
-        //       //     height: 200 + padding.bottom,
-        //       //   ),
-        //       //   // ),
-        //       // ),
-        //       // //
-        //       // // radio buttons
-        //       // Positioned(
-        //       //     top: 20,
-        //       //     left: 0,
-        //       //     right: 0,
-        //       //     child: Row(
-        //       //       mainAxisAlignment: MainAxisAlignment.center,
-        //       //       children: [
-        //       //         CustomRadioBox(
-        //       //           value: false,
-        //       //           text: '1 sec',
-        //       //           onChanged: () {},
-        //       //         ),
-        //       //         CustomRadioBox(
-        //       //           value: false,
-        //       //           text: '3 sec',
-        //       //           onChanged: () {},
-        //       //         ),
-        //       //         CustomRadioBox(
-        //       //           value: false,
-        //       //           text: '6 sec',
-        //       //           onChanged: () {},
-        //       //         )
-        //       //       ],
-        //       //     )),
-        //
-        // camera button
-        // Positioned(
-        // top: 0,
-        // bottom: padding.bottom,
-        // child:
-        // CameraCenterButton(
-        //   captureEnabled: model.captureEnabled,
-        //   onMakeOneShot: () {
-        //     model.makeOneShot();
-        //   },
-        // ),
-        // ),
-        // //
-        // // frame-shots count
-        // Positioned(
-        //     top: 0,
-        //     bottom: padding.bottom,
-        //     left: 30,
-        //     child: CameraFrameCount()),
-        //
-        // flip camera button
-        Positioned(
-          bottom: padding.bottom + 40,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: 70,
-            // color: Colors.amber,
-            child: Center(
-              child: Stack(alignment: Alignment.center, children: [
-                // Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                // 1
-                Positioned(
-                    top: 0,
-                    left: 50,
-                    bottom: 0,
-                    child: Stack(alignment: Alignment.center, children: [
-                      Icon(
-                        CupertinoIcons.photo_on_rectangle,
+                                  ),
+                                ),
+                        ),
                       ),
-                      CameraFrameCount()
-                    ])),
-                // 2
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: CameraCenterButton(
-                    captureEnabled: model.captureEnabled,
-                    onMakeOneShot: () {
-                      model.makeOneShot();
-                    },
-                  ),
-                ),
-                // 3
-                Positioned(
-                  right: 50,
-                  bottom: 0,
-                  top: 0,
-                  child: CameraFlipButton(),
-                )
-              ]),
+                    ),
+                    // Positioned.fill(
+                    //     child: CustomPaint(
+                    //   painter: MaskPainter(),
+                    //   size: Size.infinite,
+                    // )),
+                    // if (kDebugMode)
+                    //   Positioned(
+                    //     child: _debugLabels(),
+                    //   ),
+                    //
+                    // border
+                    Positioned.fill(
+                        child: Container(
+                      width: camera.size.width.toDouble(),
+                      height: camera.size.height.toDouble(),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.rectangle,
+                        border: Border.all(
+                          color: recording
+                              ? Theme.of(context).colorScheme.colorButtonRed
+                              : Colors.transparent,
+                          width: 2,
+                        ),
+                      ),
+                    )),
+                    //
+                    // overlay
+                    Positioned.fill(
+                      child: CameraPreviewWithOverlay(
+                        boxes: model.detectionBoxesStream,
+                      ),
+                    ),
+                    // //
+                    // // frame-shots count
+                    // CameraFrameCount()
+                  ],
+                );
+              }),
             ),
-          ),
-        ),
-        // ],
-        // ),
-        // ),
-        // //
-        // // camera button
-        // CameraCenterButton(
-        //   captureEnabled: model.captureEnabled,
-        //   onMakeOneShot: () {
-        //     model.makeOneShot();
-        //   },
-        // ),
-      ]);
-    });
+            // //
+            // // top panel
+            // Positioned(
+            //   top: padding.top + 20,
+            //   right: 20,
+            //   child: Container(
+            //     width: 40,
+            //     height: 40,
+            //     decoration: BoxDecoration(
+            //       borderRadius: BorderRadius.all(
+            //         Radius.circular(20),
+            //       ),
+            //     ),
+            //     child: Stack(alignment: Alignment.center, children: [
+            //       ClipRRect(
+            //         borderRadius: const BorderRadius.all(Radius.circular(20)),
+            //         child: BackdropFilter(
+            //           filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+            //           child: Container(
+            //             color: Theme.of(context).colorScheme.colorButton,
+            //             height: kToolbarHeight,
+            //           ),
+            //         ),
+            //       ),
+            //       Row(
+            //         mainAxisAlignment: MainAxisAlignment.center,
+            //         children: [
+            //           Icon(CupertinoIcons.gear, size: 18),
+            //         ],
+            //       )
+            //     ]),
+            //   ),
+            // ),
+            //
+            // top panel
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                width: 40,
+                height: kToolbarHeight + padding.top,
+                decoration: BoxDecoration(
+                    // // color: Colors.amber,
+                    // borderRadius: BorderRadius.all(
+                    //   Radius.circular(20),
+                    // ),
+                    ),
+                child: Stack(alignment: Alignment.center, children: [
+                  Positioned.fill(
+                      child: ClipRRect(
+                    // borderRadius: const BorderRadius.all(Radius.circular(20)),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                      child: Container(
+                        color: Theme.of(context).colorScheme.colorButton,
+                        height: kToolbarHeight,
+                      ),
+                    ),
+                  )),
+                  Positioned(
+                      top: padding.top,
+                      bottom: 0,
+                      right: 20,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RoundButton(
+                            iconData: CupertinoIcons.gear,
+                            size: 45,
+                            iconSize: 23,
+                            color: Colors.transparent,
+                            iconColor: Colors.white,
+                            onPressed: (_) {
+                              Navigator.of(context).push(CupertinoPageRoute(
+                                settings: const RouteSettings(),
+                                builder: (context) {
+                                  return AlertPage();
+                                },
+                              ));
+                            },
+                          ),
+                        ],
+                      ))
+                ]),
+              ),
+            ),
+            //
+            // duration
+            // Positioned(
+            //   top: padding.top + 20 + kToolbarHeight,
+            //   left: 20,
+            //   // right: 20,
+            //   child: Container(
+            //     // width: 100,
+            //     // height: 30,
+            //     decoration: BoxDecoration(
+            //         // // color: Colors.amber,
+            //         // borderRadius: BorderRadius.all(
+            //         //   Radius.circular(20),
+            //         // ),
+            //         ),
+            //     child: Stack(alignment: Alignment.center, children: [
+            //       Positioned.fill(
+            //           child: ClipRRect(
+            //         borderRadius: const BorderRadius.all(Radius.circular(25)),
+            //         child: BackdropFilter(
+            //           filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+            //           child: Container(
+            //             color: Theme.of(context).colorScheme.colorButton,
+            //             height: kToolbarHeight,
+            //           ),
+            //         ),
+            //       )),
+            //       Padding(
+            //         padding:
+            //             EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 6),
+            //         child: Row(
+            //           children: [
+            //             Icon(CupertinoIcons.timer, size: 18),
+            //             const SizedBox(width: 4),
+            //             Text('1 sec')
+            //           ],
+            //         ),
+            //       )
+            //       // Positioned(
+            //       //     // top: padding.top,
+            //       //     bottom: 0,
+            //       //     right: 30,
+            //       //     child: Row(
+            //       //       mainAxisAlignment: MainAxisAlignment.center,
+            //       //       children: [
+            //       //         Icon(CupertinoIcons.gear, size: 22),
+            //       //       ],
+            //       //     ))
+            //     ]),
+            //   ),
+            // ),
+            //
+            // bottom panel
+            Positioned(
+              bottom: padding.bottom + 40,
+              left: 0,
+              right: 0,
+              child: Container(
+                height: 70,
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      // 1
+                      CameraFrameCount(),
+                      // 2
+                      CameraCenterButton(
+                        captureEnabled: model.captureEnabled,
+                        onMakeOneShot: () {
+                          model.makeOneShot();
+                        },
+                      ),
+                      // 3
+                      CameraFlipButton(),
+                    ]),
+              ),
+            ),
+            //
+            // safe area gause
+            if (Constants.useBottomBlur)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: Container(
+                  width: 100,
+                  height: padding.bottom,
+                  child: Stack(alignment: Alignment.center, children: [
+                    Positioned.fill(
+                        child: ClipRRect(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                        child: Container(
+                          color: Theme.of(context).colorScheme.colorButton,
+                        ),
+                      ),
+                    )),
+                  ]),
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _debugLabels() {

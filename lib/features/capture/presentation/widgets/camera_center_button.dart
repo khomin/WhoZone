@@ -16,12 +16,15 @@ class CameraCenterButton extends StatelessWidget {
     return RepaintBoundary(
       child: Container(
         height: 70,
+        width: 140,
         // color: Colors.amber,
         child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               AnimatedCameraButton(
+                widthStart: 70.0,
+                widthEnd: 140.0,
                 activeDefault: captureEnabled,
                 onCapture: () async {
                   context.read<CaptureModel>().startCapture();

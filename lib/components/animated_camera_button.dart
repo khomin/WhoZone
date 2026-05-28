@@ -23,7 +23,11 @@ class AnimatedCameraButton extends StatefulWidget {
     required this.onImagePressed,
     required this.activeDefault,
     super.key,
+    required this.widthStart,
+    required this.widthEnd,
   });
+  final double widthStart;
+  final double widthEnd;
   final Function() onCapture;
   final Function() onStop;
   final bool activeDefault;
@@ -47,8 +51,6 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
   late final Animation<double> _widthIconExpand;
   late AnimationController _controller;
   final _dispStream = DisposableStream();
-  final _widthStart = 70.0;
-  final _widthEnd = 140.0;
 
   final List<TabInfo> tabs = [
     const TabInfo(icon: Icons.info_outline),
@@ -66,8 +68,8 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
     );
 
     _widthAnimation = Tween<double>(
-      begin: _widthStart,
-      end: _widthEnd,
+      begin: widget.widthStart,
+      end: widget.widthEnd,
     ).animate(CurvedAnimation(
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));

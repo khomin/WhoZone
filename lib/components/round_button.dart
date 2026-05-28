@@ -84,39 +84,44 @@ class RoundButtonState extends State<RoundButton>
         child: Center(
             child: Stack(alignment: Alignment.center, children: [
           Positioned.fill(
-              child: ElevatedButton(
-                  onPressed: () async {
-                    widget.onPressed?.call(Offset.zero);
-                    if (widget.useScaleAnimation) {
-                      _controller.forward();
-                      await Future.delayed(const Duration(milliseconds: 50));
-                      if (!mounted) return;
-                      _controller.reverse();
-                    }
-                  },
-                  key: widget.key,
-                  style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(widget.radius)),
-                      shadowColor: widget.color,
-                      fixedSize:
-                          size != null ? Size(size, size) : const Size(50, 50),
-                      padding: widget.padding ?? EdgeInsets.zero,
-                      backgroundColor: widget.color),
-                  child: Center(
-                      child: widget.vertTransform
-                          ? Transform.rotate(
-                              angle: -90 *
-                                  3.1415927 /
-                                  180, // Rotate -90 degrees in radians
-                              child: Icon(
-                                widget.iconData,
-                                color: widget.iconColor,
-                                size: widget.iconSize ?? 30,
-                              ))
-                          : Icon(widget.iconData,
-                              color: widget.iconColor,
-                              size: widget.iconSize ?? 30))))
+            child: ElevatedButton(
+              onPressed: () async {
+                widget.onPressed?.call(Offset.zero);
+                if (widget.useScaleAnimation) {
+                  _controller.forward();
+                  await Future.delayed(const Duration(milliseconds: 50));
+                  if (!mounted) return;
+                  _controller.reverse();
+                }
+              },
+              key: widget.key,
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(widget.radius)),
+                shadowColor: widget.color,
+                fixedSize: size != null ? Size(size, size) : const Size(50, 50),
+                padding: widget.padding ?? EdgeInsets.zero,
+                backgroundColor: widget.color,
+              ),
+              child: Center(
+                child: widget.vertTransform
+                    ? Transform.rotate(
+                        angle: -90 *
+                            3.1415927 /
+                            180, // Rotate -90 degrees in radians
+                        child: Icon(
+                          widget.iconData,
+                          color: widget.iconColor,
+                          size: widget.iconSize ?? 30,
+                        ))
+                    : Icon(
+                        widget.iconData,
+                        color: widget.iconColor,
+                        size: widget.iconSize ?? 30,
+                      ),
+              ),
+            ),
+          )
         ])));
   }
 }

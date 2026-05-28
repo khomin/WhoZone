@@ -66,4 +66,6 @@ class Constants {
       EdgeInsets.only(top: 8, bottom: 8, left: 15, right: 15);
 
   static double get menuIconSize => 25;
+
+  static get useBottomBlur => true;
 }
