@@ -37,7 +37,6 @@ class Constants {
 
   static const isDefaultFront = false;
   static const isTestMode = true;
-  static get collapseMenuHeight => 150.0;
 
   static const duration = Duration(milliseconds: 200);
   static const durationPanel = Duration(milliseconds: 100);

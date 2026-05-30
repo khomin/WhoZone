@@ -8,7 +8,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 @injectable
 class AppModel with ChangeNotifier {
   bool ready = false;
-  bool collapse = false;
   String appVersion = '';
   ThemeMode theme = ThemeMode.system;
   PageType page = PageType.home;
@@ -48,13 +47,6 @@ class AppModel with ChangeNotifier {
   void setReady(bool v) {
     if (v != ready) {
       ready = v;
-      notifyListeners();
-    }
-  }
-
-  void setCollapse(bool v) {
-    if (v != collapse) {
-      collapse = v;
       notifyListeners();
     }
   }

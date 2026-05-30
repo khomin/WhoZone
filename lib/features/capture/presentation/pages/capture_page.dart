@@ -14,7 +14,9 @@ import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/glass_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/mask_painter.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/timer_button.dart';
 import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
 import 'package:flutter_demo/pages/settings/settings_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
@@ -104,85 +106,71 @@ class CapturePageState extends State<CapturePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.colorBar,
-      body: CustomScrollView(
-          physics: const NeverScrollableScrollPhysics(),
-          slivers: [
-            // AnimatedBuilder(
-            //     animation: _ctrSlideTop,
-            //     builder: (context, child) {
-            //       return SliverAppBar(
-            //         backgroundColor: Theme.of(context).colorScheme.colorBar,
-            //         toolbarHeight: _slideHeight.value,
-            //         automaticallyImplyLeading: false,
-            //         flexibleSpace: _sliverAppBar(),
-            //       );
-            //     }),
-            SliverFillRemaining(
-              child: _camera(),
-            )
-          ]),
+      body: _camera(),
     );
   }
 
-  Widget _sliverAppBar() {
-    return Stack(children: [
-      Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-              color: Theme.of(context).colorScheme.colorBar,
-              height: kToolbarHeight,
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                        child: Padding(
-                            padding: EdgeInsets.only(left: 25),
-                            child: Text('Capture',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context)
-                                    .colorScheme
-                                    .homeCardH1Style))),
-                    //
-                    // duration
-                    RepaintBoundary(
-                        child: SizedBox(
-                            width: 110,
-                            height: 30,
-                            child: Stack(children: [
-                              Builder(builder: (context) {
-                                var duration =
-                                    context.select<CaptureModel, Duration?>(
-                                        (v) => v.captureTimeElapsed);
-                                if (duration == null) return const SizedBox();
-                                return RoundBox(
-                                  text: duration.format(),
-                                  useRightMargin: false,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .colorButtonRed,
-                                  borderRadius: 40,
-                                );
-                              })
-                            ]))),
-                    RoundButton(
-                        color: Colors.transparent,
-                        iconColor: Theme.of(context)
-                            .colorScheme
-                            .colorTextAccent
-                            .withValues(alpha: 0.8),
-                        size: 70,
-                        vertTransform: true,
-                        iconData: Icons.arrow_back_ios_new,
-                        onPressed: (p0) {
-                          var model = context.read<AppModel>();
-                          model.setCollapse(!model.collapse);
-                        })
-                  ])))
-    ]);
-  }
+  // Widget _sliverAppBar() {
+  //   return Stack(children: [
+  //     Positioned(
+  //         top: 0,
+  //         left: 0,
+  //         right: 0,
+  //         child: Container(
+  //             color: Theme.of(context).colorScheme.colorBar,
+  //             height: kToolbarHeight,
+  //             child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Flexible(
+  //                       child: Padding(
+  //                           padding: EdgeInsets.only(left: 25),
+  //                           child: Text('Capture',
+  //                               maxLines: 1,
+  //                               overflow: TextOverflow.ellipsis,
+  //                               style: Theme.of(context)
+  //                                   .colorScheme
+  //                                   .homeCardH1Style))),
+  //                   //
+  //                   // duration
+  //                   RepaintBoundary(
+  //                       child: SizedBox(
+  //                           width: 110,
+  //                           height: 30,
+  //                           child: Stack(children: [
+  //                             Builder(builder: (context) {
+  //                               var duration =
+  //                                   context.select<CaptureModel, Duration?>(
+  //                                       (v) => v.captureTimeElapsed);
+  //                               if (duration == null) return const SizedBox();
+  //                               return RoundBox(
+  //                                 text: duration.format(),
+  //                                 useRightMargin: false,
+  //                                 color: Theme.of(context)
+  //                                     .colorScheme
+  //                                     .colorButtonRed,
+  //                                 borderRadius: 40,
+  //                               );
+  //                             })
+  //                           ]))),
+  //                   RoundButton(
+  //                       color: Colors.transparent,
+  //                       iconColor: Theme.of(context)
+  //                           .colorScheme
+  //                           .colorTextAccent
+  //                           .withValues(alpha: 0.8),
+  //                       size: 70,
+  //                       vertTransform: true,
+  //                       iconData: Icons.arrow_back_ios_new,
+  //                       onPressed: (p0) {
+  //                         var model = context.read<AppModel>();
+  //                         model.setCollapse(!model.collapse);
+  //                       })
+  //                 ])))
+  //   ]);
+  // }
+
+  var _initialButton = 0;
 
   Widget _camera() {
     return Builder(
@@ -265,13 +253,44 @@ class CapturePageState extends State<CapturePage>
                         boxes: model.detectionBoxesStream,
                       ),
                     ),
-                    // //
-                    // // frame-shots count
-                    // CameraFrameCount()
                   ],
                 );
               }),
             ),
+
+            //
+            // duration
+            Positioned(
+                top: kToolbarHeight + padding.top + 10,
+                // bottom: 5,
+                left: 0,
+                right: 0,
+                child: Stack(children: [
+                  SizedBox(
+                      width: 110,
+                      height: 30,
+                      child: RepaintBoundary(
+                          child: SizedBox(
+                              width: 110,
+                              height: 30,
+                              child: Stack(children: [
+                                Builder(builder: (context) {
+                                  var duration =
+                                      context.select<CaptureModel, Duration?>(
+                                          (v) => v.captureTimeElapsed);
+                                  if (duration == null) return const SizedBox();
+                                  return RoundBox(
+                                    text: duration.format(),
+                                    useRightMargin: false,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .colorButtonRed,
+                                    borderRadius: 40,
+                                  );
+                                })
+                              ]))))
+                ])),
+
             // //
             // // top panel
             // Positioned(
@@ -305,66 +324,72 @@ class CapturePageState extends State<CapturePage>
             //     ]),
             //   ),
             // ),
-            //
-            // top panel
+
+            // //
+            // // top panel
+            // Positioned(
+            //   top: padding.top + 20,
+            //   right: 20,
+            //   child: Container(
+            //     child: Stack(
+            //       alignment: Alignment.center,
+            //       children: [
+            //         Positioned.fill(
+            //           child: ClipRRect(
+            //             borderRadius: BorderRadiusGeometry.all(
+            //               Radius.circular(30),
+            //             ),
+            //             child: BackdropFilter(
+            //               filter: ImageFilter.blur(
+            //                 sigmaX: 5.0,
+            //                 sigmaY: 5.0,
+            //               ),
+            //               child: Container(
+            //                 color: Theme.of(context).colorScheme.colorButton,
+            //                 height: kToolbarHeight,
+            //               ),
+            //             ),
+            //           ),
+            //         ),
+            //         Padding(
+            //           padding: EdgeInsets.only(
+            //             left: 10,
+            //             right: 10,
+            //             bottom: 8,
+            //             top: 8,
+            //           ),
+            //           child: Row(
+            //             children: [
+            //               Icon(
+            //                 CupertinoIcons.timer,
+            //                 size: 18,
+            //               ),
+            //               const SizedBox(width: 5),
+            //               Text('1 sec'),
+            //             ],
+            //           ),
+            //         ),
+            //       ],
+            //     ),
+            //   ),
+            // ),
+            // GlassTimerButton(),
             Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                // width: 40,
-                height: kToolbarHeight + padding.top,
-                child: Stack(alignment: Alignment.center, children: [
-                  Positioned.fill(
-                      child: ClipRRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                      child: Container(
-                        color: Theme.of(context).colorScheme.colorButton,
-                        height: kToolbarHeight,
-                      ),
-                    ),
-                  )),
-                  Positioned(
-                      top: padding.top,
-                      bottom: 0,
-                      right: 10,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          RoundButton(
-                              iconData: CupertinoIcons.timer,
-                              size: 45,
-                              iconSize: 23,
-                              color: Colors.transparent,
-                              iconColor: Colors.white,
-                              margin: EdgeInsets.only(right: 10),
-                              onPressed: (_) {
-                                Navigator.of(context).push(CupertinoPageRoute(
-                                  settings: const RouteSettings(),
-                                  builder: (context) {
-                                    return AlertPage();
-                                  },
-                                ));
-                              }),
-                          RoundButton(
-                            iconData: CupertinoIcons.gear,
-                            size: 45,
-                            iconSize: 23,
-                            color: Colors.transparent,
-                            iconColor: Colors.white,
-                            onPressed: (_) {
-                              Navigator.of(context).push(CupertinoPageRoute(
-                                settings: const RouteSettings(),
-                                builder: (context) {
-                                  return SettingsPage();
-                                },
-                              ));
-                            },
-                          ),
-                        ],
-                      ))
-                ]),
+              top: padding.top + 40,
+              // left: 0,
+              right: 20,
+              child: Row(
+                // mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TimerGlassButton(
+                    initialDuration: _initialButton,
+                    onDurationChanged: (seconds) {
+                      setState(() {
+                        _initialButton = seconds;
+                      });
+                    },
+                  ),
+                ],
               ),
             ),
             //
@@ -443,7 +468,10 @@ class CapturePageState extends State<CapturePage>
   }
 }
 
+// TODO: restore old home layout with camera as an overlay widget
+// TODO: box boundaries don't match frame
+// TODO: crash in cpp
+// signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
+// Abort message: 'terminating due to uncaught exception of type cv::Exception: OpenCV(4.10.0) /Users/panic/Documents/PROJECTS/WhoZone/scripts/.opencv/modules/core/src/matrix_expressions.cpp:32: error: (-5:Bad argument) One or more matrix operands are empty. in function 'checkOperandsExist''
 
-// crash in cpp
-// restore old home layout with camera as an overlay widget
-// box boundaries don't match frame
+// CaptureSettingsPage(),
