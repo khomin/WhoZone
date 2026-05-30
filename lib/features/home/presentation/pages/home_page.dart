@@ -111,8 +111,9 @@ class HomePagePageState extends State<HomePagePage>
         value: _model,
         builder: (context, child) {
           return Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.colorBar,
-              body: Stack(alignment: Alignment.center, children: [
+            backgroundColor: Theme.of(context).colorScheme.colorBar,
+            body: SafeArea(
+              child: Stack(alignment: Alignment.center, children: [
                 Positioned(
                   top: (kToolbarHeight * 2) - 30,
                   bottom: 0,
@@ -150,7 +151,9 @@ class HomePagePageState extends State<HomePagePage>
                         ),
                       )
                     ])
-              ]));
+              ]),
+            ),
+          );
         });
   }
 
@@ -388,7 +391,7 @@ class HomePagePageState extends State<HomePagePage>
                     width: 100,
                     margin: const EdgeInsets.only(left: 25),
                     child: Text(
-                      'Home',
+                      'Gallery',
                       style: Theme.of(context).colorScheme.homeCardH1Style,
                     )),
                 const Spacer()

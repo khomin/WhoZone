@@ -31,7 +31,7 @@ class CameraFlipButton extends StatelessWidget {
                           iconColor:
                               Theme.of(context).colorScheme.cameraButtonIcon,
                           size: 50,
-                          iconSize: 25,
+                          iconSize: 22,
                           radius: 90,
                           useScaleAnimation: true,
                           iconData: Icons.flip_camera_android,

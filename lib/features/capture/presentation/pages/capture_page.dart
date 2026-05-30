@@ -15,6 +15,8 @@ import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/mask_painter.dart';
+import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
+import 'package:flutter_demo/pages/settings/settings_page.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
@@ -310,18 +312,11 @@ class CapturePageState extends State<CapturePage>
               left: 0,
               right: 0,
               child: Container(
-                width: 40,
+                // width: 40,
                 height: kToolbarHeight + padding.top,
-                decoration: BoxDecoration(
-                    // // color: Colors.amber,
-                    // borderRadius: BorderRadius.all(
-                    //   Radius.circular(20),
-                    // ),
-                    ),
                 child: Stack(alignment: Alignment.center, children: [
                   Positioned.fill(
                       child: ClipRRect(
-                    // borderRadius: const BorderRadius.all(Radius.circular(20)),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                       child: Container(
@@ -333,10 +328,25 @@ class CapturePageState extends State<CapturePage>
                   Positioned(
                       top: padding.top,
                       bottom: 0,
-                      right: 20,
+                      right: 10,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          RoundButton(
+                              iconData: CupertinoIcons.timer,
+                              size: 45,
+                              iconSize: 23,
+                              color: Colors.transparent,
+                              iconColor: Colors.white,
+                              margin: EdgeInsets.only(right: 10),
+                              onPressed: (_) {
+                                Navigator.of(context).push(CupertinoPageRoute(
+                                  settings: const RouteSettings(),
+                                  builder: (context) {
+                                    return AlertPage();
+                                  },
+                                ));
+                              }),
                           RoundButton(
                             iconData: CupertinoIcons.gear,
                             size: 45,
@@ -347,7 +357,7 @@ class CapturePageState extends State<CapturePage>
                               Navigator.of(context).push(CupertinoPageRoute(
                                 settings: const RouteSettings(),
                                 builder: (context) {
-                                  return AlertPage();
+                                  return SettingsPage();
                                 },
                               ));
                             },
@@ -357,57 +367,6 @@ class CapturePageState extends State<CapturePage>
                 ]),
               ),
             ),
-            //
-            // duration
-            // Positioned(
-            //   top: padding.top + 20 + kToolbarHeight,
-            //   left: 20,
-            //   // right: 20,
-            //   child: Container(
-            //     // width: 100,
-            //     // height: 30,
-            //     decoration: BoxDecoration(
-            //         // // color: Colors.amber,
-            //         // borderRadius: BorderRadius.all(
-            //         //   Radius.circular(20),
-            //         // ),
-            //         ),
-            //     child: Stack(alignment: Alignment.center, children: [
-            //       Positioned.fill(
-            //           child: ClipRRect(
-            //         borderRadius: const BorderRadius.all(Radius.circular(25)),
-            //         child: BackdropFilter(
-            //           filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            //           child: Container(
-            //             color: Theme.of(context).colorScheme.colorButton,
-            //             height: kToolbarHeight,
-            //           ),
-            //         ),
-            //       )),
-            //       Padding(
-            //         padding:
-            //             EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 6),
-            //         child: Row(
-            //           children: [
-            //             Icon(CupertinoIcons.timer, size: 18),
-            //             const SizedBox(width: 4),
-            //             Text('1 sec')
-            //           ],
-            //         ),
-            //       )
-            //       // Positioned(
-            //       //     // top: padding.top,
-            //       //     bottom: 0,
-            //       //     right: 30,
-            //       //     child: Row(
-            //       //       mainAxisAlignment: MainAxisAlignment.center,
-            //       //       children: [
-            //       //         Icon(CupertinoIcons.gear, size: 22),
-            //       //       ],
-            //       //     ))
-            //     ]),
-            //   ),
-            // ),
             //
             // bottom panel
             Positioned(
@@ -420,7 +379,16 @@ class CapturePageState extends State<CapturePage>
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // 1
-                      CameraFrameCount(),
+                      CameraFrameCount(
+                        onPressed: () {
+                          Navigator.of(context).push(CupertinoPageRoute(
+                            settings: const RouteSettings(),
+                            builder: (context) {
+                              return HomePagePage();
+                            },
+                          ));
+                        },
+                      ),
                       // 2
                       CameraCenterButton(
                         captureEnabled: model.captureEnabled,
@@ -474,3 +442,8 @@ class CapturePageState extends State<CapturePage>
     });
   }
 }
+
+
+// crash in cpp
+// restore old home layout with camera as an overlay widget
+// box boundaries don't match frame

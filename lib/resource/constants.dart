@@ -67,5 +67,5 @@ class Constants {
 
   static double get menuIconSize => 25;
 
-  static get useBottomBlur => true;
+  static get useBottomBlur => false;
 }
