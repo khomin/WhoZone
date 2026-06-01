@@ -41,7 +41,7 @@ class HistoryRepoImpl implements HistoryRepo {
   BehaviorSubject<HistoryState> get historyRootStream => _historyRootStream;
 
   @override
-  BehaviorSubject<int> get usedDiskStream => throw _usedDiskStream;
+  BehaviorSubject<int> get usedDiskStream => _usedDiskStream;
 
   @override
   Future<bool> isEmpty() async {

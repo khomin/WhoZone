@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
 import 'package:flutter_demo/core/di/di.dart';
@@ -20,44 +21,46 @@ class SettingsPage extends StatefulWidget {
 }
 
 class SettingsPageState extends State<SettingsPage> {
+  final _model = getIt<SettingsModel>();
   final tag = 'settingsPage';
 
   @override
+  void dispose() {
+    _model.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => getIt<SettingsModel>(),
+    return ChangeNotifierProvider<SettingsModel>.value(
+      value: _model,
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.colorBar,
-        body: Stack(alignment: Alignment.center, children: [
-          Positioned(
-            top: (kToolbarHeight * 2) - 30,
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.colorBgUnderCard,
-                borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20)),
-              ),
-            ),
+        body: SafeArea(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              PageBackground(),
+              CustomScrollView(
+                physics: const ClampingScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                      backgroundColor: Theme.of(context).colorScheme.colorBar,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: _sliverAppBar()),
+                  SliverToBoxAdapter(child: _header()),
+                  DecoratedSliver(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.colorBgUnderCard,
+                      ),
+                      sliver: SliverList.list(children: [
+                        _account(),
+                      ]))
+                ],
+              )
+            ],
           ),
-          CustomScrollView(physics: const ClampingScrollPhysics(), slivers: [
-            SliverAppBar(
-                backgroundColor: Theme.of(context).colorScheme.colorBar,
-                automaticallyImplyLeading: false,
-                flexibleSpace: _sliverAppBar()),
-            SliverToBoxAdapter(child: _header()),
-            DecoratedSliver(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.colorBgUnderCard,
-                ),
-                sliver: SliverList.list(children: [
-                  _account(),
-                ]))
-          ])
-        ]),
+        ),
       ),
     );
   }

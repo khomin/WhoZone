@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
-import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart';
+import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/repository/camera_rep.dart';
 import 'package:flutter_demo/repository/settings_rep.dart';
 import 'package:flutter_demo/resource/constants.dart';
@@ -22,10 +22,13 @@ class CaptureModel with ChangeNotifier {
   bool orientationpWait = false;
   double flipTurns = 0.0;
   bool flipBusy = false;
-  Camera? camera;
+  app.Camera? camera;
   Duration? captureTimeElapsed;
   Duration captureInterval = Duration.zero;
+
   int? textureId;
+  Size? textureSize;
+
   int detectionCount = 0;
   var started = false;
   Stream<List<DetectionBox>> get detectionBoxesStream =>
@@ -84,8 +87,9 @@ class CaptureModel with ChangeNotifier {
         setFlip(true);
       }
       if (camera == null) {
-        var i = cameras.values
-            .firstWhereOrNull((e) => e.isFront == Constants.isDefaultFront);
+        var i = cameras.values.firstWhereOrNull(
+          (e) => e.isFront == Constants.isDefaultFront,
+        );
         if (i != null) {
           camera = i;
         }
@@ -103,7 +107,9 @@ class CaptureModel with ChangeNotifier {
         return false;
       }
       textureId = res.textureId;
-      this.camera = Camera(
+      textureSize = res.size;
+
+      this.camera = app.Camera(
         id: camera.id,
         isFront: camera.isFront,
         sensor: camera.sensorRotation,

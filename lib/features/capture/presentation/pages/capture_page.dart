@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/custom_radio_box.dart';
@@ -14,7 +12,6 @@ import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
-import 'package:flutter_demo/features/capture/presentation/widgets/glass_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/mask_painter.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/timer_button.dart';
 import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
@@ -105,91 +102,35 @@ class CapturePageState extends State<CapturePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.colorBar,
+      backgroundColor: Colors.black,
       body: _camera(),
     );
   }
-
-  // Widget _sliverAppBar() {
-  //   return Stack(children: [
-  //     Positioned(
-  //         top: 0,
-  //         left: 0,
-  //         right: 0,
-  //         child: Container(
-  //             color: Theme.of(context).colorScheme.colorBar,
-  //             height: kToolbarHeight,
-  //             child: Row(
-  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                 children: [
-  //                   Flexible(
-  //                       child: Padding(
-  //                           padding: EdgeInsets.only(left: 25),
-  //                           child: Text('Capture',
-  //                               maxLines: 1,
-  //                               overflow: TextOverflow.ellipsis,
-  //                               style: Theme.of(context)
-  //                                   .colorScheme
-  //                                   .homeCardH1Style))),
-  //                   //
-  //                   // duration
-  //                   RepaintBoundary(
-  //                       child: SizedBox(
-  //                           width: 110,
-  //                           height: 30,
-  //                           child: Stack(children: [
-  //                             Builder(builder: (context) {
-  //                               var duration =
-  //                                   context.select<CaptureModel, Duration?>(
-  //                                       (v) => v.captureTimeElapsed);
-  //                               if (duration == null) return const SizedBox();
-  //                               return RoundBox(
-  //                                 text: duration.format(),
-  //                                 useRightMargin: false,
-  //                                 color: Theme.of(context)
-  //                                     .colorScheme
-  //                                     .colorButtonRed,
-  //                                 borderRadius: 40,
-  //                               );
-  //                             })
-  //                           ]))),
-  //                   RoundButton(
-  //                       color: Colors.transparent,
-  //                       iconColor: Theme.of(context)
-  //                           .colorScheme
-  //                           .colorTextAccent
-  //                           .withValues(alpha: 0.8),
-  //                       size: 70,
-  //                       vertTransform: true,
-  //                       iconData: Icons.arrow_back_ios_new,
-  //                       onPressed: (p0) {
-  //                         var model = context.read<AppModel>();
-  //                         model.setCollapse(!model.collapse);
-  //                       })
-  //                 ])))
-  //   ]);
-  // }
-
-  var _initialButton = 0;
 
   Widget _camera() {
     return Builder(
       builder: (context) {
         final model = context.read<CaptureModel>();
         var padding = MediaQuery.paddingOf(context);
-        var size = MediaQuery.sizeOf(context);
         return Stack(
           alignment: Alignment.center,
           children: [
-            Positioned(
-              bottom: 0,
+            Positioned.fill(
+              top: 0,
               left: 0,
               right: 0,
-              top: 0,
+              bottom: 0,
               child: LayoutBuilder(builder: (context, constraints) {
-                var (camera, layout, textureId, recording) = context.select<
-                    CaptureModel, (app.Camera?, SurfaceLayout, int?, bool)>(
-                  (v) => (v.camera, v.layout, v.textureId, v.captureEnabled),
+                var (camera, layout, textureId, recording, size) =
+                    context.select<CaptureModel,
+                        (app.Camera?, SurfaceLayout, int?, bool, Size?)>(
+                  (v) => (
+                    v.camera,
+                    v.layout,
+                    v.textureId,
+                    v.captureEnabled,
+                    v.textureSize,
+                  ),
                 );
                 if (camera == null) {
                   return const SizedBox();
@@ -204,12 +145,16 @@ class CapturePageState extends State<CapturePage>
                               ? Transform.flip(
                                   flipX: true,
                                   child: RotatedBox(
-                                      quarterTurns: layout.rotation,
-                                      child: Container(
-                                        width: camera.size.width.toDouble(),
-                                        height: camera.size.height.toDouble(),
-                                        child: Texture(textureId: textureId!),
-                                      )))
+                                    quarterTurns: layout.rotation,
+                                    child: Container(
+                                      // width: camera.size.width.toDouble(),
+                                      // height: camera.size.height.toDouble(),
+                                      width: size?.width,
+                                      height: size?.height,
+                                      child: Texture(textureId: textureId!),
+                                    ),
+                                  ),
+                                )
                               : RotatedBox(
                                   quarterTurns: layout.rotation,
                                   child: SizedBox(
@@ -221,15 +166,6 @@ class CapturePageState extends State<CapturePage>
                         ),
                       ),
                     ),
-                    // Positioned.fill(
-                    //     child: CustomPaint(
-                    //   painter: MaskPainter(),
-                    //   size: Size.infinite,
-                    // )),
-                    // if (kDebugMode)
-                    //   Positioned(
-                    //     child: _debugLabels(),
-                    //   ),
                     //
                     // border
                     Positioned.fill(
@@ -238,6 +174,10 @@ class CapturePageState extends State<CapturePage>
                       height: camera.size.height.toDouble(),
                       decoration: BoxDecoration(
                         shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(40),
+                          topRight: Radius.circular(40),
+                        ),
                         border: Border.all(
                           color: recording
                               ? Theme.of(context).colorScheme.colorButtonRed
@@ -251,145 +191,64 @@ class CapturePageState extends State<CapturePage>
                     Positioned.fill(
                       child: CameraPreviewWithOverlay(
                         boxes: model.detectionBoxesStream,
+                        camWidth: size?.width ?? 0.0,
+                        camHeight: size?.height ?? 0.0,
+                        // camWidth: camera.size.width.toDouble(),
+                        // camHeight: camera.size.height.toDouble(),
                       ),
                     ),
                   ],
                 );
               }),
             ),
-
             //
-            // duration
+            // duration button
             Positioned(
-                top: kToolbarHeight + padding.top + 10,
-                // bottom: 5,
-                left: 0,
-                right: 0,
-                child: Stack(children: [
-                  SizedBox(
-                      width: 110,
-                      height: 30,
-                      child: RepaintBoundary(
-                          child: SizedBox(
-                              width: 110,
-                              height: 30,
-                              child: Stack(children: [
-                                Builder(builder: (context) {
-                                  var duration =
-                                      context.select<CaptureModel, Duration?>(
-                                          (v) => v.captureTimeElapsed);
-                                  if (duration == null) return const SizedBox();
-                                  return RoundBox(
-                                    text: duration.format(),
-                                    useRightMargin: false,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorButtonRed,
-                                    borderRadius: 40,
-                                  );
-                                })
-                              ]))))
-                ])),
-
-            // //
-            // // top panel
-            // Positioned(
-            //   top: padding.top + 20,
-            //   right: 20,
-            //   child: Container(
-            //     width: 40,
-            //     height: 40,
-            //     decoration: BoxDecoration(
-            //       borderRadius: BorderRadius.all(
-            //         Radius.circular(20),
-            //       ),
-            //     ),
-            //     child: Stack(alignment: Alignment.center, children: [
-            //       ClipRRect(
-            //         borderRadius: const BorderRadius.all(Radius.circular(20)),
-            //         child: BackdropFilter(
-            //           filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-            //           child: Container(
-            //             color: Theme.of(context).colorScheme.colorButton,
-            //             height: kToolbarHeight,
-            //           ),
-            //         ),
-            //       ),
-            //       Row(
-            //         mainAxisAlignment: MainAxisAlignment.center,
-            //         children: [
-            //           Icon(CupertinoIcons.gear, size: 18),
-            //         ],
-            //       )
-            //     ]),
-            //   ),
-            // ),
-
-            // //
-            // // top panel
-            // Positioned(
-            //   top: padding.top + 20,
-            //   right: 20,
-            //   child: Container(
-            //     child: Stack(
-            //       alignment: Alignment.center,
-            //       children: [
-            //         Positioned.fill(
-            //           child: ClipRRect(
-            //             borderRadius: BorderRadiusGeometry.all(
-            //               Radius.circular(30),
-            //             ),
-            //             child: BackdropFilter(
-            //               filter: ImageFilter.blur(
-            //                 sigmaX: 5.0,
-            //                 sigmaY: 5.0,
-            //               ),
-            //               child: Container(
-            //                 color: Theme.of(context).colorScheme.colorButton,
-            //                 height: kToolbarHeight,
-            //               ),
-            //             ),
-            //           ),
-            //         ),
-            //         Padding(
-            //           padding: EdgeInsets.only(
-            //             left: 10,
-            //             right: 10,
-            //             bottom: 8,
-            //             top: 8,
-            //           ),
-            //           child: Row(
-            //             children: [
-            //               Icon(
-            //                 CupertinoIcons.timer,
-            //                 size: 18,
-            //               ),
-            //               const SizedBox(width: 5),
-            //               Text('1 sec'),
-            //             ],
-            //           ),
-            //         ),
-            //       ],
-            //     ),
-            //   ),
-            // ),
-            // GlassTimerButton(),
+              top: padding.top + 30,
+              left: 20,
+              child: Builder(builder: (context) {
+                var duration = context.select<CaptureModel, Duration>(
+                  (v) => v.captureInterval,
+                );
+                return Row(
+                  children: [
+                    TimerGlassButton(
+                      initialDuration: duration.inSeconds,
+                      onDurationChanged: (seconds) {
+                        var model = context.read<CaptureModel>();
+                        model.captureInterval = Duration(seconds: seconds);
+                        model.notify();
+                      },
+                    ),
+                  ],
+                );
+              }),
+            ),
+            //
+            // time elapsed
             Positioned(
-              top: padding.top + 40,
-              // left: 0,
+              top: padding.top + 30,
               right: 20,
-              child: Row(
-                // mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  TimerGlassButton(
-                    initialDuration: _initialButton,
-                    onDurationChanged: (seconds) {
-                      setState(() {
-                        _initialButton = seconds;
-                      });
-                    },
+              child: Center(
+                child: RepaintBoundary(
+                  child: SizedBox(
+                    width: 80,
+                    height: 34,
+                    child: Stack(children: [
+                      Builder(builder: (context) {
+                        var duration = context.select<CaptureModel, Duration?>(
+                            (v) => v.captureTimeElapsed);
+                        if (duration == null) return const SizedBox();
+                        return RoundBox(
+                          text: duration.format(),
+                          useRightMargin: false,
+                          color: Theme.of(context).colorScheme.colorButtonRed,
+                          borderRadius: 40,
+                        );
+                      })
+                    ]),
                   ),
-                ],
+                ),
               ),
             ),
             //
@@ -401,54 +260,35 @@ class CapturePageState extends State<CapturePage>
               child: Container(
                 height: 70,
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // 1
-                      CameraFrameCount(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 1
+                    Container(
+                      padding: EdgeInsets.only(left: 10),
+                      width: 75,
+                      child: CameraFrameCount(
                         onPressed: () {
-                          Navigator.of(context).push(CupertinoPageRoute(
-                            settings: const RouteSettings(),
-                            builder: (context) {
-                              return HomePagePage();
-                            },
-                          ));
+                          //
                         },
                       ),
-                      // 2
-                      CameraCenterButton(
-                        captureEnabled: model.captureEnabled,
-                        onMakeOneShot: () {
-                          model.makeOneShot();
-                        },
-                      ),
-                      // 3
-                      CameraFlipButton(),
-                    ]),
-              ),
-            ),
-            //
-            // safe area gause
-            if (Constants.useBottomBlur)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  width: 100,
-                  height: padding.bottom,
-                  child: Stack(alignment: Alignment.center, children: [
-                    Positioned.fill(
-                        child: ClipRRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                        child: Container(
-                          color: Theme.of(context).colorScheme.colorButton,
-                        ),
-                      ),
-                    )),
-                  ]),
+                    ),
+                    // 2
+                    CameraCenterButton(
+                      captureEnabled: model.captureEnabled,
+                      onMakeOneShot: () {
+                        model.makeOneShot();
+                      },
+                    ),
+                    // 3
+                    Container(
+                      padding: EdgeInsets.only(right: 10),
+                      width: 75,
+                      child: CameraFlipButton(),
+                    ),
+                  ],
                 ),
               ),
+            ),
           ],
         );
       },
@@ -468,9 +308,14 @@ class CapturePageState extends State<CapturePage>
   }
 }
 
-// TODO: restore old home layout with camera as an overlay widget
+// TODO: make letter boxes like: car: 0.79 and in a box itself
 // TODO: box boundaries don't match frame
+// TODO: rotate frame in cpp
 // TODO: crash in cpp
+// TODO: beatiful flip?
+
+// TODO: use FutureBuilder for "no records"
+
 // signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
 // Abort message: 'terminating due to uncaught exception of type cv::Exception: OpenCV(4.10.0) /Users/panic/Documents/PROJECTS/WhoZone/scripts/.opencv/modules/core/src/matrix_expressions.cpp:32: error: (-5:Bad argument) One or more matrix operands are empty. in function 'checkOperandsExist''
 

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/components/item_in_menu_list.dart';
@@ -23,75 +24,67 @@ class AlertPageState extends State<AlertPage> {
   final tag = 'aletPage';
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
         create: (context) => getIt<AlertModel>(),
         builder: (context, child) {
           return Scaffold(
-              backgroundColor: Theme.of(context).colorScheme.colorBar,
-              body: Stack(alignment: Alignment.center, children: [
-                Positioned(
-                    top: (kToolbarHeight * 2) - 30,
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                        decoration: BoxDecoration(
+            backgroundColor: Theme.of(context).colorScheme.colorBar,
+            body: SafeArea(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  PageBackground(),
+                  CustomScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      slivers: [
+                        SliverAppBar(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.colorBar,
+                          automaticallyImplyLeading: false,
+                          flexibleSpace: _sliverAppBar(),
+                        ),
+                        SliverToBoxAdapter(
+                          child: _header(),
+                        ),
+                        DecoratedSliver(
+                          decoration: BoxDecoration(
                             color:
                                 Theme.of(context).colorScheme.colorBgUnderCard,
-                            borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(20),
-                                topRight: Radius.circular(20))))),
-                CustomScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    slivers: [
-                      SliverAppBar(
-                        backgroundColor: Theme.of(context).colorScheme.colorBar,
-                        automaticallyImplyLeading: false,
-                        flexibleSpace: _sliverAppBar(),
-                      ),
-                      SliverToBoxAdapter(
-                        child: _header(),
-                      ),
-                      DecoratedSliver(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.colorBgUnderCard,
-                        ),
-                        sliver: _list(),
-                      )
-                    ])
-              ]));
+                          ),
+                          sliver: _list(),
+                        )
+                      ])
+                ],
+              ),
+            ),
+          );
         });
   }
 
   Widget _sliverAppBar() {
     return Stack(children: [
       Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-              color: Theme.of(context).colorScheme.colorBar,
-              height: kToolbarHeight,
-              child: Row(children: [
-                Container(
-                  width: 100,
-                  margin: const EdgeInsets.only(left: 25),
-                  child: Text('Alert',
-                      style: Theme.of(context).colorScheme.homeCardH1Style),
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Container(
+          color: Theme.of(context).colorScheme.colorBar,
+          height: kToolbarHeight,
+          child: Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 25),
+                child: Text(
+                  'Alert',
+                  style: Theme.of(context).colorScheme.homeCardH1Style,
                 ),
-                const Spacer()
-              ])))
+              ),
+              const Spacer()
+            ],
+          ),
+        ),
+      )
     ]);
   }
 

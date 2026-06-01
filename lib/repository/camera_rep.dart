@@ -18,8 +18,9 @@ class CaptureTime {
 }
 
 class StartResult {
-  StartResult(this.textureId);
+  StartResult({required this.textureId, required this.size});
   int? textureId;
+  Size size;
 }
 
 @lazySingleton
@@ -114,7 +115,7 @@ class CameraRep {
       _textureId = textureId;
       textureStream.add(textureId);
       frameSizeStream.add(_frameSize);
-      return StartResult(textureId);
+      return StartResult(textureId: textureId, size: _frameSize);
     } on PlatformException catch (e) {
       logError('$tag: error: ${e.message}');
     }

@@ -2,12 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/app/domain/entities/page_type.dart';
-import 'package:flutter_demo/features/capture_settings/presentation/pages/capture_settings_page.dart';
 import 'package:flutter_demo/components/splash.dart';
 import 'package:flutter_demo/core/native-api/service_api.dart';
 import 'package:flutter_demo/features/alert/presentation/pages/alert_page.dart';
 import 'package:flutter_demo/features/capture/presentation/pages/capture_page.dart';
 import 'package:flutter_demo/features/history/data/repo/history_repo_impl.dart';
+import 'package:flutter_demo/features/history/domain/repo/history_repo.dart';
 import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
 import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/pages/settings/settings_page.dart';
@@ -39,7 +39,7 @@ class AppState extends State<App> {
     ]);
     await getIt<CameraRep>().init();
     context.read<AppModel>().setReady(true);
-    getIt<HistoryRepoImpl>().updateHistory();
+    getIt<HistoryRepo>().updateHistory();
   }
 
   @override
@@ -50,8 +50,8 @@ class AppState extends State<App> {
     var padding = MediaQuery.paddingOf(context);
     return Container(
       color: Theme.of(context).colorScheme.colorBar,
-      child: OrientationBuilder(
-        builder: (context, orientation) {
+      child: Builder(
+        builder: (context) {
           return Scaffold(
             body: Stack(children: [
               Builder(builder: (context) {

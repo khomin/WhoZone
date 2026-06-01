@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/core/di/di.dart';
@@ -25,11 +26,8 @@ class HomePagePageState extends State<HomePagePage>
     with TickerProviderStateMixin {
   final _scrollCtr = ScrollController();
   final _focus = FocusNode();
-  late final Animation<double> _slideHeight;
-  late AnimationController _ctrSlideTop;
   late AnimationController _ctrShakeIcon;
   late final Animation<double> _iconRotate;
-  Timer? _scrollThrottleTm;
   final _onCloseSlide = BehaviorSubject<bool>.seeded(false);
   final _disp = DisposableStream();
   late HomeModel _model;
@@ -40,18 +38,6 @@ class HomePagePageState extends State<HomePagePage>
     super.initState();
 
     _model = getIt<HomeModel>();
-
-    _ctrSlideTop = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _slideHeight = Tween<double>(
-      begin: kToolbarHeight,
-      end: kToolbarHeight * 3,
-    ).animate(CurvedAnimation(
-        parent: _ctrSlideTop.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
 
     _ctrShakeIcon = AnimationController(
       duration: const Duration(milliseconds: 500),
@@ -73,14 +59,8 @@ class HomePagePageState extends State<HomePagePage>
     ));
 
     _scrollCtr.addListener(() {
-      _scrollThrottleTm?.cancel();
-      _scrollThrottleTm = Timer(const Duration(milliseconds: 50), () {
-        _focus.unfocus();
-        _onCloseSlide.add(true);
-        if (_ctrSlideTop.isForwardOrCompleted) {
-          _ctrSlideTop.reverse().orCancel;
-        }
-      });
+      _focus.unfocus();
+      _onCloseSlide.add(true);
     });
     _disp.add(_model.isEmptyStream.listen((isEmpty) {
       if (isEmpty) {
@@ -95,74 +75,62 @@ class HomePagePageState extends State<HomePagePage>
 
   @override
   void dispose() {
-    _ctrSlideTop.dispose();
     _ctrShakeIcon.dispose();
     _scrollCtr.dispose();
     _model.dispose();
     _disp.dispose();
     _onCloseSlide.close();
-    _scrollThrottleTm?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-        value: _model,
-        builder: (context, child) {
-          return Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.colorBar,
-            body: SafeArea(
-              child: Stack(alignment: Alignment.center, children: [
-                Positioned(
-                  top: (kToolbarHeight * 2) - 30,
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  child: Container(
-                      decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.colorBgUnderCard,
-                          borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20)))),
-                ),
+      value: _model,
+      builder: (context, child) {
+        return Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.colorBar,
+          body: SafeArea(
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                PageBackground(),
                 CustomScrollView(
-                    physics: const ClampingScrollPhysics(),
-                    controller: _scrollCtr,
-                    slivers: [
-                      AnimatedBuilder(
-                          animation: _ctrSlideTop,
-                          builder: (context, child) {
-                            return SliverAppBar(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.colorBar,
-                                toolbarHeight: _slideHeight.value,
-                                automaticallyImplyLeading: false,
-                                flexibleSpace: _sliverAppBar());
-                          }),
-                      SliverToBoxAdapter(child: _header()),
-                      //
-                      DecoratedSliver(
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.colorBgUnderCard,
-                        ),
-                        sliver: SliverToBoxAdapter(
-                          child: _gallery(),
-                        ),
-                      )
-                    ])
-              ]),
+                  physics: const ClampingScrollPhysics(),
+                  controller: _scrollCtr,
+                  slivers: [
+                    SliverAppBar(
+                      backgroundColor: Theme.of(context).colorScheme.colorBar,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: _sliverAppBar(),
+                    ),
+                    SliverToBoxAdapter(child: _header()),
+                    //
+                    DecoratedSliver(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.colorBgUnderCard,
+                      ),
+                      sliver: SliverToBoxAdapter(
+                        child: _gallery(),
+                      ),
+                    )
+                  ],
+                )
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   Widget _header() {
     // TODO: move into another component
     return SizedBox(
-        width: 300,
-        height: 60,
-        child: Stack(children: [
+      width: 300,
+      height: 60,
+      child: Stack(
+        children: [
           Positioned(
               top: 20,
               left: 0,
@@ -176,108 +144,127 @@ class HomePagePageState extends State<HomePagePage>
                           topLeft: Radius.circular(20),
                           topRight: Radius.circular(20))))),
           Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: Container(
-                  margin: const EdgeInsets.only(left: 20, right: 20),
-                  height: 50,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorBgUnderCard,
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.2),
-                            blurRadius: 10,
-                            offset: const Offset(0, 0))
-                      ]),
-                  child: Row(children: [
-                    Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: Icon(
-                          Icons.search_outlined,
-                          color: Theme.of(context).colorScheme.colorTextSecond,
-                          size: 28,
-                        )),
-                    Flexible(
-                        child: HoverClick(onPressedL: (_) {
-                      Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                              settings: const RouteSettings(),
-                              builder: (context) {
-                                return Builder(
-                                  builder: (context) {
-                                    var state =
-                                        context.select<HomeModel, HistoryState>(
-                                      (v) => v.historyState,
-                                    );
-                                    var homeModel = context.read<HomeModel>();
-                                    return FilterPage(
-                                      startDate: state.startTime,
-                                      endDate: state.endTime,
-                                      onApply: (start, end) {
-                                        homeModel.filterHistory(
-                                          startTime: start,
-                                          endTime: end,
-                                        );
-                                      },
-                                      onReset: () {
-                                        homeModel.resetFilter();
-                                      },
-                                      key: ValueKey('filter-${state}'),
-                                    );
-                                  },
-                                );
-                              }));
-                    }, child: Builder(builder: (context) {
-                      var state = context.select<HomeModel, HistoryState>(
-                          (value) => value.historyState);
-                      var items = state.list;
-                      var count = 0;
-                      for (var it in items) {
-                        count += it.framesCount;
-                      }
-                      var startTime = state.startTimeString;
-                      var endTime = state.endTimeString;
-                      String title;
-                      if (startTime != null) {
-                        title = startTime;
-                        if (endTime != null) {
-                          title = '$title / ${endTime}';
-                        }
-                      } else {
-                        title = 'Search by date';
-                      }
-                      return Stack(children: [
-                        SizedBox(
-                            height: 50,
-                            width: double.infinity,
-                            child: Row(children: [
-                              Expanded(
-                                  child: Text(title,
-                                      style: TextStyle(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .colorTextSecond,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w400))),
-                            ])),
-                        Positioned(
-                            right: 15,
-                            bottom: 0,
-                            top: 0,
-                            child: Center(
-                                child: Text('$count',
-                                    style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .colorTextSecond,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w400))))
-                      ]);
-                    })))
-                  ])))
-        ]));
+            top: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              margin: const EdgeInsets.only(left: 20, right: 20),
+              height: 50,
+              decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.colorBgUnderCard,
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 10,
+                        offset: const Offset(0, 0))
+                  ]),
+              child: Row(
+                children: [
+                  Padding(
+                      padding: EdgeInsets.only(left: 10, right: 10),
+                      child: Icon(
+                        Icons.search_outlined,
+                        color: Theme.of(context).colorScheme.colorTextSecond,
+                        size: 28,
+                      )),
+                  Flexible(
+                    child: HoverClick(
+                      onPressedL: (_) {
+                        Navigator.push(
+                            context,
+                            CupertinoPageRoute(
+                                settings: const RouteSettings(),
+                                builder: (context) {
+                                  return ChangeNotifierProvider.value(
+                                    value: _model,
+                                    builder: (context, child) {
+                                      var homeModel = context.read<HomeModel>();
+                                      var state = context
+                                          .select<HomeModel, HistoryState>(
+                                        (v) => v.historyState,
+                                      );
+                                      return FilterPage(
+                                        startDate: state.startTime,
+                                        endDate: state.endTime,
+                                        onApply: (start, end) {
+                                          homeModel.filterHistory(
+                                            startTime: start,
+                                            endTime: end,
+                                          );
+                                        },
+                                        onReset: () {
+                                          homeModel.resetFilter();
+                                        },
+                                        key: ValueKey('filter-${state}'),
+                                      );
+                                    },
+                                  );
+                                }));
+                      },
+                      child: Builder(
+                        builder: (context) {
+                          var state = context.select<HomeModel, HistoryState>(
+                              (value) => value.historyState);
+                          // TODO: refine
+                          var items = state.list;
+                          var count = 0;
+                          for (var it in items) {
+                            count += it.framesCount;
+                          }
+                          var startTime = state.startTimeString;
+                          var endTime = state.endTimeString;
+                          String title;
+                          if (startTime != null) {
+                            title = startTime;
+                            if (endTime != null) {
+                              title = '$title / ${endTime}';
+                            }
+                          } else {
+                            title = 'Search by date';
+                          }
+                          return Stack(children: [
+                            SizedBox(
+                                height: 50,
+                                width: double.infinity,
+                                child: Row(children: [
+                                  Expanded(
+                                      child: Text(title,
+                                          style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .colorTextSecond,
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w400))),
+                                ])),
+                            Positioned(
+                              right: 15,
+                              bottom: 0,
+                              top: 0,
+                              child: Center(
+                                child: Text(
+                                  '$count',
+                                  style: TextStyle(
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .colorTextSecond,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ]);
+                        },
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ),
+    );
   }
 
   Widget _gallery() {
@@ -380,22 +367,26 @@ class HomePagePageState extends State<HomePagePage>
   Widget _sliverAppBar() {
     return Stack(children: [
       Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-              color: Theme.of(context).colorScheme.colorBar,
-              height: kToolbarHeight,
-              child: Row(children: [
-                Container(
-                    width: 100,
-                    margin: const EdgeInsets.only(left: 25),
-                    child: Text(
-                      'Gallery',
-                      style: Theme.of(context).colorScheme.homeCardH1Style,
-                    )),
-                const Spacer()
-              ])))
+        top: 0,
+        left: 0,
+        right: 0,
+        child: Container(
+          color: Theme.of(context).colorScheme.colorBar,
+          height: kToolbarHeight,
+          child: Row(
+            children: [
+              Container(
+                margin: const EdgeInsets.only(left: 25),
+                child: Text(
+                  'Home',
+                  style: Theme.of(context).colorScheme.homeCardH1Style,
+                ),
+              ),
+              const Spacer()
+            ],
+          ),
+        ),
+      )
     ]);
   }
 }

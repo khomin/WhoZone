@@ -1,20 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/button_round_corner.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
-
-class AnimatedModel with ChangeNotifier {
-  bool expanded = false;
-
-  void setExpanded(bool v) {
-    if (expanded != v) {
-      expanded = v;
-      notifyListeners();
-    }
-  }
-}
 
 class AnimatedCameraButton extends StatefulWidget {
   const AnimatedCameraButton({
@@ -119,95 +109,110 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AnimatedModel>.value(
-        value: _animatedModel,
-        builder: (context, child) {
-          return AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Container(
-                    width: _widthAnimation.value,
-                    height: 70,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorButton,
-                      borderRadius: BorderRadius.all(Radius.circular(90)),
-                    ),
-                    child: Stack(alignment: Alignment.center, children: [
-                      Opacity(
-                          opacity: _opacity1.value,
-                          child: Builder(builder: (context) {
-                            var expanded = context
-                                .select<AnimatedModel, bool>((v) => v.expanded);
-                            return IgnorePointer(
-                                ignoring: expanded,
-                                child: _recordButton(
-                                  () {
-                                    _switchAnimation();
-                                    context
-                                        .read<AnimatedModel>()
-                                        .setExpanded(!expanded);
-                                  },
-                                ));
-                          })),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Opacity(
-                                opacity: _opacity2.value,
-                                child: Builder(builder: (context) {
-                                  var expanded =
-                                      context.select<AnimatedModel, bool>(
-                                          (v) => v.expanded);
-                                  return IgnorePointer(
-                                      ignoring: !expanded,
-                                      child: ButtonRoundCorner(
+      value: _animatedModel,
+      builder: (context, child) {
+        return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(90)),
+                child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                    child: Container(
+                      width: _widthAnimation.value,
+                      height: 70,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.colorButton,
+                        borderRadius: BorderRadius.all(Radius.circular(90)),
+                      ),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Opacity(
+                              opacity: _opacity1.value,
+                              child: Builder(builder: (context) {
+                                var expanded =
+                                    context.select<AnimatedModel, bool>(
+                                  (v) => v.expanded,
+                                );
+                                return IgnorePointer(
+                                    ignoring: expanded,
+                                    child: _recordButton(
+                                      () {
+                                        _switchAnimation();
+                                        context
+                                            .read<AnimatedModel>()
+                                            .setExpanded(!expanded);
+                                      },
+                                    ));
+                              })),
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Opacity(
+                                    opacity: _opacity2.value,
+                                    child: Builder(builder: (context) {
+                                      var expanded =
+                                          context.select<AnimatedModel, bool>(
+                                              (v) => v.expanded);
+                                      return IgnorePointer(
+                                          ignoring: !expanded,
+                                          child: ButtonRoundCorner(
+                                              color: Colors.transparent,
+                                              width: _widthAnimation.value / 2,
+                                              icon: Icon(
+                                                Icons.camera_sharp,
+                                                color: Theme.of(context)
+                                                    .colorScheme
+                                                    .cameraButtonIcon,
+                                                size: _widthIconExpand.value,
+                                              ),
+                                              radious: const BorderRadius.only(
+                                                topLeft: Radius.circular(90),
+                                                bottomLeft: Radius.circular(90),
+                                              ),
+                                              onPressed: () {
+                                                widget.onImagePressed();
+                                              }));
+                                    })),
+                                Opacity(
+                                  opacity: _opacity2.value,
+                                  child: Builder(
+                                    builder: (context) {
+                                      var expanded =
+                                          context.select<AnimatedModel, bool>(
+                                              (v) => v.expanded);
+                                      return ButtonRoundCorner(
                                           color: Colors.transparent,
                                           width: _widthAnimation.value / 2,
                                           icon: Icon(
-                                            Icons.camera_sharp,
+                                            Icons.stop_rounded,
                                             color: Theme.of(context)
                                                 .colorScheme
                                                 .cameraButtonIcon,
                                             size: _widthIconExpand.value,
                                           ),
                                           radious: const BorderRadius.only(
-                                            topLeft: Radius.circular(90),
-                                            bottomLeft: Radius.circular(90),
+                                            topRight: Radius.circular(90),
+                                            bottomRight: Radius.circular(90),
                                           ),
                                           onPressed: () {
-                                            widget.onImagePressed();
-                                          }));
-                                })),
-                            Opacity(
-                                opacity: _opacity2.value,
-                                child: Builder(builder: (context) {
-                                  var expanded =
-                                      context.select<AnimatedModel, bool>(
-                                          (v) => v.expanded);
-                                  return ButtonRoundCorner(
-                                      color: Colors.transparent,
-                                      width: _widthAnimation.value / 2,
-                                      icon: Icon(
-                                        Icons.stop_rounded,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .cameraButtonIcon,
-                                        size: _widthIconExpand.value,
-                                      ),
-                                      radious: const BorderRadius.only(
-                                        topRight: Radius.circular(90),
-                                        bottomRight: Radius.circular(90),
-                                      ),
-                                      onPressed: () {
-                                        _switchAnimation();
-                                        context
-                                            .read<AnimatedModel>()
-                                            .setExpanded(!expanded);
-                                      });
-                                }))
-                          ])
-                    ]));
-              });
-        });
+                                            _switchAnimation();
+                                            context
+                                                .read<AnimatedModel>()
+                                                .setExpanded(!expanded);
+                                          });
+                                    },
+                                  ),
+                                )
+                              ])
+                        ],
+                      ),
+                    )));
+          },
+        );
+      },
+    );
   }
 
   Widget _recordButton(Function() onPressed) {
@@ -234,5 +239,16 @@ class AnimatedCameraButtonState extends State<AnimatedCameraButton>
             ),
           ])),
     );
+  }
+}
+
+class AnimatedModel with ChangeNotifier {
+  bool expanded = false;
+
+  void setExpanded(bool v) {
+    if (expanded != v) {
+      expanded = v;
+      notifyListeners();
+    }
   }
 }

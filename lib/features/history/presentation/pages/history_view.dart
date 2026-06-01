@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/history/data/models/history_model.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_record.dart';
 import 'package:flutter_demo/features/history/domain/entities/scroll_touch.dart';
@@ -34,7 +33,6 @@ class HistoryViewItemState extends State<HistoryViewItem> {
   var _doNotScroollToPreviewItem = false;
   final _scrollTouch = ScrollTouch();
   late PageController pageController;
-  final List<TransformationController> _controllerList = [];
   final FocusNode _rawKeyLister = FocusNode();
   final ScrollController _scrollController = ScrollController();
   late ListObserverController _observerController;
@@ -51,9 +49,6 @@ class HistoryViewItemState extends State<HistoryViewItem> {
     _current.model = startModel;
 
     _observerController = ListObserverController(controller: _scrollController);
-    for (int i = 0; i < widget.history.length; ++i) {
-      _controllerList.add(TransformationController());
-    }
     _controller = PageController(initialPage: _current.index);
   }
 
@@ -66,21 +61,6 @@ class HistoryViewItemState extends State<HistoryViewItem> {
 
   void _scrollTo(int index) {
     _observerController.jumpTo(index: _current.index);
-  }
-
-  void _onInteractionStart(ScaleStartDetails details) {}
-
-  void _onInteractionUpdate(ScaleUpdateDetails details, int index) {}
-
-  void _onInteractionEnd(ScaleEndDetails details, int index) {
-    final controller = _controllerList[index];
-    double correctScaleValue = controller.value.getMaxScaleOnAxis();
-
-    if (correctScaleValue == 1.0) {
-      _scrollTouch.setZoom(false);
-    } else {
-      _scrollTouch.setZoom(true);
-    }
   }
 
   @override
@@ -150,60 +130,52 @@ class HistoryViewItemState extends State<HistoryViewItem> {
   }
 
   Widget _page() {
-    return Builder(builder: (context) {
-      var size = MediaQuery.sizeOf(context);
-      return Expanded(
+    return Builder(
+      builder: (context) {
+        var size = MediaQuery.sizeOf(context);
+        return Expanded(
           child: Container(
-              width: size.width,
-              height: size.height - kToolbarHeight,
-              child: Listener(
-                  onPointerDown: (opm) {
-                    _scrollTouch.savePointerPosition(opm.pointer);
-                  },
-                  onPointerMove: (opm) {
-                    _scrollTouch.savePointerPosition(opm.pointer);
-                  },
-                  onPointerCancel: (opc) {
-                    _scrollTouch.clearPointerPosition(opc.pointer);
-                  },
-                  onPointerUp: (opc) {
-                    _scrollTouch.clearPointerPosition(opc.pointer);
-                  },
-                  child: ChangeNotifierProvider.value(
-                      value: _scrollTouch,
-                      builder: (context, child) {
-                        var scroll = context.watch<ScrollTouch>();
-                        return PageView.builder(
-                            physics:
-                                scroll.touchPositions.length > 1 || scroll.zoom
-                                    ? const NeverScrollableScrollPhysics()
-                                    : const CustomPageViewScrollPhysics(),
-                            onPageChanged: _onPageChange,
-                            controller: _controller,
-                            itemCount: widget.history.length,
-                            itemBuilder: (context, index) {
-                              var model = widget.history[index];
-                              return InteractiveViewer(
-                                maxScale: 5.0,
-                                minScale: 1.0,
-                                panEnabled: scroll.zoom,
-                                panAxis: PanAxis.free,
-                                onInteractionStart: _onInteractionStart,
-                                onInteractionUpdate: (details) =>
-                                    _onInteractionUpdate(details, index),
-                                onInteractionEnd: (details) =>
-                                    _onInteractionEnd(details, index),
-                                transformationController:
-                                    _controllerList[index],
-                                child: _item(model),
-                              );
-                            });
-                      }))));
-    });
+            width: size.width,
+            height: size.height - kToolbarHeight,
+            child: Listener(
+              onPointerDown: (opm) {
+                _scrollTouch.savePointerPosition(opm.pointer);
+              },
+              onPointerMove: (opm) {
+                _scrollTouch.savePointerPosition(opm.pointer);
+              },
+              onPointerCancel: (opc) {
+                _scrollTouch.clearPointerPosition(opc.pointer);
+              },
+              onPointerUp: (opc) {
+                _scrollTouch.clearPointerPosition(opc.pointer);
+              },
+              child: ChangeNotifierProvider.value(
+                value: _scrollTouch,
+                builder: (context, child) {
+                  var scroll = context.watch<ScrollTouch>();
+                  return PageView.builder(
+                    physics: scroll.touchPositions.length > 1 || scroll.zoom
+                        ? const NeverScrollableScrollPhysics()
+                        : const CustomPageViewScrollPhysics(),
+                    onPageChanged: _onPageChange,
+                    controller: _controller,
+                    itemCount: widget.history.length,
+                    itemBuilder: (context, index) {
+                      var model = widget.history[index];
+                      return _item(model);
+                    },
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _onPageChange(int index) {
-    _controllerList[index].value = Matrix4.identity();
     _current.index = index;
     var model = widget.history[index];
     var current = Current(index: index, model: model);

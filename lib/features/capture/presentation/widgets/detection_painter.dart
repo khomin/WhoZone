@@ -1,11 +1,18 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 
 class CameraPreviewWithOverlay extends StatefulWidget {
   final Stream<List<DetectionBox>> boxes;
+  final double camWidth;
+  final double camHeight;
 
-  const CameraPreviewWithOverlay({required this.boxes});
+  const CameraPreviewWithOverlay({
+    required this.boxes,
+    required this.camWidth,
+    required this.camHeight,
+  });
 
   @override
   State<CameraPreviewWithOverlay> createState() =>
@@ -77,11 +84,15 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
         return AnimatedBuilder(
           animation: _controller,
           builder: (context, child) {
-            final boxes =
-                _interpolate(_lastBoxes, _currentBoxes, _controller.value);
+            final boxes = _interpolate(
+              _lastBoxes,
+              _currentBoxes,
+              _controller.value,
+            );
             if (boxes.isEmpty) return const SizedBox();
             return CustomPaint(
-              painter: DetectionPainter(boxes),
+              painter:
+                  DetectionPainter(boxes, widget.camWidth, widget.camHeight),
               size: Size.infinite,
             );
           },
@@ -93,31 +104,50 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
 
 class DetectionPainter extends CustomPainter {
   final List<DetectionBox> detections;
+  final double camWidth;
+  final double camHeight;
 
-  DetectionPainter(this.detections);
+  DetectionPainter(this.detections, this.camWidth, this.camHeight);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.lightGreen
+      ..color = const Color(0xFF54C34A)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
+      ..strokeWidth = 4;
 
-    final textStyle = TextStyle(color: Colors.white, fontSize: 14);
+    final textStyle = const TextStyle(color: Colors.white, fontSize: 15);
+
+    // 1. Check if the screen is in Portrait mode
+    bool isPortrait = size.height > size.width;
+
+    // 2. Swap the camera dimensions so they match the RotatedBox visual size!
+    // If portrait, visual width is the smaller number (3096), height is the larger (4128)
+    double visualCamWidth = isPortrait ? camHeight : camWidth;
+    double visualCamHeight = isPortrait ? camWidth : camHeight;
+
+    // 3. Calculate how BoxFit.cover scales the coordinate space
+    double scaleX = size.width / visualCamWidth;
+    double scaleY = size.height / visualCamHeight;
+    double activeScale = math.max(scaleX, scaleY); // Uniform scale factor
+
+    // 4. Find out exactly how many screen pixels are cropped off the edges
+    double offsetX = (visualCamWidth * activeScale - size.width) / 2;
+    double offsetY = (visualCamHeight * activeScale - size.height) / 2;
 
     for (var box in detections) {
       final rect = box.normalizedRect;
 
-      // Scale coordinates from camera resolution to screen size
-      final scaledRect = Rect.fromLTWH(
-        rect.left * size.width,
-        rect.top * size.height,
-        rect.width * size.width,
-        rect.height * size.height,
-      );
+      // 5. Transform the normalized values using the swapped, visual dimensions
+      double left = (rect.left * visualCamWidth * activeScale) - offsetX;
+      double top = (rect.top * visualCamHeight * activeScale) - offsetY;
+      double width = rect.width * visualCamWidth * activeScale;
+      double height = rect.height * visualCamHeight * activeScale;
+
+      final scaledRect = Rect.fromLTWH(left, top, width, height);
       canvas.drawRect(scaledRect, paint);
 
-      // Draw label
+      // Draw label (exactly as you had it)
       final textSpan = TextSpan(
         text: '${box.className} ${(box.confidence * 100).toInt()}%',
         style: textStyle,
@@ -127,7 +157,8 @@ class DetectionPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
-      textPainter.paint(canvas, Offset(scaledRect.left, scaledRect.top - 20));
+      textPainter.paint(
+          canvas, Offset(scaledRect.left + 10, scaledRect.top - 25));
     }
   }
 

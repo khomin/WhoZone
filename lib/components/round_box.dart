@@ -32,9 +32,9 @@ class RoundBox extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: Colors.white70,
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: Colors.white,
           ),
         )));
   }

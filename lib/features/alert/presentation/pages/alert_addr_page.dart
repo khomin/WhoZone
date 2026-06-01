@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
@@ -53,19 +54,7 @@ class AlertAddrPageState extends State<AlertAddrPage> {
             child: Scaffold(
                 backgroundColor: Theme.of(context).colorScheme.colorBar,
                 body: Stack(alignment: Alignment.center, children: [
-                  Positioned(
-                      top: (kToolbarHeight * 2) - 30,
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .colorBgUnderCard,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20))))),
+                  PageBackground(),
                   CustomScrollView(
                       physics: const ClampingScrollPhysics(),
                       slivers: [

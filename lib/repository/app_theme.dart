@@ -37,7 +37,9 @@ extension AppColorScheme on ColorScheme {
   Color get colorSecondary => Color.fromARGB(255, 170, 167, 225);
 
   Color get colorButtonBg => Colors.black12;
-  Color get colorButton => Color.fromARGB(47, 69, 69, 69);
+  Color get colorButton => Color(0x516A6A6A);
+  Color get colorButtonBorder =>
+      const Color(0xFFD9D9D9).withValues(alpha: 0.25);
 
   Color get colorButtonRed => Color.fromARGB(255, 214, 24, 10);
 

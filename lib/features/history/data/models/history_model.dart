@@ -65,6 +65,7 @@ class HistoryModel with ChangeNotifier {
     try {
       _selectedMap.clear();
       selected = _selectedMap.values.toList();
+      notify();
     } catch (ex) {
       logWarning('$tag: stop, ex: [$ex]');
     }
@@ -77,11 +78,13 @@ class HistoryModel with ChangeNotifier {
   void releaseSelection(History history) {
     _selectedMap.remove(history.date);
     selected = _selectedMap.values.toList();
+    notify();
   }
 
   void addSelection(History history) {
     _selectedMap[history.date] = history;
     selected = _selectedMap.values.toList();
+    notify();
   }
 
   void _findHistory() {

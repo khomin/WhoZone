@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/repository/app_theme.dart';
 
 class TimerGlassButton extends StatefulWidget {
   final ValueChanged<int>? onDurationChanged;
@@ -18,7 +19,11 @@ class TimerGlassButton extends StatefulWidget {
 
 class _TimerGlassButtonState extends State<TimerGlassButton>
     with SingleTickerProviderStateMixin {
-  static const _durations = [1, 5, 10, 20, 30, 60];
+  static const _durations = [1, 3, 6, 10, 20, 30];
+  final _expandedWidth = 220.0;
+  final _expandedHeight = 90.0;
+  final _collapsedWidth = 80.0;
+  final _collapsedHeight = 34.0;
 
   late int _selected;
   bool _expanded = false;
@@ -86,11 +91,17 @@ class _TimerGlassButtonState extends State<TimerGlassButton>
     }
   }
 
+  void _collapse() {
+    if (_expanded) {
+      _expanded = false;
+      _controller.reverse();
+    }
+  }
+
   void _selectDuration(int seconds) {
     setState(() => _selected = seconds);
     widget.onDurationChanged?.call(seconds);
     Future.delayed(const Duration(milliseconds: 180), _toggle);
-    // _toggle();
   }
 
   String _label(int seconds) {
@@ -101,85 +112,90 @@ class _TimerGlassButtonState extends State<TimerGlassButton>
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _GlassContainer(
-          borderRadius: 26.0,
-          child: GestureDetector(
-            onTapDown: (_) => setState(() => _tapped = true),
-            onTapUp: (_) async {
-              _toggle();
-              await Future.delayed(const Duration(milliseconds: 120));
-              if (mounted) setState(() => _tapped = false);
-            },
-            onTapCancel: () => setState(() => _tapped = false),
-            child: AnimatedOpacity(
-              opacity: _tapped ? 0.55 : 1.0,
-              duration: const Duration(milliseconds: 80),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
-                width: _expanded ? 160 : 80,
-                height: _expanded ? 150 : 34,
-                color: Colors.transparent,
-                child: ClipRect(
-                  child: Stack(
-                    children: [
-                      // ── Collapsed pill ──────────────────────────
-                      Positioned(
-                        top: 7,
-                        left: 0,
-                        right: 0,
-                        child: FadeTransition(
-                          opacity: _pillFadeAnim,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                CupertinoIcons.timer,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                _label(_selected),
-                                style: const TextStyle(
+    return TapRegion(
+      onTapOutside: (_) {
+        _collapse();
+      },
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _GlassContainer(
+            borderRadius: 18.0,
+            child: GestureDetector(
+              onTapDown: (_) => setState(() => _tapped = true),
+              onTapUp: (_) async {
+                _toggle();
+                await Future.delayed(const Duration(milliseconds: 120));
+                if (mounted) setState(() => _tapped = false);
+              },
+              onTapCancel: () => setState(() => _tapped = false),
+              child: AnimatedOpacity(
+                opacity: _tapped ? 0.55 : 1.0,
+                duration: const Duration(milliseconds: 80),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                  width: _expanded ? _expandedWidth : _collapsedWidth,
+                  height: _expanded ? _expandedHeight : _collapsedHeight,
+                  child: ClipRect(
+                    child: Stack(
+                      children: [
+                        // ── Collapsed pill ──────────────────────────
+                        Positioned(
+                          top: 0,
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          child: FadeTransition(
+                            opacity: _pillFadeAnim,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  CupertinoIcons.timer,
+                                  size: 16,
                                   color: Colors.white,
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0.2,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 5),
+                                Text(
+                                  _label(_selected),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0.2,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
 
-                      // ── Expanded grid ───────────────────────────
-                      Positioned(
-                        // top: 10,
-                        // left: 8,
-                        // right: 8,
-                        child: FadeTransition(
-                          opacity: _fadeAnim,
-                          child: _DurationGrid(
-                            durations: _durations,
-                            selected: _selected,
-                            onSelect: _selectDuration,
-                            labelOf: _label,
+                        // ── Expanded grid ───────────────────────────
+                        Positioned(
+                          child: FadeTransition(
+                            opacity: _fadeAnim,
+                            child: IgnorePointer(
+                              ignoring: !_expanded,
+                              child: _DurationGrid(
+                                durations: _durations,
+                                selected: _selected,
+                                onSelect: _selectDuration,
+                                labelOf: _label,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -200,12 +216,8 @@ class _GlassContainer extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.15),
+            color: Theme.of(context).colorScheme.colorButton,
             borderRadius: BorderRadius.circular(borderRadius),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.25),
-              width: 0.8,
-            ),
           ),
           child: child,
         ),
@@ -232,26 +244,37 @@ class _DurationGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        for (int i = 0; i < durations.length; i += 2)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 10),
+        for (int i = 0; i < durations.length; i += 3)
+          Flexible(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _DurationChip(
-                  label: labelOf(durations[i]),
-                  selected: durations[i] == selected,
-                  onTap: () => onSelect(durations[i]),
+                Flexible(
+                  child: _DurationChip(
+                    label: labelOf(durations[i]),
+                    selected: durations[i] == selected,
+                    onTap: () => onSelect(durations[i]),
+                  ),
                 ),
-                const SizedBox(width: 10),
-                _DurationChip(
-                  label: labelOf(durations[i + 1]),
-                  selected: durations[i + 1] == selected,
-                  onTap: () => onSelect(durations[i + 1]),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: _DurationChip(
+                    label: labelOf(durations[i + 1]),
+                    selected: durations[i + 1] == selected,
+                    onTap: () => onSelect(durations[i + 1]),
+                  ),
                 ),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: _DurationChip(
+                    label: labelOf(durations[i + 2]),
+                    selected: durations[i + 2] == selected,
+                    onTap: () => onSelect(durations[i + 2]),
+                  ),
+                )
               ],
             ),
           ),
@@ -278,27 +301,38 @@ class _DurationChip extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
-        width: 58,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+        constraints: BoxConstraints(minWidth: 0, maxWidth: 60, minHeight: 0),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
         decoration: BoxDecoration(
           color: selected
-              ? Colors.white.withOpacity(0.85)
-              : Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(20),
+              ? Colors.white.withValues(alpha: 0.85)
+              : Colors.white.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(30),
           border: Border.all(
-            color: selected ? Colors.white : Colors.white.withOpacity(0.2),
+            color:
+                selected ? Colors.white : Colors.white.withValues(alpha: 0.2),
             width: 0.8,
           ),
         ),
-        child: Text(
-          label,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: selected ? Colors.black.withOpacity(0.85) : Colors.white,
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-            letterSpacing: 0.1,
-          ),
+        child: Row(
+          children: [
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.clip,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: selected
+                      ? Colors.black.withValues(alpha: 0.85)
+                      : Colors.white,
+                  fontSize: 12,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  letterSpacing: 0.1,
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );

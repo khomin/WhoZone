@@ -8,6 +8,7 @@ import 'package:flutter_demo/features/history/domain/entities/history_root.dart'
 import 'package:flutter_demo/features/history/presentation/widgets/view_item.dart';
 import 'package:flutter_demo/features/history/presentation/pages/history_view.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,11 +26,9 @@ class HistorPage extends StatefulWidget {
   State<HistorPage> createState() => _State();
 }
 
-class _State extends State<HistorPage> with TickerProviderStateMixin {
+class _State extends State<HistorPage> {
+  final _model = getIt<HistoryModel>();
   final _scrollController = ScrollController();
-  late AnimationController _animationController;
-  late final Animation<double> _scaleAnimation;
-  late final Animation<double> _scaleAnimationReversed;
   final _disp = DisposableStream();
   Timer? _testTimer;
   final tag = 'historyView';
@@ -38,44 +37,13 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-
-    _scaleAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-        parent: _animationController.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
-
-    _scaleAnimationReversed = Tween<double>(
-      begin: 1.0,
-      end: 0.0,
-    ).animate(CurvedAnimation(
-        parent: _animationController.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
-
-    Future.microtask(() {
-      if (!mounted) return;
-      var selected = context.select<HistoryModel, List<History>>(
-        (value) => value.selected,
-      );
-      if (selected.isEmpty) {
-        _animationController.reverse().orCancel;
-      } else if (selected.length == 1) {
-        _animationController.forward().orCancel;
-      }
-    });
-
-    context.read<HistoryModel>().setFilter(widget.history.date);
+    _model.setFilter(widget.history.date);
   }
 
   @override
   void dispose() {
+    _model.dispose();
     _scrollController.dispose();
-    _animationController.dispose();
     _testTimer?.cancel();
     _disp.dispose();
     super.dispose();
@@ -83,28 +51,31 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-        create: (context) => getIt<HistoryModel>(),
-        builder: (context, child) {
-          var selected = context.select<HistoryModel, List<History>?>(
-            (v) => v.selected,
-          );
-          return PopScope(
-              canPop: selected == null || selected.isEmpty,
-              onPopInvokedWithResult: (didPop, result) {
-                if (didPop) return;
-                context.read<HistoryModel>().stopSelection();
-              },
-              child: SafeArea(
-                  child: Scaffold(
-                appBar: AppBar(
-                  automaticallyImplyLeading: false,
-                  titleSpacing: 0,
-                  title: _header(),
-                ),
-                body: _view(),
-              )));
-        });
+    return ChangeNotifierProvider.value(
+      value: _model,
+      builder: (context, child) {
+        var selected = context.select<HistoryModel, List<History>?>(
+          (v) => v.selected,
+        );
+        return PopScope(
+          canPop: selected == null || selected.isEmpty,
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) return;
+            context.read<HistoryModel>().stopSelection();
+          },
+          child: Scaffold(
+            appBar: AppBar(
+              automaticallyImplyLeading: false,
+              titleSpacing: 0,
+              title: _header(),
+            ),
+            body: SafeArea(
+              child: _view(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _view() {
@@ -160,7 +131,7 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
       );
       final count = selected?.length ?? 0;
       return Container(
-          height: kToolbarHeight + 20,
+          height: kToolbarHeight,
           child: Row(children: [
             Flexible(
                 child: Row(children: [
@@ -168,27 +139,36 @@ class _State extends State<HistorPage> with TickerProviderStateMixin {
               Flexible(
                   child: Stack(alignment: Alignment.centerLeft, children: [
                 Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: count == 0
-                            ? ScaleTransition(
-                                scale: _scaleAnimationReversed,
-                                child: Text(label,
-                                    maxLines: 1,
-                                    style: const TextStyle(fontSize: 22)))
-                            : Text('${count}',
-                                maxLines: 1,
-                                style: const TextStyle(fontSize: 18)))),
+                  left: 0,
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: count == 0
+                        ? AnimatedScale(
+                            duration: Constants.duration,
+                            scale: count != 0 ? 0 : 1,
+                            child: Text(
+                              label,
+                              maxLines: 1,
+                              style: const TextStyle(fontSize: 22),
+                            ),
+                          )
+                        : Text(
+                            '${count}',
+                            maxLines: 1,
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                  ),
+                ),
                 Positioned(
                     left: 90,
                     top: 0,
                     bottom: 0,
-                    child: ScaleTransition(
-                        scale: _scaleAnimation,
+                    child: AnimatedScale(
+                        duration: Constants.duration,
+                        scale: count == 0 ? 0 : 1,
                         child: Row(children: [
                           RoundButton(
                               color: Theme.of(context)

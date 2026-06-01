@@ -17,8 +17,6 @@ import '../../features/alert/data/models/alert_model.dart' as _i389;
 import '../../features/alert/data/repo/alert_repo.dart' as _i925;
 import '../../features/app/data/models/app_model.dart' as _i290;
 import '../../features/capture/data/models/capture_model.dart' as _i161;
-import '../../features/capture_settings/data/models/capture_settings_model.dart'
-    as _i979;
 import '../../features/history/data/models/history_model.dart' as _i948;
 import '../../features/history/data/repo/history_repo_impl.dart' as _i392;
 import '../../features/history/domain/repo/history_repo.dart' as _i231;
@@ -65,10 +63,6 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i389.AlertModel>(() => _i389.AlertModel(
           gh<_i68.SettingsRep>(),
           gh<_i925.AlertRep>(),
-        ));
-    gh.factory<_i979.CaptureSettingsModel>(() => _i979.CaptureSettingsModel(
-          gh<_i973.CameraRep>(),
-          gh<_i68.SettingsRep>(),
         ));
     gh.factory<_i290.AppModel>(() => _i290.AppModel(gh<_i68.SettingsRep>()));
     gh.factory<_i161.CaptureModel>(() => _i161.CaptureModel(

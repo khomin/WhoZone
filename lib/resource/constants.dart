@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/src/painting/edge_insets.dart';
 
 enum FlavorType { google }
@@ -49,6 +50,7 @@ class Constants {
   static const menuFontSize1 = 15.0;
   static const menuFontSize2 = 14.0;
   static const menuFontSize3 = 13.0;
+  static double get menuIconSize => 25;
 
   static const fontSize1 = 15.0;
   static const fontSize2 = 14.0;
@@ -63,8 +65,4 @@ class Constants {
 
   static EdgeInsets get marginCard =>
       EdgeInsets.only(top: 8, bottom: 8, left: 15, right: 15);
-
-  static double get menuIconSize => 25;
-
-  static get useBottomBlur => false;
 }

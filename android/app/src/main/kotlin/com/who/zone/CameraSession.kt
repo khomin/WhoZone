@@ -89,10 +89,9 @@ class CameraSession(val context: Context) {
         try {
             val info = getCameraInfo(device.id) ?: return
             val range = info.fpsRangesList.last()
-            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
             builder.addTarget(codecSurface)
             builder.addTarget(viewSurface)
-//            builder.set(CaptureRequest.JPEG_ORIENTATION, info.sensorRotation)
             builder.set(
                 CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
                 Range(range.lower, range.upper)

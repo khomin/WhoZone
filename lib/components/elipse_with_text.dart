@@ -4,7 +4,7 @@ class ElipseWithText extends StatelessWidget {
   const ElipseWithText({
     required this.text,
     required this.color,
-    this.size = const Size(20, 20),
+    required this.size,
     this.margin,
     super.key,
   });
@@ -24,8 +24,7 @@ class ElipseWithText extends StatelessWidget {
           textStyle: const TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: Colors
-                .black, // The color here doesn't matter, it will be cut out
+            color: Colors.black,
           ),
         ),
       ),

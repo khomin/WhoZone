@@ -25,6 +25,10 @@ class HomeModel with ChangeNotifier {
   }
 
   void _init() async {
+    final initial = _historyRep.historyRootStream.valueOrNull;
+    if (initial != null) {
+      historyState = initial;
+    }
     if (await _historyRep.isEmpty()) {
       if (_disposed) return;
       isEmptyStream.add(true);

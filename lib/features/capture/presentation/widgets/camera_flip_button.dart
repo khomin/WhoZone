@@ -14,10 +14,10 @@ class CameraFlipButton extends StatelessWidget {
     return Stack(alignment: AlignmentGeometry.center, children: [
       ClipOval(
           child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+              filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
               child: SizedBox(
-                  height: 50,
                   width: 50,
+                  height: 50,
                   child: RepaintBoundary(child: Builder(builder: (context) {
                     var (camera, flipTurns) =
                         context.select<CaptureModel, (app.Camera?, double)>(

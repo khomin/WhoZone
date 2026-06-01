@@ -17,7 +17,6 @@ class CameraCenterButton extends StatelessWidget {
       child: Container(
         height: 70,
         width: 140,
-        // color: Colors.amber,
         child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

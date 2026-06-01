@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/constants.dart';
@@ -17,42 +18,34 @@ class SettingsAboutState extends State<SettingsAbout> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: Theme.of(context).colorScheme.colorBar,
-        child: SafeArea(
-            child: Scaffold(
-                backgroundColor: Theme.of(context).colorScheme.colorBar,
-                body: Stack(alignment: Alignment.center, children: [
-                  Positioned(
-                      top: (kToolbarHeight * 2) - 30,
-                      bottom: 0,
-                      left: 0,
-                      right: 0,
-                      child: Container(
-                          decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .colorBgUnderCard,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(20),
-                                  topRight: Radius.circular(20))))),
-                  CustomScrollView(
-                      physics: const ClampingScrollPhysics(),
-                      slivers: [
-                        SliverAppBar(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.colorBar,
-                            automaticallyImplyLeading: false,
-                            flexibleSpace: _sliverAppBar()),
-                        SliverToBoxAdapter(child: _header()),
-                        DecoratedSliver(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .colorBgUnderCard,
-                            ),
-                            sliver: SliverToBoxAdapter(child: _view()))
-                      ])
-                ]))));
+      color: Theme.of(context).colorScheme.colorBar,
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Theme.of(context).colorScheme.colorBar,
+          body: Stack(
+            alignment: Alignment.center,
+            children: [
+              PageBackground(),
+              CustomScrollView(
+                physics: const ClampingScrollPhysics(),
+                slivers: [
+                  SliverAppBar(
+                      backgroundColor: Theme.of(context).colorScheme.colorBar,
+                      automaticallyImplyLeading: false,
+                      flexibleSpace: _sliverAppBar()),
+                  SliverToBoxAdapter(child: _header()),
+                  DecoratedSliver(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.colorBgUnderCard,
+                      ),
+                      sliver: SliverToBoxAdapter(child: _view()))
+                ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _sliverAppBar() {
