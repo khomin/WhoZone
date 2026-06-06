@@ -12,7 +12,6 @@ import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
-import 'package:flutter_demo/features/capture/presentation/widgets/mask_painter.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/timer_button.dart';
 import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
 import 'package:flutter_demo/pages/settings/settings_page.dart';
@@ -23,6 +22,8 @@ import 'package:provider/provider.dart';
 import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'dart:math' as math;
+
+import 'package:sensor_device_orientation/sensor_device_orientation.dart';
 
 class CapturePageProvilder extends StatelessWidget {
   @override
@@ -120,7 +121,7 @@ class CapturePageState extends State<CapturePage>
               left: 0,
               right: 0,
               bottom: 0,
-              child: LayoutBuilder(builder: (context, constraints) {
+              child: Builder(builder: (context) {
                 var (camera, layout, textureId, recording, size) =
                     context.select<CaptureModel,
                         (app.Camera?, SurfaceLayout, int?, bool, Size?)>(
@@ -193,8 +194,6 @@ class CapturePageState extends State<CapturePage>
                         boxes: model.detectionBoxesStream,
                         camWidth: size?.width ?? 0.0,
                         camHeight: size?.height ?? 0.0,
-                        // camWidth: camera.size.width.toDouble(),
-                        // camHeight: camera.size.height.toDouble(),
                       ),
                     ),
                   ],
@@ -206,47 +205,57 @@ class CapturePageState extends State<CapturePage>
             Positioned(
               top: padding.top + 30,
               left: 20,
-              child: Builder(builder: (context) {
-                var duration = context.select<CaptureModel, Duration>(
-                  (v) => v.captureInterval,
-                );
-                return Row(
-                  children: [
-                    TimerGlassButton(
-                      initialDuration: duration.inSeconds,
-                      onDurationChanged: (seconds) {
-                        var model = context.read<CaptureModel>();
-                        model.captureInterval = Duration(seconds: seconds);
-                        model.notify();
-                      },
+              child: Builder(
+                builder: (context) {
+                  var duration = context.select<CaptureModel, Duration>(
+                    (v) => v.captureInterval,
+                  );
+                  return SensorRotatedBox(
+                    animate: true,
+                    child: Row(
+                      children: [
+                        TimerGlassButton(
+                          initialDuration: duration.inSeconds,
+                          onDurationChanged: (seconds) {
+                            var model = context.read<CaptureModel>();
+                            model.captureInterval = Duration(seconds: seconds);
+                            model.notify();
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                );
-              }),
+                  );
+                },
+              ),
             ),
             //
             // time elapsed
             Positioned(
               top: padding.top + 30,
               right: 20,
-              child: Center(
-                child: RepaintBoundary(
-                  child: SizedBox(
-                    width: 80,
-                    height: 34,
-                    child: Stack(children: [
-                      Builder(builder: (context) {
-                        var duration = context.select<CaptureModel, Duration?>(
-                            (v) => v.captureTimeElapsed);
-                        if (duration == null) return const SizedBox();
-                        return RoundBox(
-                          text: duration.format(),
-                          useRightMargin: false,
-                          color: Theme.of(context).colorScheme.colorButtonRed,
-                          borderRadius: 40,
-                        );
-                      })
-                    ]),
+              child: SensorRotatedBox(
+                animate: true,
+                duration: Constants.duration,
+                child: Center(
+                  child: RepaintBoundary(
+                    child: SizedBox(
+                      width: 80,
+                      height: 34,
+                      child: Stack(children: [
+                        Builder(builder: (context) {
+                          var duration =
+                              context.select<CaptureModel, Duration?>(
+                                  (v) => v.captureTimeElapsed);
+                          if (duration == null) return const SizedBox();
+                          return RoundBox(
+                            text: duration.format(),
+                            useRightMargin: false,
+                            color: Theme.of(context).colorScheme.colorButtonRed,
+                            borderRadius: 40,
+                          );
+                        })
+                      ]),
+                    ),
                   ),
                 ),
               ),
@@ -267,9 +276,7 @@ class CapturePageState extends State<CapturePage>
                       padding: EdgeInsets.only(left: 10),
                       width: 75,
                       child: CameraFrameCount(
-                        onPressed: () {
-                          //
-                        },
+                        onPressed: () {},
                       ),
                     ),
                     // 2
@@ -308,15 +315,13 @@ class CapturePageState extends State<CapturePage>
   }
 }
 
-// TODO: make letter boxes like: car: 0.79 and in a box itself
-// TODO: box boundaries don't match frame
-// TODO: rotate frame in cpp
-// TODO: crash in cpp
-// TODO: beatiful flip?
+// T+ODO: make letter boxes like: car: 0.79 and in a box itself
+// T+ODO: box boundaries don't match frame
+// T+ODO: rotate frame in cpp
+// T+ODO: beatiful flip?
+// T+ODO: rotate buttons with device
+// T-ODO: tensorflow
 
-// TODO: use FutureBuilder for "no records"
+// TODO: clean architecture
 
-// signal 6 (SIGABRT), code -1 (SI_QUEUE), fault addr --------
-// Abort message: 'terminating due to uncaught exception of type cv::Exception: OpenCV(4.10.0) /Users/panic/Documents/PROJECTS/WhoZone/scripts/.opencv/modules/core/src/matrix_expressions.cpp:32: error: (-5:Bad argument) One or more matrix operands are empty. in function 'checkOperandsExist''
-
-// CaptureSettingsPage(),
+// TODO: readme

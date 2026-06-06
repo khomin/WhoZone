@@ -52,7 +52,7 @@ int Detector::start() {
         return -1;
     }
     _net.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
-    _net.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
+    _net.setPreferableTarget(cv::dnn::DNN_TARGET_OPENCL);
 
     if(_thread.joinable()) {
         _thread.join();
@@ -107,45 +107,54 @@ void Detector::updatePrediction(FrameItem& frameItem) {
     std::vector<cv::Rect> detections;
     std::vector<int> det_class_ids;
     std::vector<float> det_confidences;
-
-    cv::Mat frame = frameItem.frame;
-
-    // --- Predict-only frames (Kalman smoothing) ---
     std::vector<cv::Rect> tracker_boxes;
     std::vector<int> tracker_class_ids;
     std::vector<float> tracker_confidences;
+    cv::Mat frame = frameItem.frame;
 
     for (auto &tr : _trackers) {
-        // Predict next state
-        cv::Mat pred = tr.kf.predict();
-        float x = pred.at<float>(0);
-        float y = pred.at<float>(1);
-        float w = pred.at<float>(2);
-        float h = pred.at<float>(3);
-
-        cv::Rect box;
-        box.x = static_cast<int>(x);
-        box.y = static_cast<int>(y);
-        box.width = std::max(1, static_cast<int>(w));
-        box.height = std::max(1, static_cast<int>(h));
-
-        // Optional: clamp to frame
-        box &= cv::Rect(0, 0, frame.cols, frame.rows);
-
-        // Track aging
-        tr.missed_frames++;
-
-        // kill weak + stale trackers early
-        if (tr.last_confidence < 0.5f && tr.missed_frames > 3)
-            tr.missed_frames = MAX_MISSED_FRAMES + 1;
-
-        // Kill stale trackers
-        if (tr.missed_frames > MAX_MISSED_FRAMES)
+        if (tr.kf.statePost.empty()) {
             continue;
+        }
+        try {
+            cv::Mat pred = tr.kf.predict();
+            if (pred.empty()) {
+                continue;
+            }
+            float x = pred.at<float>(0);
+            float y = pred.at<float>(1);
+            float w = pred.at<float>(2);
+            float h = pred.at<float>(3);
 
-        tracker_boxes.push_back(box);
-        tracker_class_ids.push_back(tr.class_id);
-        tracker_confidences.push_back(tr.last_confidence);
+            cv::Rect box;
+            box.x = static_cast<int>(x);
+            box.y = static_cast<int>(y);
+            box.width = std::max(1, static_cast<int>(w));
+            box.height = std::max(1, static_cast<int>(h));
+
+            // Optional: clamp to frame
+            box &= cv::Rect(0, 0, frame.cols, frame.rows);
+
+            // Track aging
+            tr.missed_frames++;
+
+            // kill weak + stale trackers early
+            if (tr.last_confidence < 0.5f && tr.missed_frames > 3)
+                tr.missed_frames = MAX_MISSED_FRAMES + 1;
+
+            // Kill stale trackers
+            if (tr.missed_frames > MAX_MISSED_FRAMES)
+                continue;
+
+            tracker_boxes.push_back(box);
+            tracker_class_ids.push_back(tr.class_id);
+            tracker_confidences.push_back(tr.last_confidence);
+        } catch (const cv::Exception& e) {
+            // If it STILL crashes, log it and move to the next object
+            // This stops the app from detonating!
+            std::cerr << "Kalman predict failed: " << e.what() << std::endl;
+            continue;
+        }
     }
     // Remove dead trackers
     _trackers.erase(
@@ -175,7 +184,9 @@ void Detector::processNeural(FrameItem& frameItem) {
         // --- Inference (Forward Pass) ---
         auto now_start = std::chrono::steady_clock::now();
         _net.forward(outs, _net.getUnconnectedOutLayersNames());
-
+        if (outs.empty() || outs[0].empty()) {
+            return;
+        }
         auto now_end = std::chrono::steady_clock::now();
         auto start_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_start.time_since_epoch()).count();
         auto end_ms  = std::chrono::duration_cast<std::chrono::milliseconds>(now_end.time_since_epoch()).count();

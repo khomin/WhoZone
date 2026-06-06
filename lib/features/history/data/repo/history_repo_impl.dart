@@ -44,26 +44,6 @@ class HistoryRepoImpl implements HistoryRepo {
   BehaviorSubject<int> get usedDiskStream => _usedDiskStream;
 
   @override
-  Future<bool> isEmpty() async {
-    var path = Utils().historyPath();
-    try {
-      var dir = Directory(path);
-      if (await dir.exists()) {
-        var directories = await dir.list().toList();
-        for (var it in directories) {
-          var files = Directory(it.path).listSync();
-          if (files.isNotEmpty) {
-            return false;
-          }
-        }
-      }
-    } catch (ex) {
-      logWarning('$tag: ex $ex');
-    }
-    return true;
-  }
-
-  @override
   Future<void> updateHistory({DateTime? startTime, DateTime? endTime}) async {
     await _historySemphore.acquire();
     _mapHistory.clear();

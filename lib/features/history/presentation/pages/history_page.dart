@@ -175,10 +175,6 @@ class _State extends State<HistorPage> {
                                   .colorScheme
                                   .colorButtonRed
                                   .withValues(alpha: 0.8),
-                              iconColor: Theme.of(context)
-                                  .colorScheme
-                                  .colorCard
-                                  .withValues(alpha: 0.8),
                               size: 45,
                               radius: 20,
                               useScaleAnimation: true,
@@ -193,10 +189,6 @@ class _State extends State<HistorPage> {
                               color: Theme.of(context)
                                   .colorScheme
                                   .colorSecondary
-                                  .withValues(alpha: 0.8),
-                              iconColor: Theme.of(context)
-                                  .colorScheme
-                                  .colorCard
                                   .withValues(alpha: 0.8),
                               size: 45,
                               radius: 20,

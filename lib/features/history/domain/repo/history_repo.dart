@@ -10,7 +10,6 @@ abstract class HistoryRepo {
   BehaviorSubject<HistoryState> get historyRootStream => throw 'Unimplemented';
   BehaviorSubject<int> get usedDiskStream => throw 'Unimplemented';
 
-  Future<bool> isEmpty();
   Future<void> updateHistory({DateTime? startTime, DateTime? endTime});
   Future<void> deleteHistoryRoot(List<HistoryRoot> list);
   Future<void> deleteHistory(List<History> list);

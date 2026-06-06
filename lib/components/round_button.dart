@@ -5,7 +5,7 @@ class RoundButton extends StatefulWidget {
   const RoundButton({
     required this.iconData,
     required this.color,
-    required this.iconColor,
+    this.iconColor = Colors.white,
     required this.onPressed,
     this.padding,
     this.margin,

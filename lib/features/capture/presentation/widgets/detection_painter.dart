@@ -15,11 +15,10 @@ class CameraPreviewWithOverlay extends StatefulWidget {
   });
 
   @override
-  State<CameraPreviewWithOverlay> createState() =>
-      _CameraPreviewWithOverlayState();
+  State<CameraPreviewWithOverlay> createState() => _State();
 }
 
-class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
+class _State extends State<CameraPreviewWithOverlay>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   List<DetectionBox> _lastBoxes = [];
@@ -91,8 +90,11 @@ class _CameraPreviewWithOverlayState extends State<CameraPreviewWithOverlay>
             );
             if (boxes.isEmpty) return const SizedBox();
             return CustomPaint(
-              painter:
-                  DetectionPainter(boxes, widget.camWidth, widget.camHeight),
+              painter: DetectionPainter(
+                detections: boxes,
+                camWidth: widget.camWidth,
+                camHeight: widget.camHeight,
+              ),
               size: Size.infinite,
             );
           },
@@ -107,7 +109,11 @@ class DetectionPainter extends CustomPainter {
   final double camWidth;
   final double camHeight;
 
-  DetectionPainter(this.detections, this.camWidth, this.camHeight);
+  DetectionPainter({
+    required this.detections,
+    required this.camWidth,
+    required this.camHeight,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -118,36 +124,41 @@ class DetectionPainter extends CustomPainter {
 
     final textStyle = const TextStyle(color: Colors.white, fontSize: 15);
 
-    // 1. Check if the screen is in Portrait mode
     bool isPortrait = size.height > size.width;
-
-    // 2. Swap the camera dimensions so they match the RotatedBox visual size!
-    // If portrait, visual width is the smaller number (3096), height is the larger (4128)
     double visualCamWidth = isPortrait ? camHeight : camWidth;
     double visualCamHeight = isPortrait ? camWidth : camHeight;
 
-    // 3. Calculate how BoxFit.cover scales the coordinate space
     double scaleX = size.width / visualCamWidth;
     double scaleY = size.height / visualCamHeight;
-    double activeScale = math.max(scaleX, scaleY); // Uniform scale factor
+    double activeScale = math.max(scaleX, scaleY);
 
-    // 4. Find out exactly how many screen pixels are cropped off the edges
     double offsetX = (visualCamWidth * activeScale - size.width) / 2;
     double offsetY = (visualCamHeight * activeScale - size.height) / 2;
 
     for (var box in detections) {
       final rect = box.normalizedRect;
 
-      // 5. Transform the normalized values using the swapped, visual dimensions
+      // 1. Calculate raw screen coordinates
       double left = (rect.left * visualCamWidth * activeScale) - offsetX;
       double top = (rect.top * visualCamHeight * activeScale) - offsetY;
       double width = rect.width * visualCamWidth * activeScale;
       double height = rect.height * visualCamHeight * activeScale;
 
-      final scaledRect = Rect.fromLTWH(left, top, width, height);
-      canvas.drawRect(scaledRect, paint);
+      // 2. Clamp the bounding box coordinates so they never physically leave the screen edges
+      double clampedLeft = left.clamp(0.0, size.width);
+      double clampedTop = top.clamp(0.0, size.height);
+      double clampedRight = (left + width).clamp(0.0, size.width);
+      double clampedBottom = (top + height).clamp(0.0, size.height);
 
-      // Draw label (exactly as you had it)
+      final scaledRect =
+          Rect.fromLTRB(clampedLeft, clampedTop, clampedRight, clampedBottom);
+
+      // Only draw the box if it's actually visible on screen
+      if (scaledRect.width > 0 && scaledRect.height > 0) {
+        canvas.drawRect(scaledRect, paint);
+      }
+
+      // 3. Prepare the text layout ahead of time so we know its dimensions
       final textSpan = TextSpan(
         text: '${box.className} ${(box.confidence * 100).toInt()}%',
         style: textStyle,
@@ -157,13 +168,51 @@ class DetectionPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
       );
       textPainter.layout();
+
+      // Define some padding so the text isn't suffocated by the box edges
+      const double paddingH = 8.0;
+      const double paddingV = 4.0;
+
+      // 4. Smart Label Positioning (Prevents text going off-screen)
+      // We adjust the height calculation slightly to include our new vertical padding
+      double labelTop = scaledRect.top - textPainter.height - (paddingV * 2);
+      double labelLeft = scaledRect.left;
+
+      // If the object is too close to the top edge, flip the label INSIDE the box
+      if (labelTop < 0) {
+        labelTop = scaledRect.top;
+      }
+
+      // If the object is too close to the right edge, push it left
+      if (labelLeft + textPainter.width + (paddingH * 2) > size.width) {
+        labelLeft = size.width - textPainter.width - (paddingH * 2);
+      }
+      labelLeft = labelLeft.clamp(0.0, size.width);
+
+      // 5. DRAW THE OpenCV SOLID BACKGROUND BOX
+      final backgroundPaint = Paint()
+        ..color = const Color(0xFF54C34A) // Match your bounding box green
+        ..style = PaintingStyle.fill; // Fill it up!
+
+      final backgroundRect = Rect.fromLTWH(
+        labelLeft,
+        labelTop,
+        textPainter.width + (paddingH * 2), // Text width + left/right padding
+        textPainter.height + (paddingV * 2), // Text height + top/bottom padding
+      );
+
+      // Draw the solid green background tag
+      canvas.drawRect(backgroundRect, backgroundPaint);
+
+      // 6. PAINT THE TEXT ON TOP
+      // Shift the text offset slightly down and right so it centers inside the padding
       textPainter.paint(
-          canvas, Offset(scaledRect.left + 10, scaledRect.top - 25));
+        canvas,
+        Offset(labelLeft + paddingH, labelTop + paddingV),
+      );
     }
   }
 
   @override
-  bool shouldRepaint(DetectionPainter oldDelegate) {
-    return oldDelegate.detections != detections;
-  }
+  bool shouldRepaint(DetectionPainter oldDelegate) => true;
 }

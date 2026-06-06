@@ -4,9 +4,12 @@ import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/click_detector.dart';
 import 'package:flutter_demo/components/slidable_item.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_root.dart';
+import 'package:flutter_demo/features/home/data/models/home_model.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/resource/constants.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ViewRoot extends StatefulWidget {
@@ -14,7 +17,6 @@ class ViewRoot extends StatefulWidget {
     required this.history,
     required this.onPressed,
     required this.onDelete,
-    this.onCloseSlide,
     this.padding,
     this.showText = true,
     this.useSwipe = true,
@@ -24,7 +26,6 @@ class ViewRoot extends StatefulWidget {
   final EdgeInsets? padding;
   final bool showText;
   final bool useSwipe;
-  final BehaviorSubject<bool>? onCloseSlide;
   final Function() onPressed;
   final Function() onDelete;
 
@@ -35,8 +36,8 @@ class ViewRoot extends StatefulWidget {
 class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
   late final SlidableController _slideCtr;
   late AnimationController _controller;
+  late ValueNotifier<int> _swipeReset;
   late final Animation<double> _width;
-  final _dispStream = DisposableStream();
 
   @override
   void initState() {
@@ -57,24 +58,15 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
         parent: _controller.view,
         curve: const Interval(0.000, 0.50, curve: Curves.easeOut)));
 
-    var closeStream = widget.onCloseSlide;
-    if (closeStream != null) {
-      _dispStream.add(closeStream.listen((value) async {
-        if (value) {
-          if (_slideCtr.animation.isCompleted) {
-            await _controller.forward().orCancel;
-            _slideCtr.close();
-          }
-        }
-      }));
-    }
+    _swipeReset = context.read<HomeModel>().swipeReset;
+    _swipeReset.addListener(_onResetSwipe);
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _slideCtr.dispose();
-    _dispStream.dispose();
+    _swipeReset.removeListener(_onResetSwipe);
     super.dispose();
   }
 
@@ -99,6 +91,13 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
     }
   }
 
+  void _onResetSwipe() async {
+    if (_slideCtr.animation.isCompleted) {
+      await _controller.forward().orCancel;
+      _slideCtr.close();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Builder(builder: (context) {
@@ -118,8 +117,6 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
                 .colorScheme
                 .colorButtonRed
                 .withValues(alpha: 0.8),
-            iconColor:
-                Theme.of(context).colorScheme.colorCard.withValues(alpha: 0.8),
             size: 55,
             radius: 20,
             useScaleAnimation: true,
@@ -159,7 +156,7 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
                           offset: const Offset(0, 10))
                     ],
                     borderRadius: const BorderRadius.all(Radius.circular(20))),
-                height: 270,
+                height: Constants.cardHeight,
                 child: Column(children: [
                   Column(children: [
                     //

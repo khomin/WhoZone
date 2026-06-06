@@ -1,15 +1,14 @@
-import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/page_background.dart';
-import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_state.dart';
 import 'package:flutter_demo/features/history/presentation/pages/history_page.dart';
 import 'package:flutter_demo/features/history/presentation/widgets/view_root.dart';
-import 'package:flutter_demo/features/history/presentation/pages/filter_page.dart';
 import 'package:flutter_demo/features/home/data/models/home_model.dart';
+import 'package:flutter_demo/features/home/presentation/widgets/home_header.dart';
+import 'package:flutter_demo/features/home/presentation/widgets/load_records.dart';
+import 'package:flutter_demo/features/home/presentation/widgets/no_records.dart';
 import 'package:flutter_demo/repository/app_theme.dart';
 import 'package:flutter_demo/resource/disposable_stream.dart';
 import 'package:provider/provider.dart';
@@ -24,68 +23,24 @@ class HomePagePage extends StatefulWidget {
 
 class HomePagePageState extends State<HomePagePage>
     with TickerProviderStateMixin {
-  final _scrollCtr = ScrollController();
-  final _focus = FocusNode();
-  late AnimationController _ctrShakeIcon;
-  late final Animation<double> _iconRotate;
-  final _onCloseSlide = BehaviorSubject<bool>.seeded(false);
-  final _disp = DisposableStream();
   late HomeModel _model;
   final tag = 'homePage';
 
   @override
   void initState() {
     super.initState();
-
-    _model = getIt<HomeModel>();
-
-    _ctrShakeIcon = AnimationController(
-      duration: const Duration(milliseconds: 500),
-      vsync: this,
-    );
-
-    _iconRotate = TweenSequence<double>([
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 0, end: 0.005), weight: 1),
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 0.005, end: 0), weight: 1),
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 0, end: -0.005), weight: 1),
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: -0.005, end: 0), weight: 1),
-    ]).animate(CurvedAnimation(
-      parent: _ctrShakeIcon.view,
-      curve: Curves.linear,
-    ));
-
-    _scrollCtr.addListener(() {
-      _focus.unfocus();
-      _onCloseSlide.add(true);
-    });
-    _disp.add(_model.isEmptyStream.listen((isEmpty) {
-      if (isEmpty) {
-        if (_ctrShakeIcon.isForwardOrCompleted) {
-          _ctrShakeIcon.reverse().orCancel;
-        } else {
-          _ctrShakeIcon.forward().orCancel;
-        }
-      }
-    }));
+    _model = getIt<HomeModel>()..init();
   }
 
   @override
   void dispose() {
-    _ctrShakeIcon.dispose();
-    _scrollCtr.dispose();
     _model.dispose();
-    _disp.dispose();
-    _onCloseSlide.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
+    return ChangeNotifierProvider<HomeModel>.value(
       value: _model,
       builder: (context, child) {
         return Scaffold(
@@ -97,23 +52,33 @@ class HomePagePageState extends State<HomePagePage>
                 PageBackground(),
                 CustomScrollView(
                   physics: const ClampingScrollPhysics(),
-                  controller: _scrollCtr,
                   slivers: [
                     SliverAppBar(
                       backgroundColor: Theme.of(context).colorScheme.colorBar,
                       automaticallyImplyLeading: false,
                       flexibleSpace: _sliverAppBar(),
                     ),
-                    SliverToBoxAdapter(child: _header()),
+                    SliverToBoxAdapter(child: HomeHeader()),
                     //
                     DecoratedSliver(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.colorBgUnderCard,
-                      ),
-                      sliver: SliverToBoxAdapter(
-                        child: _gallery(),
-                      ),
-                    )
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.colorBgUnderCard,
+                        ),
+                        sliver: Builder(builder: (context) {
+                          var state = context.select<HomeModel, HistoryState?>(
+                            (v) => v.historyState,
+                          );
+                          if (state == null) {
+                            return SliverToBoxAdapter(child: LoadRecords());
+                          }
+                          if (state.list.isEmpty) {
+                            return SliverToBoxAdapter(
+                                child: NoRecords(
+                                    noRecordsStream:
+                                        _model.historyStateStream));
+                          }
+                          return _gallerySliver(state);
+                        }))
                   ],
                 )
               ],
@@ -124,244 +89,34 @@ class HomePagePageState extends State<HomePagePage>
     );
   }
 
-  Widget _header() {
-    // TODO: move into another component
-    return SizedBox(
-      width: 300,
-      height: 60,
-      child: Stack(
-        children: [
-          Positioned(
-              top: 20,
-              left: 0,
-              right: 0,
-              child: Container(
-                  height: 40,
-                  width: 100,
-                  decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.colorBgUnderCard,
-                      borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(20),
-                          topRight: Radius.circular(20))))),
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              margin: const EdgeInsets.only(left: 20, right: 20),
-              height: 50,
-              decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.colorBgUnderCard,
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 10,
-                        offset: const Offset(0, 0))
-                  ]),
-              child: Row(
-                children: [
-                  Padding(
-                      padding: EdgeInsets.only(left: 10, right: 10),
-                      child: Icon(
-                        Icons.search_outlined,
-                        color: Theme.of(context).colorScheme.colorTextSecond,
-                        size: 28,
-                      )),
-                  Flexible(
-                    child: HoverClick(
-                      onPressedL: (_) {
-                        Navigator.push(
-                            context,
-                            CupertinoPageRoute(
-                                settings: const RouteSettings(),
-                                builder: (context) {
-                                  return ChangeNotifierProvider.value(
-                                    value: _model,
-                                    builder: (context, child) {
-                                      var homeModel = context.read<HomeModel>();
-                                      var state = context
-                                          .select<HomeModel, HistoryState>(
-                                        (v) => v.historyState,
-                                      );
-                                      return FilterPage(
-                                        startDate: state.startTime,
-                                        endDate: state.endTime,
-                                        onApply: (start, end) {
-                                          homeModel.filterHistory(
-                                            startTime: start,
-                                            endTime: end,
-                                          );
-                                        },
-                                        onReset: () {
-                                          homeModel.resetFilter();
-                                        },
-                                        key: ValueKey('filter-${state}'),
-                                      );
-                                    },
-                                  );
-                                }));
-                      },
-                      child: Builder(
-                        builder: (context) {
-                          var state = context.select<HomeModel, HistoryState>(
-                              (value) => value.historyState);
-                          // TODO: refine
-                          var items = state.list;
-                          var count = 0;
-                          for (var it in items) {
-                            count += it.framesCount;
-                          }
-                          var startTime = state.startTimeString;
-                          var endTime = state.endTimeString;
-                          String title;
-                          if (startTime != null) {
-                            title = startTime;
-                            if (endTime != null) {
-                              title = '$title / ${endTime}';
-                            }
-                          } else {
-                            title = 'Search by date';
-                          }
-                          return Stack(children: [
-                            SizedBox(
-                                height: 50,
-                                width: double.infinity,
-                                child: Row(children: [
-                                  Expanded(
-                                      child: Text(title,
-                                          style: TextStyle(
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .colorTextSecond,
-                                              fontSize: 15,
-                                              fontWeight: FontWeight.w400))),
-                                ])),
-                            Positioned(
-                              right: 15,
-                              bottom: 0,
-                              top: 0,
-                              child: Center(
-                                child: Text(
-                                  '$count',
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextSecond,
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            )
-                          ]);
-                        },
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          )
-        ],
-      ),
+  SliverList _gallerySliver(HistoryState state) {
+    return SliverList.builder(
+      itemCount: state.list.length,
+      itemBuilder: (context, index) {
+        var model = state.list[index];
+        return ViewRoot(
+            history: model,
+            key: ValueKey('history-${model.date}'),
+            onPressed: () {
+              _model.swipeReset.value++;
+              Navigator.push(
+                context,
+                CupertinoPageRoute(
+                  settings: const RouteSettings(),
+                  builder: (context) {
+                    return HistorPage(
+                      history: model,
+                      initialIndex: index,
+                    );
+                  },
+                ),
+              );
+            },
+            onDelete: () async {
+              context.read<HomeModel>().deleteHistoryRoot([model]);
+            });
+      },
     );
-  }
-
-  Widget _gallery() {
-    return Builder(builder: (context) {
-      var state = context.select<HomeModel, HistoryState>(
-        (v) => v.historyState,
-      );
-      var homeModel = context.read<HomeModel>();
-      var size = MediaQuery.sizeOf(context);
-      if (state.list.isEmpty) {
-        return RotationTransition(
-            turns: _iconRotate,
-            child: SizedBox(
-                height: size.height / 1.5,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      RoundButton(
-                          iconData: Icons.create_new_folder_rounded,
-                          color: Theme.of(context).colorScheme.colorPrimary,
-                          iconColor: Theme.of(context).colorScheme.colorBar,
-                          size: (size.width / 5) + 15,
-                          iconSize: size.width / 5,
-                          useScaleAnimation: true,
-                          useShadow: true,
-                          onPressed: (p0) {
-                            if (_ctrShakeIcon.isForwardOrCompleted) {
-                              _ctrShakeIcon.reverse().orCancel;
-                            } else {
-                              _ctrShakeIcon.forward().orCancel;
-                            }
-                          }),
-                      const SizedBox(height: 20),
-                      Text('There are no entries yet',
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).colorScheme.colorTextAccent,
-                              fontSize: 18)),
-                      Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Click',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent,
-                                    fontSize: 18)),
-                            Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 8, right: 8),
-                                child: Icon(Icons.create_new_folder_rounded,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextSecond
-                                        .withValues(alpha: 0.5))),
-                            Text('to start',
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent,
-                                    fontSize: 18))
-                          ])
-                    ])));
-      }
-      return SizedBox(
-          // TODO: weird
-          height: ((270 + 28) * state.list.length).toDouble(),
-          child: CustomScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              slivers: [
-                SliverList.builder(
-                    itemCount: state.list.length,
-                    itemBuilder: (context, index) {
-                      var model = state.list[index];
-                      return ViewRoot(
-                          history: model,
-                          onCloseSlide: _onCloseSlide,
-                          key: ValueKey('history-${model.date}'),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                CupertinoPageRoute(
-                                    settings: const RouteSettings(),
-                                    builder: (context) {
-                                      return HistorPage(
-                                        history: model,
-                                        initialIndex: index,
-                                      );
-                                    }));
-                          },
-                          onDelete: () async {
-                            homeModel.deleteHistoryRoot([model]);
-                          });
-                    })
-              ]));
-    });
   }
 
   Widget _sliverAppBar() {

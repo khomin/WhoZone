@@ -8,38 +8,34 @@ import 'package:rxdart/rxdart.dart';
 
 @injectable
 class HomeModel with ChangeNotifier {
-  HistoryState historyState = HistoryState(list: []);
+  HistoryState? historyState;
+  final historyStateStream = BehaviorSubject<HistoryState>();
+  final swipeReset = ValueNotifier<int>(0);
   final HistoryRepo _historyRep;
-  final isEmptyStream = BehaviorSubject<bool>();
   final _disp = DisposableStream();
   var _disposed = false;
   final tag = 'homeModel';
 
-  HomeModel(this._historyRep) {
-    _init();
+  HomeModel(this._historyRep);
 
-    _disp.add(_historyRep.historyRootStream.listen((value) {
-      historyState = value;
-      notify();
-    }));
-  }
-
-  void _init() async {
+  void init() async {
     final initial = _historyRep.historyRootStream.valueOrNull;
     if (initial != null) {
       historyState = initial;
     }
-    if (await _historyRep.isEmpty()) {
-      if (_disposed) return;
-      isEmptyStream.add(true);
-    }
+    _disp.add(_historyRep.historyRootStream.listen((value) {
+      historyState = value;
+      historyStateStream.add(value);
+      notify();
+    }));
     _historyRep.updateHistory();
   }
 
   @override
   void dispose() {
     _disposed = true;
-    isEmptyStream.close();
+    historyStateStream.close();
+    swipeReset.dispose();
     _disp.dispose();
     super.dispose();
   }

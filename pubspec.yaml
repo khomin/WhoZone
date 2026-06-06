@@ -57,7 +57,7 @@ dependencies:
   get_it: ^9.2.1
   syncfusion_flutter_datepicker: ^33.2.6
   injectable: ^3.0.0
-
+  sensor_device_orientation: ^0.1.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

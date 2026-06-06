@@ -52,6 +52,9 @@ class Constants {
   static const menuFontSize3 = 13.0;
   static double get menuIconSize => 25;
 
+  static double get cardHeight => 270;
+  static double get cardHeaderHeight => 28;
+
   static const fontSize1 = 15.0;
   static const fontSize2 = 14.0;
   static const fontSize3 = 13.0;

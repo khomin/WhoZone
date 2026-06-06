@@ -147,10 +147,6 @@ class SettingsPageState extends State<SettingsPage> {
                                           .colorScheme
                                           .colorButtonRed
                                           .withValues(alpha: 0.8),
-                                      iconColor: Theme.of(context)
-                                          .colorScheme
-                                          .colorCard
-                                          .withValues(alpha: 0.8),
                                       size: 55,
                                       radius: 20,
                                       useScaleAnimation: true,
@@ -166,10 +162,6 @@ class SettingsPageState extends State<SettingsPage> {
                                       color: Theme.of(context)
                                           .colorScheme
                                           .colorSecondary
-                                          .withValues(alpha: 0.8),
-                                      iconColor: Theme.of(context)
-                                          .colorScheme
-                                          .colorCard
                                           .withValues(alpha: 0.8),
                                       size: 55,
                                       radius: 20,

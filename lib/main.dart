@@ -37,12 +37,6 @@ void main() async {
   );
 }
 
-// TODO: clean architecture
-// TODO: tensorflow
-// TODO: doc
-// TODO: publish again
-// TODO: reddit posts
-
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
@@ -52,24 +46,21 @@ class MainApp extends StatelessWidget {
     final bool isDark = theme == ThemeMode.system
         ? MediaQuery.platformBrightnessOf(context) == Brightness.dark
         : theme == ThemeMode.dark;
-    // TODO: is this pro?
-    Future.microtask(() {
-      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.transparent,
-        systemNavigationBarContrastEnforced: false,
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
-        systemNavigationBarIconBrightness:
-            isDark ? Brightness.light : Brightness.dark,
-      ));
-    });
-    return MaterialApp(
-      title: Constants.appName,
-      themeMode: theme,
-      theme: _buildTheme(Brightness.light),
-      darkTheme: _buildTheme(Brightness.dark),
-      home: const App(),
-    );
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.transparent,
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+          systemNavigationBarIconBrightness:
+              isDark ? Brightness.light : Brightness.dark,
+        ),
+        child: MaterialApp(
+          title: Constants.appName,
+          themeMode: theme,
+          theme: _buildTheme(Brightness.light),
+          darkTheme: _buildTheme(Brightness.dark),
+          home: const App(),
+        ));
   }
 
   ThemeData _buildTheme(Brightness brightness) {
