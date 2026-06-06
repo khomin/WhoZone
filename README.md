@@ -1,15 +1,15 @@
-## 🐶 WhoZone
+## WhoZone
 
 This app serves as a playground for exploring YOLO11 models with practical application<br>
 <img src="resources/screenshot.jpg" width="200" />
 <img src="resources/diagram.png"/>
 
-## 🚀 Features
-* **Real-Time Object Detection**: High-performance YOLO11 inference pipeline powered by a hardware-accelerated C++ backend.
+## Features
+* **Real-Time Object Detection**: YOLO11 inference pipeline powered by a hardware-accelerated C++ backend.
 * **Native Surface Integration**: Utilizes `AImageReader` via JNI to achieve zero-copy frame ingestion.
 * **Object Tracking**: Implements **Kalman filtering** to maintain bounding box consistency and smooth motion across camera frames.
-* **Reactive Event Bus**: bidirectional communication between the native C++ engine and Flutter UI, serialized via **Protocol Buffers** and FFI.
-* **Responsive UI/UX**: Adaptive bounding box.
+* **Event Bus**: bidirectional communication between the native C++ engine and Flutter UI, serialized via **Protocol Buffers** and FFI.
+* **UI**: Adaptive bounding box.
 
 ## How to start
 ```bash
