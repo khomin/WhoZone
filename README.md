@@ -1,54 +1,47 @@
-# 🐶 WhoZone
-![Build Status](https://img.shields.io/github/actions/workflow/status/khomin/WhoZone/android.yml)
-![License](https://img.shields.io/github/license/khomin/WhoZone)
+## 🐶 WhoZone
 
-This app is currently under active development.
+This app serves as a playground for exploring YOLO11 models with practical application<br>
+<img src="resources/screenshot.jpg" width="200" />
+<img src="resources/diagram.png"/>
 
-It serves as a personal playground for exploring high-performance mobile architecture and integrating advanced ML models.
+## 🚀 Features
+* **Real-Time Object Detection**: High-performance YOLO11 inference pipeline powered by a hardware-accelerated C++ backend.
+* **Native Surface Integration**: Utilizes `AImageReader` via JNI to achieve zero-copy frame ingestion.
+* **Object Tracking**: Implements **Kalman filtering** to maintain bounding box consistency and smooth motion across camera frames.
+* **Reactive Event Bus**: bidirectional communication between the native C++ engine and Flutter UI, serialized via **Protocol Buffers** and FFI.
+* **Responsive UI/UX**: Adaptive bounding box.
 
-Detection events are sent from cpp via protobuf -> FFI -> dart
-
-Boxes are drawn in flutter using normalized coordinates, the goal is 60 FPS
-
-### Previews
-![1](/resources/demo.gif)
-
-# How to start
+## How to start
 ```bash
-# clone
 git clone https://github.com/khomin/WhoZone.git --recurse-submodule
 
-# build protobuf
 ./scripts/build_protobuf.sh android
 
-# build opencv
 ./scripts/build_opencv.sh android
 
-# next we need to generate yolo11n.onnx
-cd ./resources/ultralytics
+flutter run --debug
+```
+
+## In case you want a model from scratch
+```bash
+cd ./resources
 python3 -m venv yolo_env
 source ./yolo_env/bin/activate
 pip install --upgrade pip
 pip install ultralytics
 yolo export model=yolo11n.pt format=onnx imgsz=320 opset=17
-
-# copy yolo11n.pt file to assets
 cp yolo11n.pt ./android/app/src/main/assets
-
-# now run flutter or launch it from vs code
-flutter run --debug
 ```
 
-### How to generate protobuf files
+## How to generate protobuf files
 ```bash
-dart pub global activate protoc_plugin
 ./scripts/gen_proto.sh
+```
+
+## How to update DI
+```bash
+dart run build_runner build
 ```
 
 ## 📋 Prerequisites
 Macos or Linux, Android studio with NDK
-
-# How to update DI
-```bash
-dart run build_runner build
-```

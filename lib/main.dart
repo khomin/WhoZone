@@ -10,17 +10,6 @@ import 'package:flutter_demo/core/utils/utils.dart';
 import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
 
-// T+ODO: make letter boxes like: car: 0.79 and in a box itself
-// T+ODO: box boundaries don't match frame
-// T+ODO: rotate frame in cpp
-// T+ODO: beatiful flip?
-// T+ODO: rotate buttons with device
-// T-ODO: tensorflow
-
-// TODO: clean architecture
-
-// TODO: readme
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
