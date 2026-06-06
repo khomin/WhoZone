@@ -1,12 +1,11 @@
 import 'dart:async';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/alert/data/repo/alert_repo.dart';
 import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 import 'package:flutter_demo/core/native-api/service_api.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
-import 'package:flutter_demo/utils/utils.dart';
+import 'package:flutter_demo/core/utils/utils.dart';
+import 'package:flutter_demo/features/settings/domain/repo/settings_repo.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 import 'package:rxdart/rxdart.dart';
@@ -47,10 +46,11 @@ class CameraRep {
   List<String> _classNames = [];
   final ServiceApi _serviceApi;
   final AlertRep _alertRep;
+  final SettingsRepo _settingsRep;
   var _inited = false;
   final tag = 'myRep';
 
-  CameraRep(this._serviceApi, this._alertRep);
+  CameraRep(this._serviceApi, this._alertRep, this._settingsRep);
 
   Future<void> init() async {
     if (_inited) return;
@@ -219,12 +219,12 @@ class CameraRep {
     await _saveFrame();
     if (!force) {
       // handle if sound enabled
-      var sound = getIt<SettingsRep>().getCurrentSound();
+      var sound = _settingsRep.getCurrentSound();
       if (sound != null) {
         _alertRep.playSound(sound: sound);
       }
       // handle if packet sending enabled
-      var packet = getIt<SettingsRep>().getPacketUri();
+      var packet = _settingsRep.getPacketUri();
       if (packet != null) {
         _alertRep.sendPacket(packet);
       }

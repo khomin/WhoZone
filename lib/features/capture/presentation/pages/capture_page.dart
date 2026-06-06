@@ -1,28 +1,22 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/custom_radio_box.dart';
-import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/round_box.dart';
-import 'package:flutter_demo/features/alert/presentation/pages/alert_page.dart';
+import 'package:flutter_demo/features/capture/domain/entities/surface_layout.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_center_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
 import 'package:flutter_demo/core/di/di.dart';
-import 'package:flutter_demo/features/app/data/models/app_model.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_painter.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/timer_button.dart';
-import 'package:flutter_demo/features/home/presentation/pages/home_page.dart';
-import 'package:flutter_demo/pages/settings/settings_page.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_demo/core/utils/common.dart';
 import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
 import 'dart:math' as math;
-
 import 'package:sensor_device_orientation/sensor_device_orientation.dart';
 
 class CapturePageProvilder extends StatelessWidget {
@@ -45,24 +39,12 @@ class CapturePage extends StatefulWidget {
 class CapturePageState extends State<CapturePage>
     with WidgetsBindingObserver, TickerProviderStateMixin {
   final _dispStream = DisposableStream();
-  AppLifecycleListener? _listener;
-  late final Animation<double> _slideHeight;
-  late AnimationController _ctrSlideTop;
+  late AppLifecycleListener _listener;
   final tag = 'capturePage';
 
   @override
   void initState() {
     super.initState();
-
-    Future.microtask(() async {
-      var res = await context.read<CaptureModel>().start();
-      if (!res) {
-        Common.showTextSnackBar(
-          context: context,
-          text: 'Could not get camera permissions!',
-        );
-      }
-    });
 
     _listener = AppLifecycleListener(onStateChange: (value) {
       final model = context.read<CaptureModel>();
@@ -74,27 +56,27 @@ class CapturePageState extends State<CapturePage>
         case AppLifecycleState.inactive:
           break;
         case AppLifecycleState.resumed:
-          if (!model.started) {
+          if (!model.cameraStarted) {
             model.start();
           }
           break;
       }
     });
-    _ctrSlideTop = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _slideHeight = Tween<double>(
-      begin: kToolbarHeight,
-      end: kToolbarHeight * 3,
-    ).animate(CurvedAnimation(
-        parent: _ctrSlideTop.view,
-        curve: const Interval(0.000, 0.50, curve: Curves.easeInOut)));
+
+    Future.microtask(() async {
+      var res = await context.read<CaptureModel>().start();
+      if (!res) {
+        Common.showTextSnackBar(
+          context: context,
+          text: 'Could not get camera permissions!',
+        );
+      }
+    });
   }
 
   @override
   void dispose() {
-    _listener?.dispose();
+    _listener.dispose();
     _dispStream.dispose();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -102,18 +84,11 @@ class CapturePageState extends State<CapturePage>
 
   @override
   Widget build(BuildContext context) {
+    final model = context.read<CaptureModel>();
+    final padding = MediaQuery.paddingOf(context);
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: _camera(),
-    );
-  }
-
-  Widget _camera() {
-    return Builder(
-      builder: (context) {
-        final model = context.read<CaptureModel>();
-        var padding = MediaQuery.paddingOf(context);
-        return Stack(
+        backgroundColor: Colors.black,
+        body: Stack(
           alignment: Alignment.center,
           children: [
             Positioned.fill(
@@ -148,8 +123,6 @@ class CapturePageState extends State<CapturePage>
                                   child: RotatedBox(
                                     quarterTurns: layout.rotation,
                                     child: Container(
-                                      // width: camera.size.width.toDouble(),
-                                      // height: camera.size.height.toDouble(),
                                       width: size?.width,
                                       height: size?.height,
                                       child: Texture(textureId: textureId!),
@@ -191,7 +164,7 @@ class CapturePageState extends State<CapturePage>
                     // overlay
                     Positioned.fill(
                       child: CameraPreviewWithOverlay(
-                        boxes: model.detectionBoxesStream,
+                        boxes: model.boxesStream,
                         camWidth: size?.width ?? 0.0,
                         camHeight: size?.height ?? 0.0,
                       ),
@@ -200,6 +173,9 @@ class CapturePageState extends State<CapturePage>
                 );
               }),
             ),
+            //
+            // debug information
+            if (kDebugMode) Positioned(top: 0, right: 0, child: _debugLabels()),
             //
             // duration button
             Positioned(
@@ -297,31 +273,25 @@ class CapturePageState extends State<CapturePage>
               ),
             ),
           ],
-        );
-      },
-    );
+        ));
   }
 
   Widget _debugLabels() {
-    return Builder(builder: (context) {
-      var camera = context.select<CaptureModel, app.Camera?>((v) => v.camera);
-      var cameraSensor = camera?.sensor ?? 0;
-      final sensorRadians = (cameraSensor * math.pi / 180.0);
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text('camera.sensor: ${camera?.sensor}'),
-        Text('sensorRadians: $sensorRadians'),
-      ]);
-    });
+    return SafeArea(
+      child: Builder(
+        builder: (context) {
+          var camera =
+              context.select<CaptureModel, app.Camera?>((v) => v.camera);
+          var cameraSensor = camera?.sensor ?? 0;
+          final sensorRadians = (cameraSensor * math.pi / 180.0);
+          return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('camera.sensor: ${camera?.sensor}'),
+                Text('sensorRadians: $sensorRadians'),
+              ]);
+        },
+      ),
+    );
   }
 }
-
-// T+ODO: make letter boxes like: car: 0.79 and in a box itself
-// T+ODO: box boundaries don't match frame
-// T+ODO: rotate frame in cpp
-// T+ODO: beatiful flip?
-// T+ODO: rotate buttons with device
-// T-ODO: tensorflow
-
-// TODO: clean architecture
-
-// TODO: readme

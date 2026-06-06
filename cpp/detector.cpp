@@ -13,7 +13,7 @@
 
 // --- Configuration Constants ---
 const float CONF_THRESHOLD = 0.30; // Minimum confidence to keep a box
-const float NMS_THRESHOLD = 0.50;  // IoU threshold for Non-Maximum Suppression
+const float NMS_THRESHOLD = 0.30;  // IoU threshold for Non-Maximum Suppression
 const int MAX_MISSED_FRAMES = 70;
 
 // --- Tracking Constants ---
@@ -150,9 +150,7 @@ void Detector::updatePrediction(FrameItem& frameItem) {
             tracker_class_ids.push_back(tr.class_id);
             tracker_confidences.push_back(tr.last_confidence);
         } catch (const cv::Exception& e) {
-            // If it STILL crashes, log it and move to the next object
-            // This stops the app from detonating!
-            std::cerr << "Kalman predict failed: " << e.what() << std::endl;
+            std::cerr << "updatePrediction predict failed: " << e.what() << std::endl;
             continue;
         }
     }
@@ -386,8 +384,13 @@ void Detector::processPredictionsAndUpdateTrackers(cv::Mat& frame, cv::Mat& outs
     std::vector<cv::Rect> predicted_boxes;
     predicted_boxes.reserve(trackers.size());
     for (auto &tr : trackers) {
-        cv::Mat pred = tr.kf.predict();
-        predicted_boxes.push_back(rect_from_state(pred));
+        try {
+            cv::Mat pred = tr.kf.predict();
+            predicted_boxes.push_back(rect_from_state(pred));
+        } catch (const cv::Exception& e) {
+            std::cerr << "process predict failed: " << e.what() << std::endl;
+            continue;
+        }
     }
 
     // Build IoU cost matrix
@@ -499,6 +502,4 @@ void Detector::drawTrackers(cv::Mat& frame,
                     cv::Point(box.tl().x + 2, box.tl().y - 6),
                     cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0,0,0));
     }
-//    float t = (cv::getTickCount() - time_start) / static_cast<float>(cv::getTickFrequency());
-//    cv::putText(frame, cv::format("FPS: %.2f", 1.0 / t), cv::Point(20, 40), cv::FONT_HERSHEY_PLAIN, 2.0, cv::Scalar(255, 0, 0), 2, 8);
 }

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
+import 'package:flutter_demo/features/history/domain/entities/history_state.dart';
 
 class NoRecords extends StatefulWidget {
-  NoRecords({required this.noRecordsStream});
-  final Stream noRecordsStream;
+  NoRecords({required this.stream});
+  final Stream<HistoryState> stream;
 
   @override
   State<NoRecords> createState() => _State();
@@ -39,13 +40,8 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
       curve: Curves.linear,
     ));
 
-    _disp.add(widget.noRecordsStream.listen((v) {
+    _disp.add(widget.stream.listen((v) {
       if (v.list.isEmpty) {
-        // if (_ctrShakeIcon.isForwardOrCompleted) {
-        //   _ctrShakeIcon.reverse().orCancel;
-        // } else {
-        //   _ctrShakeIcon.forward().orCancel;
-        // }
         _triggerAnimation();
       }
     }));
@@ -59,6 +55,8 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
   }
 
   void _triggerAnimation() {
+    if (!mounted) return;
+    if (_ctrShakeIcon.isAnimating) return;
     if (_ctrShakeIcon.isForwardOrCompleted) {
       _ctrShakeIcon.reverse().orCancel;
     } else {

@@ -1,7 +1,7 @@
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/history/domain/repo/history_repo.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable

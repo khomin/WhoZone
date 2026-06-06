@@ -8,8 +8,8 @@ import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
 import 'package:flutter_demo/features/alert/presentation/pages/alert_addr_page.dart';
 import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:collection/collection.dart';
 

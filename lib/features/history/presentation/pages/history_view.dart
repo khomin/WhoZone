@@ -4,7 +4,7 @@ import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/features/history/data/models/history_model.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_record.dart';
 import 'package:flutter_demo/features/history/domain/entities/scroll_touch.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:flutter/material.dart';

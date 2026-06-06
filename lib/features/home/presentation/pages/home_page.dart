@@ -9,10 +9,8 @@ import 'package:flutter_demo/features/home/data/models/home_model.dart';
 import 'package:flutter_demo/features/home/presentation/widgets/home_header.dart';
 import 'package:flutter_demo/features/home/presentation/widgets/load_records.dart';
 import 'package:flutter_demo/features/home/presentation/widgets/no_records.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class HomePagePage extends StatefulWidget {
   const HomePagePage({super.key});
@@ -73,9 +71,10 @@ class HomePagePageState extends State<HomePagePage>
                           }
                           if (state.list.isEmpty) {
                             return SliverToBoxAdapter(
-                                child: NoRecords(
-                                    noRecordsStream:
-                                        _model.historyStateStream));
+                              child: NoRecords(
+                                stream: _model.historyStateStream,
+                              ),
+                            );
                           }
                           return _gallerySliver(state);
                         }))

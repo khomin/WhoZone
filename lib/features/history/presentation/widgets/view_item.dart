@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/click_detector.dart';
 import 'package:flutter_demo/features/history/data/models/history_model.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_record.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:provider/provider.dart';
 
 class ViewItem extends StatefulWidget {

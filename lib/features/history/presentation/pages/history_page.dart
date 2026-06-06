@@ -7,9 +7,9 @@ import 'package:flutter_demo/features/history/domain/entities/history_record.dar
 import 'package:flutter_demo/features/history/domain/entities/history_root.dart';
 import 'package:flutter_demo/features/history/presentation/widgets/view_item.dart';
 import 'package:flutter_demo/features/history/presentation/pages/history_view.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

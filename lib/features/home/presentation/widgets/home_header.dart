@@ -4,8 +4,8 @@ import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_state.dart';
 import 'package:flutter_demo/features/history/presentation/pages/filter_page.dart';
 import 'package:flutter_demo/features/home/data/models/home_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:provider/provider.dart';
 
 class HomeHeader extends StatelessWidget {

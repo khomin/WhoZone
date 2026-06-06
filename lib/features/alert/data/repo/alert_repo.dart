@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter_demo/features/alert/domain/entities/packet.dart';
 import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
 import 'package:flutter_demo/core/native-api/service_api.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 

@@ -1,14 +1,17 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:flutter_demo/features/alert/domain/entities/packet.dart';
 import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
-import 'package:flutter_demo/resource/constants.dart';
 import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-@lazySingleton
-class SettingsRep {
+import '../../domain/repo/settings_repo.dart';
+
+// class SettingsRep {
+
+@LazySingleton()
+class SettingsRepoImpl implements SettingsRepo {
   SharedPreferences prefs;
   final _usedCameraIdKey = 'camera_id';
   final _captIntValSecKey = 'capt_intval_sec';
@@ -17,8 +20,9 @@ class SettingsRep {
   final _themeKey = 'themeKey';
   final tag = 'settings';
 
-  SettingsRep(this.prefs);
+  SettingsRepoImpl(this.prefs);
 
+  @override
   ThemeMode getTheme() {
     var theme = prefs.getInt(_themeKey);
     if (theme == null) {
@@ -27,6 +31,7 @@ class SettingsRep {
     return ThemeMode.values[theme];
   }
 
+  @override
   Future<void> setTheme(ThemeMode? theme) async {
     if (theme == null) {
       prefs.remove(_themeKey);
@@ -35,24 +40,29 @@ class SettingsRep {
     }
   }
 
+  @override
   Future<void> setCameraUsed(String id) async {
     await prefs.setString(_usedCameraIdKey, id);
   }
 
+  @override
   String? getCameraUsed() {
     return prefs.getString(_usedCameraIdKey);
   }
 
+  @override
   Duration getCaptureIntervalSec() {
     return Duration(
         seconds:
             prefs.getInt(_captIntValSecKey) ?? Constants.minCaptIntvalDefault);
   }
 
+  @override
   Future<void> setCaptureIntervalSec(Duration v) async {
     await prefs.setInt(_captIntValSecKey, v.inSeconds);
   }
 
+  @override
   Sound? getCurrentSound() {
     var v = prefs.getString(_soundUsedKey);
     if (v != null) {
@@ -64,6 +74,7 @@ class SettingsRep {
     return null;
   }
 
+  @override
   Future<void> setCurrentSound(Sound? sound) async {
     if (sound != null) {
       var map = {'name': sound.name, 'uri': sound.uri};
@@ -74,6 +85,7 @@ class SettingsRep {
     }
   }
 
+  @override
   Packet? getPacketUri() {
     var v = prefs.getString(_packetUsedKey);
     if (v != null) {
@@ -89,6 +101,7 @@ class SettingsRep {
     return null;
   }
 
+  @override
   Future setPacketUri(Packet? packet) async {
     if (packet != null) {
       var map = {'uri': packet.address, 'tcp': packet.tcp, 'udp': packet.udp};
@@ -99,8 +112,7 @@ class SettingsRep {
     }
   }
 
-  //
-  // remove all stored values
+  @override
   Future removeAll() async {
     await prefs.remove(_soundUsedKey);
   }

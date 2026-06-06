@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:intl/intl.dart';
 import 'package:loggy/loggy.dart';
 import 'package:path_provider/path_provider.dart';

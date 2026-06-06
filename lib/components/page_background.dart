@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
 
 class PageBackground extends StatelessWidget {
   const PageBackground({super.key});

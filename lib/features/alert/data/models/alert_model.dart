@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_demo/features/alert/domain/entities/packet.dart';
 import 'package:flutter_demo/features/alert/domain/entities/sound.dart';
 import 'package:flutter_demo/features/alert/data/repo/alert_repo.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
+import 'package:flutter_demo/features/settings/domain/repo/settings_repo.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 import 'package:collection/collection.dart';
@@ -17,7 +17,7 @@ class AlertModel with ChangeNotifier {
   final packetList = <String>['TCP', 'UDP'];
   String? packetToAddr;
 
-  final SettingsRep _settingsRep;
+  final SettingsRepo _settingsRep;
   final AlertRep _alertRep;
 
   final tag = 'alertModel';

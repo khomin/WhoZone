@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
 
 class TimerGlassButton extends StatefulWidget {
   final ValueChanged<int>? onDurationChanged;
@@ -27,11 +27,11 @@ class _TimerGlassButtonState extends State<TimerGlassButton>
 
   late int _selected;
   bool _expanded = false;
+  // ignore: unused_field
   bool _gridMounted = false; // unmounted only after animation fully reverses
   bool _tapped = false;
 
   late final AnimationController _controller;
-  late final Animation<double> _expandAnim;
   late final Animation<double> _fadeAnim;
   late final Animation<double> _pillFadeAnim;
 
@@ -43,12 +43,6 @@ class _TimerGlassButtonState extends State<TimerGlassButton>
     _controller = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 200),
-    );
-
-    _expandAnim = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
     );
 
     _fadeAnim = CurvedAnimation(

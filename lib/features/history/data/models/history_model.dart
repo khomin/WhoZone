@@ -4,7 +4,7 @@ import 'package:flutter_demo/features/history/domain/entities/history_record.dar
 import 'package:flutter_demo/features/history/domain/entities/history_root.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_state.dart';
 import 'package:flutter_demo/features/history/domain/repo/history_repo.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
 

@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 
 class SettingsAbout extends StatefulWidget {
   const SettingsAbout({super.key});

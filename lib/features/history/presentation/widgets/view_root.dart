@@ -5,12 +5,10 @@ import 'package:flutter_demo/components/click_detector.dart';
 import 'package:flutter_demo/components/slidable_item.dart';
 import 'package:flutter_demo/features/history/domain/entities/history_root.dart';
 import 'package:flutter_demo/features/home/data/models/home_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ViewRoot extends StatefulWidget {
   const ViewRoot({

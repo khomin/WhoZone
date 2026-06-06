@@ -3,13 +3,23 @@ import 'package:flutter/services.dart';
 import 'package:flutter_demo/app.dart';
 import 'package:flutter_demo/core/di/di.dart';
 import 'package:flutter_demo/features/app/data/models/app_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
-import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/utils/log_printer.dart';
-import 'package:flutter_demo/utils/utils.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
+import 'package:flutter_demo/core/utils/log_printer.dart';
+import 'package:flutter_demo/core/utils/utils.dart';
 import 'package:loggy/loggy.dart';
 import 'package:provider/provider.dart';
+
+// T+ODO: make letter boxes like: car: 0.79 and in a box itself
+// T+ODO: box boundaries don't match frame
+// T+ODO: rotate frame in cpp
+// T+ODO: beatiful flip?
+// T+ODO: rotate buttons with device
+// T-ODO: tensorflow
+
+// TODO: clean architecture
+
+// TODO: readme
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

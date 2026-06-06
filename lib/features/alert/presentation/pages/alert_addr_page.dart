@@ -4,8 +4,8 @@ import 'package:flutter_demo/components/page_background.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/components/hover_click.dart';
 import 'package:flutter_demo/features/alert/data/models/alert_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
-import 'package:flutter_demo/resource/constants.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
 import 'package:provider/provider.dart';
 
 class AlertAddrPage extends StatefulWidget {

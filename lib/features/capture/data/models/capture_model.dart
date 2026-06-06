@@ -1,20 +1,15 @@
 import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_demo/features/capture/domain/entities/surface_layout.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 import 'package:flutter_demo/core/native-api/protobuf/app.pb.dart' as app;
-import 'package:flutter_demo/repository/camera_rep.dart';
-import 'package:flutter_demo/repository/settings_rep.dart';
-import 'package:flutter_demo/resource/constants.dart';
-import 'package:flutter_demo/resource/disposable_stream.dart';
+import 'package:flutter_demo/core/repository/camera_rep.dart';
+import 'package:flutter_demo/core/repository/constants.dart';
+import 'package:flutter_demo/components/disposable_stream.dart';
+import 'package:flutter_demo/features/settings/domain/repo/settings_repo.dart';
 import 'package:injectable/injectable.dart';
 import 'package:loggy/loggy.dart';
-
-class SurfaceLayout {
-  SurfaceLayout({required this.rotation, required this.ratio});
-  int rotation;
-  double ratio;
-}
 
 @injectable
 class CaptureModel with ChangeNotifier {
@@ -25,28 +20,30 @@ class CaptureModel with ChangeNotifier {
   app.Camera? camera;
   Duration? captureTimeElapsed;
   Duration captureInterval = Duration.zero;
+  SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
+  Stream<List<DetectionBox>> get boxesStream =>
+      cameraRep.detectionStream.stream;
 
   int? textureId;
   Size? textureSize;
 
   int detectionCount = 0;
-  var started = false;
-  Stream<List<DetectionBox>> get detectionBoxesStream =>
-      cameraRep.detectionStream.stream;
-  SurfaceLayout layout = SurfaceLayout(rotation: 0, ratio: 1);
+  var cameraStarted = false;
+
   CameraRep cameraRep;
-  SettingsRep settingsRep;
-  final _dispStream = DisposableStream();
+  SettingsRepo settingsRep;
+
+  final _disp = DisposableStream();
   var _disposed = false;
   final tag = 'captureModel';
 
   CaptureModel({required this.cameraRep, required this.settingsRep}) {
     captureInterval = settingsRep.getCaptureIntervalSec();
-    _dispStream.add(cameraRep.detectionEventCount.stream.listen((v) {
+    _disp.add(cameraRep.detectionEventCount.stream.listen((v) {
       detectionCount = v;
       notify();
     }));
-    _dispStream.add(cameraRep.captureTimeStream.stream.listen((v) {
+    _disp.add(cameraRep.captureTimeStream.stream.listen((v) {
       captureTimeElapsed = v?.duration;
       notify();
     }));
@@ -55,7 +52,7 @@ class CaptureModel with ChangeNotifier {
   @override
   void dispose() {
     _disposed = true;
-    _dispStream.dispose();
+    _disp.dispose();
     stop(fromDispose: true);
     super.dispose();
   }
@@ -66,7 +63,7 @@ class CaptureModel with ChangeNotifier {
   }
 
   void stop({bool fromDispose = false}) async {
-    started = false;
+    cameraStarted = false;
     captureEnabled = false;
     camera = null;
     if (!fromDispose) notify();
@@ -115,7 +112,7 @@ class CaptureModel with ChangeNotifier {
         sensor: camera.sensorRotation,
         size: camera.cameraSizes.first,
       );
-      started = true;
+      cameraStarted = true;
       notify();
       updateRotation();
       await settingsRep.setCameraUsed(camera.id);
@@ -163,16 +160,6 @@ class CaptureModel with ChangeNotifier {
     notify();
   }
 
-  int _adjustRotation({required int sensor, required bool front}) {
-    if (front) {
-      int rotation = sensor % 360;
-      return rotation ~/ 90;
-    } else {
-      int rotation = sensor % 360;
-      return rotation ~/ 90;
-    }
-  }
-
   void startCapture() {
     cameraRep.startCapture(
       captureInterval: settingsRep.getCaptureIntervalSec(),
@@ -189,5 +176,15 @@ class CaptureModel with ChangeNotifier {
 
   void makeOneShot() {
     cameraRep.detectionEvent(force: true);
+  }
+
+  int _adjustRotation({required int sensor, required bool front}) {
+    if (front) {
+      int rotation = sensor % 360;
+      return rotation ~/ 90;
+    } else {
+      int rotation = sensor % 360;
+      return rotation ~/ 90;
+    }
   }
 }

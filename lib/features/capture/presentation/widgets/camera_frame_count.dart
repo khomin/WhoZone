@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/elipse_with_text.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
-import 'package:flutter_demo/repository/app_theme.dart';
+import 'package:flutter_demo/core/repository/app_theme.dart';
 import 'package:provider/provider.dart';
 import 'package:sensor_device_orientation/sensor_device_orientation.dart';
 
