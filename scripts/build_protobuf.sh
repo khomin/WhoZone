@@ -8,10 +8,10 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLATFORM_ARG=$1
 SOURCE_DIR="$SCRIPT_DIR/.protobuf"
-CHECKOUT_TAG="v34.0"
+CHECKOUT_TAG="v4.30.0"
 TEMP_DIR=".build-$PLATFORM_ARG"
 
-if [[ ! "$PLATFORM_ARG" =~ ^(macos|android)$ ]]; then
+if [[ ! "$PLATFORM_ARG" =~ ^(macos|android|linux)$ ]]; then
     echo "Usage: $0 {macos|android}"
     exit 1
 fi
@@ -36,9 +36,9 @@ build() {
     local BUILD_DIR=${ARCH:-"default_build"}
     echo "Building $PLATFORM_NAME, build in $BUILD_DIR, arguments=$EXTRA_ARGS (this may take a minute)..."
     if [ -z "$ARCH" ]; then
-        INSTALL_DIR="$PROJECT_DIR/.lib_pack/$PLATFORM_NAME/protobuf"
+        INSTALL_DIR="$PROJECT_DIR/lib_pack/$PLATFORM_NAME/protobuf"
     else
-        INSTALL_DIR="$PROJECT_DIR/.lib_pack/$PLATFORM_NAME/protobuf/$ARCH"
+        INSTALL_DIR="$PROJECT_DIR/lib_pack/$PLATFORM_NAME/protobuf/$ARCH"
     fi
     cmake -S ../ -B "$BUILD_DIR" \
         -DCMAKE_BUILD_TYPE=Release \
@@ -50,16 +50,36 @@ build() {
     cmake --install $BUILD_DIR --config Release --prefix ${INSTALL_DIR}
 }
 
-echo "PLATFORM_ARG=$PLATFORM_ARG"
-
 case $PLATFORM_ARG in
     macos)
         build "apple" "macos_universal" \
             "-G Xcode \
             -DPLATFORM=MAC_UNIVERSAL \
             -DDEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_MACOSX_BUNDLE=OFF \
             -Dprotobuf_BUILD_PROTOC_BINARIES=YES \
             -DCMAKE_TOOLCHAIN_FILE=$PROJECT_DIR/cpp/submodule/ios-cmake/ios.toolchain.cmake"
+        build "apple" "ios_combined" \
+            "-G Xcode \
+            -DPLATFORM=OS64COMBINED \   
+            -DDEPLOYMENT_TARGET=13.0 \
+            -DCMAKE_MACOSX_BUNDLE=OFF \
+            -Dprotobuf_BUILD_PROTOC_BINARIES=NO \
+            -DCMAKE_TOOLCHAIN_FILE=$PROJECT_DIR/cpp/submodule/ios-cmake/ios.toolchain.cmake"
+        # swift protobuf
+        INSTALL_DIR="$PROJECT_DIR/lib_pack/apple/protobuf/swift-protobuf"
+        SOURCE_DIR="$SCRIPT_DIR/.swift-protobuf"
+        mkdir -p "${INSTALL_DIR}"
+
+        echo "Cloning swift-protobuf..."
+        git clone https://github.com/apple/swift-protobuf.git --branch 1.20.0 "$SOURCE_DIR"
+        cd "$SOURCE_DIR"
+
+        echo "Building (this may take a minute)..."
+        swift build -c release
+
+        cp .build/release/protoc-gen-swift $INSTALL_DIR
+        cp .build/release/protoc-gen-swift-tool $INSTALL_DIR
         ;;
     android)
         if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -85,7 +105,6 @@ case $PLATFORM_ARG in
         echo "USING-NDK: ${NDK}"
         echo "USING-CMAKE_SYSROOT: ${CMAKE_SYSROOT}"
         echo "USING-TOOLCHAIN: ${TOOLCHAIN}"
-
         build "android" "arm64-v8a" "-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN
             -DANDROID_ABI=arm64-v8a \
             -DCMAKE_ANDROID_NDK=${NDK} \
@@ -99,14 +118,17 @@ case $PLATFORM_ARG in
             -DCMAKE_ANDROID_NDK=${NDK} \
             -Dprotobuf_BUILD_PROTOC_BINARIES=NO"
         ;;
+    linux)
+        build "linux" "" "-Dprotobuf_BUILD_SHARED_LIBS=OFF -Dprotobuf_BUILD_PROTOC_BINARIES=NO"
+        ;;
     *)
         echo "Usage: $0 {macos|android}"
         exit 1
         ;;
 esac
 
-# cd ../..
-# rm -rf $SOURCE_DIR
+cd ../..
+rm -rf $SOURCE_DIR
 
 echo "------------------"
 echo "COMPLETED"

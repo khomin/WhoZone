@@ -71,3 +71,4 @@ flutter_gl_surface/android/app/.cxx/**
 scripts/.protobuf_macos/
 scripts/.protobuf/
 scripts/.opencv/
+android/keystore.properties

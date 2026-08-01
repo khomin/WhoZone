@@ -18,7 +18,7 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.who.zone"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -48,7 +48,7 @@ android {
     }
     defaultConfig {
         applicationId = "com.who.zone"
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 37
         minSdk = 30
         versionCode = flutter.versionCode
         versionName = flutter.versionName

@@ -43,5 +43,9 @@ cp yolo11n.pt ./android/app/src/main/assets
 dart run build_runner build
 ```
 
+<a href="https://play.google.com/store/apps/details?id=com.who.zone">
+  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="60">
+</a>
+
 ## 📋 Prerequisites
 Macos or Linux, Android studio with NDK
