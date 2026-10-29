@@ -72,3 +72,4 @@ scripts/.protobuf_macos/
 scripts/.protobuf/
 scripts/.opencv/
 android/keystore.properties
+/android/build/reports
