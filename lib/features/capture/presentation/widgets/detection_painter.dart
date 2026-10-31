@@ -127,6 +127,7 @@ class _State extends State<CameraPreviewWithOverlay>
         painter: DetectionPainter(
           tracks: _tracks,
           repaint: _repaint,
+          topInset: MediaQuery.paddingOf(context).top,
           camWidth: widget.camWidth,
           camHeight: widget.camHeight,
         ),
@@ -149,6 +150,7 @@ class DetectionPainter extends CustomPainter {
   static final _labels = <String, TextPainter>{};
 
   final Map<int, _Track> tracks;
+  final double topInset;
   final double camWidth;
   final double camHeight;
 
@@ -163,6 +165,7 @@ class DetectionPainter extends CustomPainter {
 
   DetectionPainter({
     required this.tracks,
+    required this.topInset,
     required Listenable repaint,
     required this.camWidth,
     required this.camHeight,
@@ -253,9 +256,9 @@ class DetectionPainter extends CustomPainter {
     final width = text.width + _dotSize + _dotGap + _paddingH * 2;
     final height = text.height + _paddingV * 2;
 
-    // Above the box, or inside of it when there is no room on top
+    // Above the box, or inside of it when there is no room under the status bar
     double top = box.top - height - _labelGap;
-    if (top < 0) top = box.top + _labelGap;
+    if (top < topInset) top = math.max(box.top, topInset) + _labelGap;
     final left = math.min(box.left, math.max(0.0, size.width - width));
 
     final pill = RRect.fromLTRBR(
@@ -286,5 +289,7 @@ class DetectionPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(DetectionPainter oldDelegate) =>
-      oldDelegate.camWidth != camWidth || oldDelegate.camHeight != camHeight;
+      oldDelegate.topInset != topInset ||
+      oldDelegate.camWidth != camWidth ||
+      oldDelegate.camHeight != camHeight;
 }

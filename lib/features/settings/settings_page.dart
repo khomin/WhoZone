@@ -354,7 +354,7 @@ class SettingsPageState extends State<SettingsPage> {
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     Column(children: [
                       const SizedBox(height: 30),
-                      Text('${Constants.appName} ${Constants.appVersion}',
+                      Text('${Constants.appName} ${context.select<AppModel, String>((v) => v.appVersion)}',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               color:

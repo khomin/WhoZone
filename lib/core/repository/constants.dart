@@ -31,7 +31,6 @@ class AppConfig {
 
 class Constants {
   static const appName = "WhoZone";
-  static var appVersion = '1.0.2';
   static const localFolderName = 'whoZone';
   static const appLink =
       'https://play.google.com/store/apps/details?id=com.who.zone';
