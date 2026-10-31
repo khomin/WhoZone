@@ -141,137 +141,74 @@ class ViewRootState extends State<ViewRoot> with TickerProviderStateMixin {
             scale: _width,
             child: Container(
                 margin: const EdgeInsets.only(
-                    left: 25, right: 25, top: 20, bottom: 5),
+                    left: 20, right: 20, top: 16, bottom: 4),
+                height: Constants.cardHeight,
+                clipBehavior: Clip.antiAlias,
                 decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.colorCard,
-                    boxShadow: [
-                      BoxShadow(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .colorPrimary
-                              .withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10))
-                    ],
-                    borderRadius: const BorderRadius.all(Radius.circular(20))),
-                height: Constants.cardHeight,
-                child: Column(children: [
-                  Column(children: [
-                    //
-                    // header
-                    Padding(
-                        padding: const EdgeInsets.only(left: 20, top: 10),
-                        child: Row(children: [
-                          Container(
-                              width: 50,
-                              height: 50,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .colorBgUnderCard,
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10))),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    //
-                                    // day of month
-                                    Text('${history.date.day}',
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .colorTextAccent
-                                                .withValues(alpha: 0.5),
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold)),
-                                    //
-                                    // month in string [DEC]
-                                    Text(
-                                        history.dateMonth
-                                            .toUpperCase()
-                                            .substring(0, 3),
-                                        style: TextStyle(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .colorTextSecond,
-                                            fontSize: 12,
-                                            fontFamily: 'Salsa',
-                                            fontWeight: FontWeight.w600))
-                                  ])),
-                          Padding(
-                              padding: const EdgeInsets.only(left: 10),
-                              child:
+                    borderRadius: BorderRadius.circular(18)),
+                child: Stack(fit: StackFit.expand, children: [
+                  Image.file(File(itemPath),
+                      fit: BoxFit.cover,
+                      // no need to decode more than the card shows
+                      cacheWidth: 1000),
+                  //
+                  // keeps the text readable on any photo
+                  const DecoratedBox(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.center,
+                              end: Alignment.bottomCenter,
+                              colors: [Colors.transparent, Color(0xCC000000)]))),
+                  Positioned(
+                      left: 16,
+                      right: 16,
+                      bottom: 14,
+                      child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                   //
-                                  SizedBox(
-                                      height: 50,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            //
-                                            // header (Yesterday, Today etc)
-                                            Text(history.dateHeader,
-                                                style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .colorTextAccent
-                                                        .withValues(alpha: 0.5),
-                                                    fontSize: 16,
-                                                    fontWeight:
-                                                        FontWeight.bold)),
-                                            //
-                                            // second line (Year)
-                                            Text(history.dateSub,
-                                                style: TextStyle(
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .colorTextSecond,
-                                                    fontSize: 12,
-                                                    fontWeight:
-                                                        FontWeight.w600))
-                                          ]))),
-                          const Spacer(),
-                          Padding(
-                              padding: const EdgeInsets.only(right: 20),
-                              child: Row(children: [
-                                Icon(Icons.photo_library_sharp,
-                                    size: 18,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .colorTextAccent
-                                        .withValues(alpha: 0.5)),
-                                const SizedBox(width: 4),
-                                //
-                                // count of frames
-                                Text(
-                                  '${history.framesCount}',
-                                  style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .colorTextSecond,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ]))
-                        ])),
-                    Padding(
-                        padding: const EdgeInsets.only(
-                          left: 20,
-                          right: 20,
-                          top: 10,
-                          bottom: 10,
-                        ),
-                        child: Stack(children: [
-                          ClipRRect(
-                              borderRadius: BorderRadius.circular(20.0),
-                              child: Image.file(File(itemPath),
-                                  width: double.infinity,
-                                  height: 180,
-                                  fit: BoxFit.cover)),
-                        ]))
-                  ])
+                                  // header (Yesterday, Today etc)
+                                  Text(history.dateHeader,
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w700)),
+                                  //
+                                  // date [7 JUN 2026]
+                                  Text(
+                                      '${history.date.day} ${history.dateMonth.toUpperCase().substring(0, 3)} ${history.dateSub}',
+                                      style: TextStyle(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.75),
+                                          fontSize: 12,
+                                          letterSpacing: 0.6,
+                                          fontWeight: FontWeight.w500)),
+                                ])),
+                            //
+                            // count of frames
+                            Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.5),
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Row(children: [
+                                  const Icon(Icons.photo_library_outlined,
+                                      size: 14, color: Colors.white),
+                                  const SizedBox(width: 5),
+                                  Text('${history.framesCount}',
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600)),
+                                ])),
+                          ])),
                 ]))));
   }
 }

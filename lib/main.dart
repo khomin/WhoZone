@@ -64,8 +64,20 @@ class MainApp extends StatelessWidget {
 
   ThemeData _buildTheme(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
+    final accent =
+        isDark ? AppColorScheme.accentDark : AppColorScheme.accentLight;
+    final scheme = ColorScheme.fromSeed(
+      seedColor: accent,
+      brightness: brightness,
+    ).copyWith(
+      primary: accent,
+      onPrimary: isDark ? const Color(0xFF0E1110) : Colors.white,
+      surface: isDark ? AppColorScheme.bottomBarDark : AppColorScheme.bottomBarLight,
+    );
     return ThemeData(
       brightness: brightness,
+      colorScheme: scheme,
+      scaffoldBackgroundColor: scheme.surface,
       splashFactory: InkRipple.splashFactory,
       appBarTheme: AppBarTheme(
         systemOverlayStyle: SystemUiOverlayStyle(

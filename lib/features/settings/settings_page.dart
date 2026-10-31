@@ -76,7 +76,6 @@ class SettingsPageState extends State<SettingsPage> {
               height: kToolbarHeight,
               child: Row(children: [
                 Container(
-                  width: 100,
                   margin: const EdgeInsets.only(left: 25),
                   child: Text('Settings',
                       style: Theme.of(context).colorScheme.homeCardH1Style),

@@ -90,14 +90,8 @@ class CameraRep {
       if (camera == null) {
         return null;
       }
-      var size = camera.cameraSizes.first;
-      for (var i in camera.cameraSizes) {
-        logDebug('$tag: start camera, size: [${i.width}x${i.height}]');
-      }
-      for (var i in camera.fpsRanges) {
-        logDebug(
-            '$tag: start camera, fps: [lower=${i.lower},upper=${i.upper}]');
-      }
+      var size = _previewSize(camera);
+      logDebug('$tag: start camera, size: [${size.width}x${size.height}]');
       // get texture
       var textRes = await _serviceApi.channelCmd
           .invokeMethod('register_texture', <String, dynamic>{
@@ -122,7 +116,23 @@ class CameraRep {
     return null;
   }
 
+  /// The biggest size the screen can actually show. Anything above it only
+  /// makes the camera work harder. Has to be 4:3 as well, like the detector
+  /// stream, otherwise the two see a different crop and the boxes won't line up.
+  app.Size _previewSize(app.CameraInfo camera) {
+    const maxLongEdge = 1600;
+    bool fourToThree(app.Size s) => s.width * 3 == s.height * 4;
+    int area(app.Size s) => s.width * s.height;
+
+    final sizes = camera.cameraSizes.where(fourToThree).toList();
+    final candidates = sizes.isNotEmpty ? sizes : camera.cameraSizes;
+    final fits = candidates.where((s) => s.width <= maxLongEdge).toList();
+    return (fits.isNotEmpty ? fits : candidates)
+        .reduce((a, b) => (area(a) > area(b)) == fits.isNotEmpty ? a : b);
+  }
+
   Future<void> stopCamera() async {
+    detectionStream.add(const []);
     try {
       await _serviceApi.channelCmd
           .invokeMethod('stop_camera', <String, dynamic>{});

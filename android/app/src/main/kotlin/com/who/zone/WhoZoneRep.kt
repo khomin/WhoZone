@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.Surface
 import com.elvishew.xlog.XLog
 import java.io.File
+import kotlin.concurrent.thread
 
 object WhoZoneRep {
     const val READER_WIDTH = 640
@@ -11,13 +12,19 @@ object WhoZoneRep {
     const val MODEL_WIDTH = 320
     const val MODEL_HEIGHT = 320
 
+    private var engineThread: Thread? = null
+
+    // Runs in the background, nothing here should delay the first frame of the app
     fun initEngine(context: Context) {
+        engineThread = thread(name = "EngineInit") { loadEngine(context) }
+    }
+
+    fun awaitEngine() {
+        engineThread?.join()
+    }
+
+    private fun loadEngine(context: Context) {
         try {
-            System.loadLibrary("opencv_core")
-            System.loadLibrary("opencv_imgproc")
-            System.loadLibrary("opencv_flann")
-            System.loadLibrary("opencv_calib3d")
-            System.loadLibrary("opencv_objdetect")
             System.loadLibrary("WhoZone")
         } catch (e: Exception) {
             XLog.e("Failed to open library", e.toString())
@@ -47,16 +54,24 @@ object WhoZoneRep {
     }
 
     fun copyModelToCache(context: Context): String {
-        val modelName = "yolo11n.onnx"
-        val modelFile = File(context.cacheDir, modelName)
-        if (!modelFile.exists()) {
-            context.assets.open(modelName).use { input ->
-                modelFile.outputStream().use { output ->
+        File(context.cacheDir, "yolo11n.onnx").delete()
+        copyAssetToCache(context, "yolo11n.ncnn.bin")
+        return copyAssetToCache(context, "yolo11n.ncnn.param").absolutePath
+    }
+
+    private fun copyAssetToCache(context: Context, name: String): File {
+        val file = File(context.cacheDir, name)
+        if (!file.exists()) {
+            // via a temp file, so a killed process can't leave half of the model behind
+            val temp = File(context.cacheDir, "$name.tmp")
+            context.assets.open(name).use { input ->
+                temp.outputStream().use { output ->
                     input.copyTo(output)
                 }
             }
+            temp.renameTo(file)
         }
-        return modelFile.absolutePath
+        return file
     }
 
     private external fun init(data: ByteArray, len: Int)

@@ -185,7 +185,10 @@ inline constexpr DetectionItem::Impl_::Impl_(
       : _cached_size_{0},
         detection_{nullptr},
         class_id_{0},
-        confidence_{0} {}
+        confidence_{0},
+        track_id_{0},
+        velocity_x_{0},
+        velocity_y_{0} {}
 
 template <typename>
 constexpr DetectionItem::DetectionItem(::_pbi::ConstantInitialized)
@@ -425,13 +428,19 @@ const ::uint32_t
         1,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_._has_bits_),
-        6, // hasbit index offset
+        9, // hasbit index offset
         PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.detection_),
         PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.class_id_),
         PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.confidence_),
+        PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.track_id_),
+        PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.velocity_x_),
+        PROTOBUF_FIELD_OFFSET(::app::DetectionItem, _impl_.velocity_y_),
         0,
         1,
         2,
+        3,
+        4,
+        5,
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::app::FrameSaved, _impl_._has_bits_),
         4, // hasbit index offset
@@ -460,8 +469,8 @@ static const ::_pbi::MigrationSchema
         {53, sizeof(::app::EventWrapper)},
         {58, sizeof(::app::Detection)},
         {67, sizeof(::app::DetectionItem)},
-        {76, sizeof(::app::FrameSaved)},
-        {81, sizeof(::app::Rect)},
+        {82, sizeof(::app::FrameSaved)},
+        {87, sizeof(::app::Rect)},
 };
 static const ::_pb::Message* PROTOBUF_NONNULL const file_default_instances[] = {
     &::app::_InitParam_default_instance_._instance,
@@ -493,17 +502,19 @@ const char descriptor_table_protodef_app_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIAB
     "ectionH\000\022&\n\013frame_saved\030\002 \001(\0132\017.app.Fram"
     "eSavedH\000B\005\n\003msg\"X\n\tDetection\022 \n\004item\030\001 \003"
     "(\0132\022.app.DetectionItem\022\023\n\013frame_count\030\004 "
-    "\001(\005\022\024\n\014timestamp_ns\030\005 \001(\003\"S\n\rDetectionIt"
-    "em\022\034\n\tdetection\030\001 \001(\0132\t.app.Rect\022\020\n\010clas"
-    "s_id\030\002 \001(\005\022\022\n\nconfidence\030\003 \001(\002\"\032\n\nFrameS"
-    "aved\022\014\n\004path\030\001 \001(\t\";\n\004Rect\022\t\n\001x\030\001 \001(\001\022\t\n"
-    "\001y\030\002 \001(\001\022\r\n\005width\030\003 \001(\001\022\016\n\006height\030\004 \001(\001"
+    "\001(\005\022\024\n\014timestamp_ns\030\005 \001(\003\"\215\001\n\rDetectionI"
+    "tem\022\034\n\tdetection\030\001 \001(\0132\t.app.Rect\022\020\n\010cla"
+    "ss_id\030\002 \001(\005\022\022\n\nconfidence\030\003 \001(\002\022\020\n\010track"
+    "_id\030\004 \001(\005\022\022\n\nvelocity_x\030\005 \001(\002\022\022\n\nvelocit"
+    "y_y\030\006 \001(\002\"\032\n\nFrameSaved\022\014\n\004path\030\001 \001(\t\";\n"
+    "\004Rect\022\t\n\001x\030\001 \001(\001\022\t\n\001y\030\002 \001(\001\022\r\n\005width\030\003 \001"
+    "(\001\022\016\n\006height\030\004 \001(\001"
 };
 static ::absl::once_flag descriptor_table_app_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_app_2eproto = {
     false,
     false,
-    839,
+    898,
     descriptor_table_protodef_app_2eproto,
     "app.proto",
     &descriptor_table_app_2eproto_once,
@@ -3131,9 +3142,9 @@ DetectionItem::DetectionItem(
                offsetof(Impl_, class_id_),
            reinterpret_cast<const char*>(&from._impl_) +
                offsetof(Impl_, class_id_),
-           offsetof(Impl_, confidence_) -
+           offsetof(Impl_, velocity_y_) -
                offsetof(Impl_, class_id_) +
-               sizeof(Impl_::confidence_));
+               sizeof(Impl_::velocity_y_));
 
   // @@protoc_insertion_point(copy_constructor:app.DetectionItem)
 }
@@ -3147,9 +3158,9 @@ inline void DetectionItem::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   ::memset(reinterpret_cast<char*>(&_impl_) +
                offsetof(Impl_, detection_),
            0,
-           offsetof(Impl_, confidence_) -
+           offsetof(Impl_, velocity_y_) -
                offsetof(Impl_, detection_) +
-               sizeof(Impl_::confidence_));
+               sizeof(Impl_::velocity_y_));
 }
 DetectionItem::~DetectionItem() {
   // @@protoc_insertion_point(destructor:app.DetectionItem)
@@ -3208,16 +3219,16 @@ DetectionItem::GetClassData() const {
   return DetectionItem_class_data_.base();
 }
 PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::_pbi::TcParseTable<2, 3, 1, 0, 2>
+const ::_pbi::TcParseTable<3, 6, 1, 0, 2>
 DetectionItem::_table_ = {
   {
     PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_._has_bits_),
     0, // no _extensions_
-    3, 24,  // max_field_number, fast_idx_mask
+    6, 56,  // max_field_number, fast_idx_mask
     offsetof(decltype(_table_), field_lookup_table),
-    4294967288,  // skipmap
+    4294967232,  // skipmap
     offsetof(decltype(_table_), field_entries),
-    3,  // num_field_entries
+    6,  // num_field_entries
     1,  // num_aux_entries
     offsetof(decltype(_table_), aux_entries),
     DetectionItem_class_data_.base(),
@@ -3240,6 +3251,19 @@ DetectionItem::_table_ = {
     {::_pbi::TcParser::FastF32S1,
      {29, 2, 0,
       PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.confidence_)}},
+    // optional int32 track_id = 4;
+    {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(DetectionItem, _impl_.track_id_), 3>(),
+     {32, 3, 0,
+      PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.track_id_)}},
+    // optional float velocity_x = 5;
+    {::_pbi::TcParser::FastF32S1,
+     {45, 4, 0,
+      PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.velocity_x_)}},
+    // optional float velocity_y = 6;
+    {::_pbi::TcParser::FastF32S1,
+     {53, 5, 0,
+      PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.velocity_y_)}},
+    {::_pbi::TcParser::MiniParse, {}},
   }}, {{
     65535, 65535
   }}, {{
@@ -3249,6 +3273,12 @@ DetectionItem::_table_ = {
     {PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.class_id_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
     // optional float confidence = 3;
     {PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.confidence_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // optional int32 track_id = 4;
+    {PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.track_id_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kInt32)},
+    // optional float velocity_x = 5;
+    {PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.velocity_x_), _Internal::kHasBitsOffset + 4, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
+    // optional float velocity_y = 6;
+    {PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.velocity_y_), _Internal::kHasBitsOffset + 5, 0, (0 | ::_fl::kFcOptional | ::_fl::kFloat)},
   }},
   {{
       {::_pbi::TcParser::GetTable<::app::Rect>()},
@@ -3268,10 +3298,10 @@ PROTOBUF_NOINLINE void DetectionItem::Clear() {
     ABSL_DCHECK(_impl_.detection_ != nullptr);
     _impl_.detection_->Clear();
   }
-  if (BatchCheckHasBit(cached_has_bits, 0x00000006U)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003eU)) {
     ::memset(&_impl_.class_id_, 0, static_cast<::size_t>(
-        reinterpret_cast<char*>(&_impl_.confidence_) -
-        reinterpret_cast<char*>(&_impl_.class_id_)) + sizeof(_impl_.confidence_));
+        reinterpret_cast<char*>(&_impl_.velocity_y_) -
+        reinterpret_cast<char*>(&_impl_.class_id_)) + sizeof(_impl_.velocity_y_));
   }
   _impl_._has_bits_.Clear();
   _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
@@ -3317,6 +3347,27 @@ PROTOBUF_NOINLINE void DetectionItem::Clear() {
         3, this_._internal_confidence(), target);
   }
 
+  // optional int32 track_id = 4;
+  if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+    target =
+        ::google::protobuf::internal::WireFormatLite::WriteInt32ToArrayWithField<4>(
+            stream, this_._internal_track_id(), target);
+  }
+
+  // optional float velocity_x = 5;
+  if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(
+        5, this_._internal_velocity_x(), target);
+  }
+
+  // optional float velocity_y = 6;
+  if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(
+        6, this_._internal_velocity_y(), target);
+  }
+
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
     target =
         ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
@@ -3342,8 +3393,8 @@ PROTOBUF_NOINLINE void DetectionItem::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  total_size += static_cast<bool>(0x00000004U & cached_has_bits) * 5;
-  if (BatchCheckHasBit(cached_has_bits, 0x00000003U)) {
+  total_size += ::absl::popcount(0x00000034U & cached_has_bits) * 5;
+  if (BatchCheckHasBit(cached_has_bits, 0x0000000bU)) {
     // optional .app.Rect detection = 1;
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       total_size += 1 +
@@ -3353,6 +3404,11 @@ PROTOBUF_NOINLINE void DetectionItem::Clear() {
     if (CheckHasBit(cached_has_bits, 0x00000002U)) {
       total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
           this_._internal_class_id());
+    }
+    // optional int32 track_id = 4;
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+      total_size += ::_pbi::WireFormatLite::Int32SizePlusOne(
+          this_._internal_track_id());
     }
   }
   return this_.MaybeComputeUnknownFieldsSize(total_size,
@@ -3374,7 +3430,7 @@ void DetectionItem::MergeImpl(::google::protobuf::MessageLite& to_msg,
   (void)cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x00000007U)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000003fU)) {
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       ABSL_DCHECK(from._impl_.detection_ != nullptr);
       if (_this->_impl_.detection_ == nullptr) {
@@ -3388,6 +3444,15 @@ void DetectionItem::MergeImpl(::google::protobuf::MessageLite& to_msg,
     }
     if (CheckHasBit(cached_has_bits, 0x00000004U)) {
       _this->_impl_.confidence_ = from._impl_.confidence_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
+      _this->_impl_.track_id_ = from._impl_.track_id_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000010U)) {
+      _this->_impl_.velocity_x_ = from._impl_.velocity_x_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000020U)) {
+      _this->_impl_.velocity_y_ = from._impl_.velocity_y_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
@@ -3408,8 +3473,8 @@ void DetectionItem::InternalSwap(DetectionItem* PROTOBUF_RESTRICT PROTOBUF_NONNU
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_impl_._has_bits_[0], other->_impl_._has_bits_[0]);
   ::google::protobuf::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.confidence_)
-      + sizeof(DetectionItem::_impl_.confidence_)
+      PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.velocity_y_)
+      + sizeof(DetectionItem::_impl_.velocity_y_)
       - PROTOBUF_FIELD_OFFSET(DetectionItem, _impl_.detection_)>(
           reinterpret_cast<char*>(&_impl_.detection_),
           reinterpret_cast<char*>(&other->_impl_.detection_));

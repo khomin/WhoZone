@@ -63,6 +63,7 @@ class ViewItemState extends State<ViewItem> {
           children: [
             Positioned.fill(
                 child: Image.file(
+                  cacheWidth: 400,
               File(widget.history.path),
               fit: BoxFit.cover,
             )),

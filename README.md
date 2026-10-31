@@ -5,7 +5,7 @@ This app serves as a playground for exploring YOLO11 models with practical appli
 <img src="resources/diagram.png"/>
 
 ## Features
-* **Real-Time Object Detection**: YOLO11 inference pipeline powered by a hardware-accelerated C++ backend.
+* **Real-Time Object Detection**: YOLO11 inference on [ncnn](https://github.com/Tencent/ncnn), running on the big CPU cores.
 * **Native Surface Integration**: Utilizes `AImageReader` via JNI to achieve zero-copy frame ingestion.
 * **Object Tracking**: Implements **Kalman filtering** to maintain bounding box consistency and smooth motion across camera frames.
 * **Event Bus**: bidirectional communication between the native C++ engine and Flutter UI, serialized via **Protocol Buffers** and FFI.
@@ -19,6 +19,8 @@ git clone https://github.com/khomin/WhoZone.git --recurse-submodule
 
 ./scripts/build_opencv.sh android
 
+./scripts/build_ncnn.sh
+
 flutter run --debug
 ```
 
@@ -30,7 +32,8 @@ source ./yolo_env/bin/activate
 pip install --upgrade pip
 pip install ultralytics
 yolo export model=yolo11n.pt format=onnx imgsz=320 opset=17
-cp yolo11n.pt ./android/app/src/main/assets
+cd ..
+./scripts/convert_model.sh
 ```
 
 ## How to generate protobuf files

@@ -13,25 +13,9 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 300,
-      height: 60,
+      height: 56,
       child: Stack(
         children: [
-          Positioned(
-            top: 20,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 40,
-              width: 100,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.colorBgUnderCard,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-              ),
-            ),
-          ),
           Positioned(
             top: 0,
             left: 0,
@@ -40,14 +24,8 @@ class HomeHeader extends StatelessWidget {
               margin: const EdgeInsets.only(left: 20, right: 20),
               height: 50,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.colorBgUnderCard,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 0),
-                  )
-                ],
+                color: Theme.of(context).colorScheme.colorCard,
+                borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
                 children: [
@@ -146,7 +124,7 @@ class HomeHeader extends StatelessWidget {
                                 top: 0,
                                 child: Center(
                                   child: Text(
-                                    '$count',
+                                    '$count frames',
                                     style: TextStyle(
                                       color: Theme.of(context)
                                           .colorScheme

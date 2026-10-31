@@ -1,7 +1,6 @@
 package com.who.zone
 
 import android.media.RingtoneManager
-import android.os.Bundle
 import android.view.Surface
 import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterFragmentActivity
@@ -17,18 +16,13 @@ import kotlinx.coroutines.withContext
 
 class MainActivity : FlutterFragmentActivity() {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
-    private lateinit var cameraSession: CameraSession
+    private val cameraSession by lazy { CameraSession(applicationContext) }
     private var cameraPermissionResult: MethodChannel.Result ?= null
     private lateinit var channel: MethodChannel
 
     val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->
         cameraPermissionResult?.success(isGranted)
         cameraPermissionResult = null
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        cameraSession = CameraSession(applicationContext)
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_demo/components/round_box.dart';
 import 'package:flutter_demo/features/capture/domain/entities/surface_layout.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_center_button.dart';
+import 'package:flutter_demo/features/capture/presentation/widgets/camera_chip.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_flip_button.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/camera_frame_count.dart';
 import 'package:flutter_demo/core/di/di.dart';
@@ -117,49 +117,33 @@ class CapturePageState extends State<CapturePage>
                       child: ClipRect(
                         child: FittedBox(
                           fit: BoxFit.cover,
-                          child: camera.isFront
-                              ? Transform.flip(
-                                  flipX: true,
-                                  child: RotatedBox(
-                                    quarterTurns: layout.rotation,
-                                    child: Container(
-                                      width: size?.width,
-                                      height: size?.height,
-                                      child: Texture(textureId: textureId!),
-                                    ),
-                                  ),
-                                )
-                              : RotatedBox(
-                                  quarterTurns: layout.rotation,
-                                  child: SizedBox(
-                                    width: camera.size.width.toDouble(),
-                                    height: camera.size.height.toDouble(),
-                                    child: Texture(textureId: textureId!),
-                                  ),
-                                ),
+                          child: Transform.flip(
+                            flipX: camera.isFront,
+                            child: RotatedBox(
+                              quarterTurns: layout.rotation,
+                              child: SizedBox(
+                                width: size?.width,
+                                height: size?.height,
+                                child: Texture(textureId: textureId!),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     //
                     // border
-                    Positioned.fill(
-                        child: Container(
-                      width: camera.size.width.toDouble(),
-                      height: camera.size.height.toDouble(),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(40),
-                          topRight: Radius.circular(40),
+                    if (recording)
+                      Positioned.fill(
+                          child: IgnorePointer(
+                              child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Theme.of(context).colorScheme.colorButtonRed,
+                            width: 3,
+                          ),
                         ),
-                        border: Border.all(
-                          color: recording
-                              ? Theme.of(context).colorScheme.colorButtonRed
-                              : Colors.transparent,
-                          width: 2,
-                        ),
-                      ),
-                    )),
+                      ))),
                     //
                     // overlay
                     Positioned.fill(
@@ -188,17 +172,13 @@ class CapturePageState extends State<CapturePage>
                   );
                   return SensorRotatedBox(
                     animate: true,
-                    child: Row(
-                      children: [
-                        TimerGlassButton(
-                          initialDuration: duration.inSeconds,
-                          onDurationChanged: (seconds) {
-                            var model = context.read<CaptureModel>();
-                            model.captureInterval = Duration(seconds: seconds);
-                            model.notify();
-                          },
-                        ),
-                      ],
+                    child: TimerGlassButton(
+                      initialDuration: duration.inSeconds,
+                      onDurationChanged: (seconds) {
+                        context
+                            .read<CaptureModel>()
+                            .setCaptureInterval(Duration(seconds: seconds));
+                      },
                     ),
                   );
                 },
@@ -212,27 +192,13 @@ class CapturePageState extends State<CapturePage>
               child: SensorRotatedBox(
                 animate: true,
                 duration: Constants.duration,
-                child: Center(
-                  child: RepaintBoundary(
-                    child: SizedBox(
-                      width: 80,
-                      height: 34,
-                      child: Stack(children: [
-                        Builder(builder: (context) {
-                          var duration =
-                              context.select<CaptureModel, Duration?>(
-                                  (v) => v.captureTimeElapsed);
-                          if (duration == null) return const SizedBox();
-                          return RoundBox(
-                            text: duration.format(),
-                            useRightMargin: false,
-                            color: Theme.of(context).colorScheme.colorButtonRed,
-                            borderRadius: 40,
-                          );
-                        })
-                      ]),
-                    ),
-                  ),
+                child: RepaintBoundary(
+                  child: Builder(builder: (context) {
+                    var duration = context.select<CaptureModel, Duration?>(
+                        (v) => v.captureTimeElapsed);
+                    if (duration == null) return const SizedBox();
+                    return RecordingChip(time: duration.format());
+                  }),
                 ),
               ),
             ),

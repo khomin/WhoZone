@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_demo/components/round_button.dart';
 import 'package:flutter_demo/features/capture/data/models/capture_model.dart';
@@ -16,12 +14,10 @@ class CameraFlipButton extends StatelessWidget {
       animate: true,
       child: Stack(alignment: AlignmentGeometry.center, children: [
         ClipOval(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
-            child: SizedBox(
-              width: 50,
-              height: 50,
-              child: RepaintBoundary(
+          child: SizedBox(
+            width: 50,
+            height: 50,
+            child: RepaintBoundary(
                 child: Builder(builder: (context) {
                   var (camera, flipTurns) =
                       context.select<CaptureModel, (app.Camera?, double)>(
@@ -46,7 +42,6 @@ class CameraFlipButton extends StatelessWidget {
                         },
                       ));
                 }),
-              ),
             ),
           ),
         )

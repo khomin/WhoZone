@@ -32,28 +32,21 @@ set(OPENCV_LIB_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/${CMAKE_ANDRO
 set(OPENCV_HEADER_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/opencv/${CMAKE_ANDROID_ARCH_ABI}/sdk/native/jni/include)
 
 add_subdirectory(submodule/libyuv)
+# Profile builds are debuggable, so they come here as Debug (-O0). This code
+# runs on every frame and is several times slower without optimizations.
+target_compile_options(yuv PRIVATE -O2)
 
 file(GLOB PROTO_ABSL_LIBS
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libabsl_*.a
 )
 
 set(OPENCV_LIBS
-    ${OPENCV_LIB_DIR}/libopencv_calib3d.so
     ${OPENCV_LIB_DIR}/libopencv_core.so
-    ${OPENCV_LIB_DIR}/libopencv_dnn.so
-    ${OPENCV_LIB_DIR}/libopencv_features2d.so
-    ${OPENCV_LIB_DIR}/libopencv_flann.so
-    ${OPENCV_LIB_DIR}/libopencv_gapi.so
-    ${OPENCV_LIB_DIR}/libopencv_highgui.so
     ${OPENCV_LIB_DIR}/libopencv_imgcodecs.so
     ${OPENCV_LIB_DIR}/libopencv_imgproc.so
-    ${OPENCV_LIB_DIR}/libopencv_ml.so
-    ${OPENCV_LIB_DIR}/libopencv_objdetect.so
-    ${OPENCV_LIB_DIR}/libopencv_photo.so
-    ${OPENCV_LIB_DIR}/libopencv_stitching.so
-    ${OPENCV_LIB_DIR}/libopencv_video.so
-    ${OPENCV_LIB_DIR}/libopencv_videoio.so
 )
+
+set(NCNN_DIR ${CMAKE_SOURCE_DIR}/../.lib_pack/android/ncnn/${CMAKE_ANDROID_ARCH_ABI})
 
 add_library(${PROJECT} SHARED
     ${DART_API_DL_C}
@@ -65,16 +58,21 @@ add_library(${PROJECT} SHARED
     ./dart_lib.h
     ./detector.cpp
     ./detector.h
+    ./tracker.cpp
+    ./tracker.h
     ./detection_item.h
     ./safe_queue.h
     ./protobuf/generated/app.pb.cc
     ./protobuf/generated/app.pb.h
 )
 
+target_compile_options(${PROJECT} PRIVATE -O2)
+
 target_include_directories(${PROJECT} PUBLIC
     .
     ${DART_INCLUDE_DIR}
     ${OPENCV_HEADER_DIR}
+    ${NCNN_DIR}/include/ncnn
     ${CMAKE_SOURCE_DIR}/../cpp/
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/include/
     ./protobuf/generated
@@ -90,6 +88,7 @@ target_link_libraries(${PROJECT} PUBLIC
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_validity.a
     ${CMAKE_SOURCE_DIR}/../.lib_pack/android/protobuf/${CMAKE_ANDROID_ARCH_ABI}/lib/libutf8_range.a
     ${OPENCV_LIBS}
+    ${NCNN_DIR}/lib/libncnn.so
     mediandk
     jnigraphics
     nativewindow

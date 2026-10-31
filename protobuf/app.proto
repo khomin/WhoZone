@@ -53,6 +53,10 @@ message DetectionItem {
     optional Rect detection = 1;
     optional int32 class_id = 2;
     optional float confidence = 3;
+    optional int32 track_id = 4;
+    // normalized frame units per second
+    optional float velocity_x = 5;
+    optional float velocity_y = 6;
 }
 
 message FrameSaved {

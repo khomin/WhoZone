@@ -601,11 +601,17 @@ class DetectionItem extends $pb.GeneratedMessage {
     Rect? detection,
     $core.int? classId,
     $core.double? confidence,
+    $core.int? trackId,
+    $core.double? velocityX,
+    $core.double? velocityY,
   }) {
     final result = create();
     if (detection != null) result.detection = detection;
     if (classId != null) result.classId = classId;
     if (confidence != null) result.confidence = confidence;
+    if (trackId != null) result.trackId = trackId;
+    if (velocityX != null) result.velocityX = velocityX;
+    if (velocityY != null) result.velocityY = velocityY;
     return result;
   }
 
@@ -625,6 +631,9 @@ class DetectionItem extends $pb.GeneratedMessage {
     ..aOM<Rect>(1, _omitFieldNames ? '' : 'detection', subBuilder: Rect.create)
     ..aI(2, _omitFieldNames ? '' : 'classId')
     ..aD(3, _omitFieldNames ? '' : 'confidence', fieldType: $pb.PbFieldType.OF)
+    ..aI(4, _omitFieldNames ? '' : 'trackId')
+    ..aD(5, _omitFieldNames ? '' : 'velocityX', fieldType: $pb.PbFieldType.OF)
+    ..aD(6, _omitFieldNames ? '' : 'velocityY', fieldType: $pb.PbFieldType.OF)
     ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
@@ -674,6 +683,34 @@ class DetectionItem extends $pb.GeneratedMessage {
   $core.bool hasConfidence() => $_has(2);
   @$pb.TagNumber(3)
   void clearConfidence() => $_clearField(3);
+
+  @$pb.TagNumber(4)
+  $core.int get trackId => $_getIZ(3);
+  @$pb.TagNumber(4)
+  set trackId($core.int value) => $_setSignedInt32(3, value);
+  @$pb.TagNumber(4)
+  $core.bool hasTrackId() => $_has(3);
+  @$pb.TagNumber(4)
+  void clearTrackId() => $_clearField(4);
+
+  /// normalized frame units per second
+  @$pb.TagNumber(5)
+  $core.double get velocityX => $_getN(4);
+  @$pb.TagNumber(5)
+  set velocityX($core.double value) => $_setFloat(4, value);
+  @$pb.TagNumber(5)
+  $core.bool hasVelocityX() => $_has(4);
+  @$pb.TagNumber(5)
+  void clearVelocityX() => $_clearField(5);
+
+  @$pb.TagNumber(6)
+  $core.double get velocityY => $_getN(5);
+  @$pb.TagNumber(6)
+  set velocityY($core.double value) => $_setFloat(5, value);
+  @$pb.TagNumber(6)
+  $core.bool hasVelocityY() => $_has(5);
+  @$pb.TagNumber(6)
+  void clearVelocityY() => $_clearField(6);
 }
 
 class FrameSaved extends $pb.GeneratedMessage {

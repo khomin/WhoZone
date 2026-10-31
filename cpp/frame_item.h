@@ -1,12 +1,11 @@
 #ifndef FRAME_ITEM_H
 #define FRAME_ITEM_H
 
-#include <opencv2/opencv.hpp>
+#include <opencv2/core.hpp>
 
 struct FrameItem {
     cv::Mat frame;
-    long long timestamp;
-    int frame_index;
+    int64_t timestamp; // steady clock ns, when the frame was received
 };
 
 #endif // FRAME_ITEM_H

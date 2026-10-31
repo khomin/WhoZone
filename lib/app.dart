@@ -71,14 +71,13 @@ class AppState extends State<App> {
             bottomNavigationBar: Container(
               height: 70 + padding.bottom,
               decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.bottomNavBg,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 10,
-                      offset: const Offset(0, 0),
-                    )
-                  ]),
+                color: Theme.of(context).colorScheme.bottomNavBg,
+                border: Border(
+                  top: BorderSide(
+                    color: Theme.of(context).colorScheme.menuBorderColor,
+                  ),
+                ),
+              ),
               child: Builder(builder: (context) {
                 var page = context.select<AppModel, PageType>((v) => v.page);
                 return SafeArea(
@@ -93,19 +92,28 @@ class AppState extends State<App> {
                     unselectedItemColor:
                         Theme.of(context).colorScheme.bottomNavIconUnselected,
                     selectedLabelStyle:
-                        const TextStyle(fontWeight: FontWeight.bold),
+                        const TextStyle(fontWeight: FontWeight.w600),
                     items: const <BottomNavigationBarItem>[
                       BottomNavigationBarItem(
-                        icon: Icon(Icons.home),
-                        label: 'Home',
+                        icon: Icon(Icons.photo_library_outlined),
+                        activeIcon: Icon(Icons.photo_library),
+                        label: 'Sessions',
                       ),
                       BottomNavigationBarItem(
-                          icon: Icon(Icons.create_new_folder_rounded),
-                          label: 'Capture'),
+                        icon: Icon(Icons.camera_alt_outlined),
+                        activeIcon: Icon(Icons.camera_alt),
+                        label: 'Capture',
+                      ),
                       BottomNavigationBarItem(
-                          icon: Icon(Icons.notifications), label: 'Alert'),
+                        icon: Icon(Icons.notifications_outlined),
+                        activeIcon: Icon(Icons.notifications),
+                        label: 'Alert',
+                      ),
                       BottomNavigationBarItem(
-                          icon: Icon(Icons.settings), label: 'Settings'),
+                        icon: Icon(Icons.settings_outlined),
+                        activeIcon: Icon(Icons.settings),
+                        label: 'Settings',
+                      ),
                     ],
                     currentIndex: page.index,
                     onTap: (value) async {

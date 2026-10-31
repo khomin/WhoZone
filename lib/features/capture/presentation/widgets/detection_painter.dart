@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_demo/features/capture/presentation/widgets/detection_box.dart';
 
 class CameraPreviewWithOverlay extends StatefulWidget {
@@ -18,111 +19,176 @@ class CameraPreviewWithOverlay extends StatefulWidget {
   State<CameraPreviewWithOverlay> createState() => _State();
 }
 
+/// One object on screen. Lives across detections, so a box is only ever
+/// animated from its own previous position.
+class _Track {
+  _Track(DetectionBox box) : rect = box.normalizedRect {
+    update(box, Duration.zero);
+  }
+
+  Rect rect;
+  late DetectionBox target;
+  double opacity = 0;
+  bool alive = true;
+  Duration targetTime = Duration.zero;
+
+  void update(DetectionBox box, Duration now) {
+    target = box;
+    targetTime = now;
+    alive = true;
+  }
+}
+
 class _State extends State<CameraPreviewWithOverlay>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  List<DetectionBox> _lastBoxes = [];
-  List<DetectionBox> _currentBoxes = [];
+  static const _follow = 0.045; // seconds, how fast a box catches its target
+  static const _maxLead = 0.15; // seconds, how far velocity is trusted
+  static const _fade = 0.12; // seconds
+
+  final _tracks = <int, _Track>{};
+  final _repaint = ValueNotifier<int>(0);
+  late final Ticker _ticker;
+  StreamSubscription<List<DetectionBox>>? _subscription;
+  Duration _now = Duration.zero;
+  Duration _lastTick = Duration.zero;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 50),
-    );
+    _ticker = createTicker(_onTick);
+    _subscription = widget.boxes.listen(_onBoxes);
+  }
+
+  @override
+  void didUpdateWidget(CameraPreviewWithOverlay oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.boxes != widget.boxes) {
+      _subscription?.cancel();
+      _subscription = widget.boxes.listen(_onBoxes);
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _subscription?.cancel();
+    _ticker.dispose();
+    _repaint.dispose();
     super.dispose();
   }
 
-  List<DetectionBox> _interpolate(
-    List<DetectionBox> from,
-    List<DetectionBox> to,
-    double t,
-  ) {
-    final result = <DetectionBox>[];
-    final maxLen = to.length > from.length ? to.length : from.length;
-    for (int i = 0; i < maxLen; i++) {
-      final toBox = i < to.length ? to[i] : null;
-      final fromBox = i < from.length ? from[i] : null;
-      if (toBox == null) continue;
-      final fromRect = fromBox?.normalizedRect ?? toBox.normalizedRect;
-      final interpRect = Rect.fromLTRB(
-        fromRect.left + (toBox.normalizedRect.left - fromRect.left) * t,
-        fromRect.top + (toBox.normalizedRect.top - fromRect.top) * t,
-        fromRect.right + (toBox.normalizedRect.right - fromRect.right) * t,
-        fromRect.bottom + (toBox.normalizedRect.bottom - fromRect.bottom) * t,
-      );
-      result.add(DetectionBox(
-        classId: toBox.classId,
-        className: toBox.className,
-        confidence: toBox.confidence,
-        normalizedRect: interpRect,
-      ));
+  void _onBoxes(List<DetectionBox> boxes) {
+    for (final track in _tracks.values) {
+      track.alive = false;
     }
-    return result;
+    for (final box in boxes) {
+      final track = _tracks[box.trackId];
+      if (track == null) {
+        _tracks[box.trackId] = _Track(box)..targetTime = _now;
+      } else {
+        track.update(box, _now);
+      }
+    }
+    if (_tracks.isNotEmpty && !_ticker.isActive) {
+      _lastTick = Duration.zero;
+      _ticker.start();
+    }
+  }
+
+  void _onTick(Duration elapsed) {
+    _now = elapsed;
+    final dt = (elapsed - _lastTick).inMicroseconds / 1e6;
+    _lastTick = elapsed;
+
+    final follow = 1 - math.exp(-dt / _follow);
+    _tracks.removeWhere((_, track) {
+      final lead = math.min(
+        (elapsed - track.targetTime).inMicroseconds / 1e6,
+        _maxLead,
+      );
+      final box = track.target;
+      final goal = box.normalizedRect.shift(
+        Offset(box.velocityX * lead, box.velocityY * lead),
+      );
+      track.rect = Rect.lerp(track.rect, goal, follow)!;
+      track.opacity =
+          (track.opacity + (track.alive ? dt : -dt) / _fade).clamp(0.0, 1.0);
+      return !track.alive && track.opacity == 0;
+    });
+
+    _repaint.value++;
+    // Nothing to animate: the overlay costs nothing until the next object
+    if (_tracks.isEmpty) _ticker.stop();
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<DetectionBox>>(
-      stream: widget.boxes,
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          final newBoxes = snapshot.data!;
-          _lastBoxes = _currentBoxes;
-          _currentBoxes = newBoxes;
-          _controller.stop();
-          _controller.value = 0.0;
-          _controller.forward();
-        }
-        return AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            final boxes = _interpolate(
-              _lastBoxes,
-              _currentBoxes,
-              _controller.value,
-            );
-            if (boxes.isEmpty) return const SizedBox();
-            return CustomPaint(
-              painter: DetectionPainter(
-                detections: boxes,
-                camWidth: widget.camWidth,
-                camHeight: widget.camHeight,
-              ),
-              size: Size.infinite,
-            );
-          },
-        );
-      },
+    return RepaintBoundary(
+      child: CustomPaint(
+        painter: DetectionPainter(
+          tracks: _tracks,
+          repaint: _repaint,
+          camWidth: widget.camWidth,
+          camHeight: widget.camHeight,
+        ),
+        size: Size.infinite,
+      ),
     );
   }
 }
 
 class DetectionPainter extends CustomPainter {
-  final List<DetectionBox> detections;
+  static const _accent = Color(0xFF32FF78);
+  static const _labelBackground = Color(0xD90B0F0D);
+  static const _paddingH = 9.0;
+  static const _paddingV = 5.0;
+  static const _labelGap = 6.0;
+  static const _dotSize = 6.0;
+  static const _dotGap = 6.0;
+
+  // Text layout is by far the slowest thing here, and labels repeat a lot
+  static final _labels = <String, TextPainter>{};
+
+  final Map<int, _Track> tracks;
   final double camWidth;
   final double camHeight;
 
+  final _stroke = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round
+    ..strokeWidth = 2.5;
+  final _outline = Paint()
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = 1;
+  final _fill = Paint()..style = PaintingStyle.fill;
+
   DetectionPainter({
-    required this.detections,
+    required this.tracks,
+    required Listenable repaint,
     required this.camWidth,
     required this.camHeight,
-  });
+  }) : super(repaint: repaint);
+
+  TextPainter _label(String text) {
+    if (_labels.length > 200) _labels.clear();
+    return _labels.putIfAbsent(text, () {
+      return TextPainter(
+        text: TextSpan(
+          text: text,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.2,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+    });
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF54C34A)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 4;
-
-    final textStyle = const TextStyle(color: Colors.white, fontSize: 15);
+    if (camWidth == 0 || camHeight == 0) return;
 
     bool isPortrait = size.height > size.width;
     double visualCamWidth = isPortrait ? camHeight : camWidth;
@@ -135,84 +201,90 @@ class DetectionPainter extends CustomPainter {
     double offsetX = (visualCamWidth * activeScale - size.width) / 2;
     double offsetY = (visualCamHeight * activeScale - size.height) / 2;
 
-    for (var box in detections) {
-      final rect = box.normalizedRect;
+    final screen = Offset.zero & size;
+    for (final track in tracks.values) {
+      final rect = track.rect;
+      final box = Rect.fromLTWH(
+        rect.left * visualCamWidth * activeScale - offsetX,
+        rect.top * visualCamHeight * activeScale - offsetY,
+        rect.width * visualCamWidth * activeScale,
+        rect.height * visualCamHeight * activeScale,
+      ).intersect(screen);
+      if (box.width <= 0 || box.height <= 0) continue;
 
-      // 1. Calculate raw screen coordinates
-      double left = (rect.left * visualCamWidth * activeScale) - offsetX;
-      double top = (rect.top * visualCamHeight * activeScale) - offsetY;
-      double width = rect.width * visualCamWidth * activeScale;
-      double height = rect.height * visualCamHeight * activeScale;
+      _paintBox(canvas, box, track.opacity);
+      _paintLabel(canvas, size, box, track);
+    }
+  }
 
-      // 2. Clamp the bounding box coordinates so they never physically leave the screen edges
-      double clampedLeft = left.clamp(0.0, size.width);
-      double clampedTop = top.clamp(0.0, size.height);
-      double clampedRight = (left + width).clamp(0.0, size.width);
-      double clampedBottom = (top + height).clamp(0.0, size.height);
+  void _paintBox(Canvas canvas, Rect box, double opacity) {
+    _fill.color = _accent.withValues(alpha: 0.07 * opacity);
+    _outline.color = _accent.withValues(alpha: 0.35 * opacity);
+    _stroke.color = _accent.withValues(alpha: opacity);
 
-      final scaledRect =
-          Rect.fromLTRB(clampedLeft, clampedTop, clampedRight, clampedBottom);
+    final radius = math.min(10.0, box.shortestSide / 4);
+    final rounded = RRect.fromRectAndRadius(box, Radius.circular(radius));
+    canvas.drawRRect(rounded, _fill);
+    canvas.drawRRect(rounded, _outline);
 
-      // Only draw the box if it's actually visible on screen
-      if (scaledRect.width > 0 && scaledRect.height > 0) {
-        canvas.drawRect(scaledRect, paint);
-      }
+    // Corner brackets: readable on any background, and they leave the object visible
+    final arm = math.min(22.0, box.shortestSide / 3);
+    final corners = Path();
+    void corner(Offset at, double dx, double dy) {
+      corners
+        ..moveTo(at.dx + dx * arm, at.dy)
+        ..lineTo(at.dx + dx * radius, at.dy)
+        ..quadraticBezierTo(at.dx, at.dy, at.dx, at.dy + dy * radius)
+        ..lineTo(at.dx, at.dy + dy * arm);
+    }
 
-      // 3. Prepare the text layout ahead of time so we know its dimensions
-      final textSpan = TextSpan(
-        text: '${box.className} ${(box.confidence * 100).toInt()}%',
-        style: textStyle,
-      );
-      final textPainter = TextPainter(
-        text: textSpan,
-        textDirection: TextDirection.ltr,
-      );
-      textPainter.layout();
+    corner(box.topLeft, 1, 1);
+    corner(box.topRight, -1, 1);
+    corner(box.bottomLeft, 1, -1);
+    corner(box.bottomRight, -1, -1);
+    canvas.drawPath(corners, _stroke);
+  }
 
-      // Define some padding so the text isn't suffocated by the box edges
-      const double paddingH = 8.0;
-      const double paddingV = 4.0;
+  void _paintLabel(Canvas canvas, Size size, Rect box, _Track track) {
+    final target = track.target;
+    final text = _label(
+      '${target.className} ${(target.confidence * 100).toInt()}%',
+    );
+    final width = text.width + _dotSize + _dotGap + _paddingH * 2;
+    final height = text.height + _paddingV * 2;
 
-      // 4. Smart Label Positioning (Prevents text going off-screen)
-      // We adjust the height calculation slightly to include our new vertical padding
-      double labelTop = scaledRect.top - textPainter.height - (paddingV * 2);
-      double labelLeft = scaledRect.left;
+    // Above the box, or inside of it when there is no room on top
+    double top = box.top - height - _labelGap;
+    if (top < 0) top = box.top + _labelGap;
+    final left = math.min(box.left, math.max(0.0, size.width - width));
 
-      // If the object is too close to the top edge, flip the label INSIDE the box
-      if (labelTop < 0) {
-        labelTop = scaledRect.top;
-      }
+    final pill = RRect.fromLTRBR(
+      left,
+      top,
+      left + width,
+      top + height,
+      Radius.circular(height / 2),
+    );
+    _fill.color = _labelBackground.withValues(
+      alpha: _labelBackground.a * track.opacity,
+    );
+    canvas.drawRRect(pill, _fill);
 
-      // If the object is too close to the right edge, push it left
-      if (labelLeft + textPainter.width + (paddingH * 2) > size.width) {
-        labelLeft = size.width - textPainter.width - (paddingH * 2);
-      }
-      labelLeft = labelLeft.clamp(0.0, size.width);
-
-      // 5. DRAW THE OpenCV SOLID BACKGROUND BOX
-      final backgroundPaint = Paint()
-        ..color = const Color(0xFF54C34A) // Match your bounding box green
-        ..style = PaintingStyle.fill; // Fill it up!
-
-      final backgroundRect = Rect.fromLTWH(
-        labelLeft,
-        labelTop,
-        textPainter.width + (paddingH * 2), // Text width + left/right padding
-        textPainter.height + (paddingV * 2), // Text height + top/bottom padding
-      );
-
-      // Draw the solid green background tag
-      canvas.drawRect(backgroundRect, backgroundPaint);
-
-      // 6. PAINT THE TEXT ON TOP
-      // Shift the text offset slightly down and right so it centers inside the padding
-      textPainter.paint(
+    _fill.color = _accent.withValues(alpha: track.opacity);
+    canvas.drawCircle(
+      Offset(left + _paddingH + _dotSize / 2, top + height / 2),
+      _dotSize / 2,
+      _fill,
+    );
+    if (track.opacity > 0.5) {
+      text.paint(
         canvas,
-        Offset(labelLeft + paddingH, labelTop + paddingV),
+        Offset(left + _paddingH + _dotSize + _dotGap, top + _paddingV),
       );
     }
   }
 
   @override
-  bool shouldRepaint(DetectionPainter oldDelegate) => true;
+  bool shouldRepaint(DetectionPainter oldDelegate) =>
+      oldDelegate.camWidth != camWidth || oldDelegate.camHeight != camHeight;
 }

@@ -12,13 +12,7 @@ class PageBackground extends StatelessWidget {
       left: 0,
       right: 0,
       child: Container(
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.colorBgUnderCard,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-        ),
+        color: Theme.of(context).colorScheme.colorBgUnderCard,
       ),
     );
   }

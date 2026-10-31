@@ -132,7 +132,7 @@ class HomePagePageState extends State<HomePagePage>
               Container(
                 margin: const EdgeInsets.only(left: 25),
                 child: Text(
-                  'Home',
+                  'Sessions',
                   style: Theme.of(context).colorScheme.homeCardH1Style,
                 ),
               ),

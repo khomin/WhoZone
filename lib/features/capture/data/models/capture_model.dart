@@ -110,7 +110,10 @@ class CaptureModel with ChangeNotifier {
         id: camera.id,
         isFront: camera.isFront,
         sensor: camera.sensorRotation,
-        size: camera.cameraSizes.first,
+        size: app.Size(
+          width: res.size.width.toInt(),
+          height: res.size.height.toInt(),
+        ),
       );
       cameraStarted = true;
       notify();

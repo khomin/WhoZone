@@ -1,14 +1,13 @@
 #ifndef DETECTION_ITEM_H
 #define DETECTION_ITEM_H
 
+#include <cstdint>
 #include <vector>
-#include <algorithm>
-#include <opencv2/dnn.hpp>
-#include <opencv2/imgproc.hpp>
-#include <opencv2/highgui.hpp>
 
 struct DetectionItem {
     float x, y, width, height;
+    float velocity_x, velocity_y;
+    int track_id;
     int class_id;
     float confidence;
 };

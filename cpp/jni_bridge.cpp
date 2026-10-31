@@ -1,9 +1,12 @@
+#include <atomic>
+#include <chrono>
 #include <vector>
 #include <condition_variable>
 #include <csignal>
 #include <media/NdkImageReader.h>
 #include <android/native_window_jni.h>
 #include <jni.h>
+#include <opencv2/core.hpp>
 #include "detector.h"
 #include "dart_lib.h"
 #include "log.h"
@@ -20,9 +23,9 @@
 AImageReader* _reader = nullptr;
 Detector* _detector = nullptr;
 std::mutex _mutex;
-long _frame_count = 0;
 app::InitParam _initial_params;
-app::CameraInfo _camera;
+std::atomic<int> _sensor_rotation{0};
+std::atomic<bool> _is_front{false};
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -40,13 +43,11 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray data, ji
             _initial_params.model_frame_width(),
             _initial_params.model_frame_height()
     );
-    _detector->start();
     _detector->onDetection([&] (Detection & detection) {
         auto appDetection = new app::Detection();
-        auto item = new app::DetectionItem();
         appDetection->set_frame_count(detection.frame_count);
         appDetection->set_timestamp_ns(detection.timestamp_ns);
-        for(auto it: detection.detections) {
+        for(auto& it: detection.detections) {
             auto p = appDetection->add_item();
             p->mutable_detection()->set_x(it.x);
             p->mutable_detection()->set_y(it.y);
@@ -54,6 +55,9 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray data, ji
             p->mutable_detection()->set_height(it.height);
             p->set_class_id(it.class_id);
             p->set_confidence(it.confidence);
+            p->set_track_id(it.track_id);
+            p->set_velocity_x(it.velocity_x);
+            p->set_velocity_y(it.velocity_y);
         }
         app::EventWrapper event;
         event.set_allocated_detection(appDetection);
@@ -66,12 +70,18 @@ Java_com_who_zone_WhoZoneRep_init(JNIEnv *env, jobject thiz, jbyteArray data, ji
         event.set_allocated_frame_saved(frameSaved);
         sendToDart(&event);
     });
-    env->ReleaseByteArrayElements(data, data_byte, 0);
+    _detector->start();
+    env->ReleaseByteArrayElements(data, data_byte, JNI_ABORT);
 }
 
 void onFrame(void* context, AImageReader* reader) {
     AImage* image = nullptr;
-    if (AImageReader_acquireNextImage(reader, &image) == AMEDIA_OK) {
+    if (AImageReader_acquireLatestImage(reader, &image) == AMEDIA_OK) {
+        // the detector is busy: release the buffer back to the camera right away
+        if (!_detector->wantsFrame()) {
+            AImage_delete(image);
+            return;
+        }
         int32_t uvPixelStride = 0;
         uint8_t* yData = nullptr, * uData = nullptr, * vData = nullptr;
         int32_t yStride = 0, uStride = 0, vStride = 0;
@@ -113,23 +123,24 @@ void onFrame(void* context, AImageReader* reader) {
                     width, height
             );
         }
-        if (_camera.sensor_rotation() != 0) {
-            if (_camera.sensor_rotation() == 90)
+        int rotation = _sensor_rotation;
+        if (rotation != 0) {
+            if (rotation == 90)
                 cv::rotate(frame, frame, cv::ROTATE_90_CLOCKWISE);
-            else if (_camera.sensor_rotation() == 180)
+            else if (rotation == 180)
                 cv::rotate(frame, frame, cv::ROTATE_180);
-            else if (_camera.sensor_rotation() == 270)
+            else if (rotation == 270)
                 cv::rotate(frame, frame, cv::ROTATE_90_COUNTERCLOCKWISE);
         }
-        if(_camera.is_front()) {
+        if(_is_front) {
             cv::flip(frame, frame, 1);
         }
         AImage_delete(image);
 
+        auto now = std::chrono::steady_clock::now().time_since_epoch();
         auto frame_item = FrameItem{
             .frame = frame,
-            .timestamp = _frame_count,
-            .frame_index = static_cast<int>(_frame_count),
+            .timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now).count(),
         };
         _detector->pushFrame(frame_item);
     }
@@ -155,8 +166,10 @@ Java_com_who_zone_WhoZoneRep_setCameraMeta(JNIEnv *env, jobject thiz, jbyteArray
     app::CameraInfo camera;
     jbyte *data_byte = env->GetByteArrayElements(data, nullptr);
     camera.ParseFromArray(data_byte, len);
-    _camera = camera;
-    env->ReleaseByteArrayElements(data, data_byte, 0);
+    _sensor_rotation = camera.sensor_rotation();
+    _is_front = camera.is_front();
+    _detector->reset();
+    env->ReleaseByteArrayElements(data, data_byte, JNI_ABORT);
 }
 
 extern "C"

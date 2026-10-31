@@ -1409,6 +1409,9 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
     kDetectionFieldNumber = 1,
     kClassIdFieldNumber = 2,
     kConfidenceFieldNumber = 3,
+    kTrackIdFieldNumber = 4,
+    kVelocityXFieldNumber = 5,
+    kVelocityYFieldNumber = 6,
   };
   // optional .app.Rect detection = 1;
   [[nodiscard]] bool has_detection()
@@ -1450,11 +1453,47 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
   void _internal_set_confidence(float value);
 
   public:
+  // optional int32 track_id = 4;
+  [[nodiscard]] bool has_track_id()
+      const;
+  void clear_track_id() ;
+  [[nodiscard]] ::int32_t track_id() const;
+  void set_track_id(::int32_t value);
+
+  private:
+  ::int32_t _internal_track_id() const;
+  void _internal_set_track_id(::int32_t value);
+
+  public:
+  // optional float velocity_x = 5;
+  [[nodiscard]] bool has_velocity_x()
+      const;
+  void clear_velocity_x() ;
+  [[nodiscard]] float velocity_x() const;
+  void set_velocity_x(float value);
+
+  private:
+  float _internal_velocity_x() const;
+  void _internal_set_velocity_x(float value);
+
+  public:
+  // optional float velocity_y = 6;
+  [[nodiscard]] bool has_velocity_y()
+      const;
+  void clear_velocity_y() ;
+  [[nodiscard]] float velocity_y() const;
+  void set_velocity_y(float value);
+
+  private:
+  float _internal_velocity_y() const;
+  void _internal_set_velocity_y(float value);
+
+  public:
   // @@protoc_insertion_point(class_scope:app.DetectionItem)
  private:
   class _Internal;
   friend class ::google::protobuf::internal::TcParser;
-  static const ::google::protobuf::internal::TcParseTable<2, 3,
+  static const ::google::protobuf::internal::TcParseTable<3, 6,
                                    1, 0,
                                    2>
       _table_;
@@ -1481,6 +1520,9 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED DetectionItem final : public ::goog
     ::app::Rect* PROTOBUF_NULLABLE detection_;
     ::int32_t class_id_;
     float confidence_;
+    ::int32_t track_id_;
+    float velocity_x_;
+    float velocity_y_;
     PROTOBUF_TSAN_DECLARE_MEMBER
   };
   union { Impl_ _impl_; };
@@ -3814,6 +3856,93 @@ inline float DetectionItem::_internal_confidence() const {
 inline void DetectionItem::_internal_set_confidence(float value) {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.confidence_ = value;
+}
+
+// optional int32 track_id = 4;
+inline bool DetectionItem::has_track_id() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
+  return value;
+}
+inline void DetectionItem::clear_track_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_id_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000008U);
+}
+inline ::int32_t DetectionItem::track_id() const {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.track_id)
+  return _internal_track_id();
+}
+inline void DetectionItem::set_track_id(::int32_t value) {
+  _internal_set_track_id(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
+  // @@protoc_insertion_point(field_set:app.DetectionItem.track_id)
+}
+inline ::int32_t DetectionItem::_internal_track_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.track_id_;
+}
+inline void DetectionItem::_internal_set_track_id(::int32_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.track_id_ = value;
+}
+
+// optional float velocity_x = 5;
+inline bool DetectionItem::has_velocity_x() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000010U);
+  return value;
+}
+inline void DetectionItem::clear_velocity_x() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.velocity_x_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000010U);
+}
+inline float DetectionItem::velocity_x() const {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.velocity_x)
+  return _internal_velocity_x();
+}
+inline void DetectionItem::set_velocity_x(float value) {
+  _internal_set_velocity_x(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000010U);
+  // @@protoc_insertion_point(field_set:app.DetectionItem.velocity_x)
+}
+inline float DetectionItem::_internal_velocity_x() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.velocity_x_;
+}
+inline void DetectionItem::_internal_set_velocity_x(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.velocity_x_ = value;
+}
+
+// optional float velocity_y = 6;
+inline bool DetectionItem::has_velocity_y() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000020U);
+  return value;
+}
+inline void DetectionItem::clear_velocity_y() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.velocity_y_ = 0;
+  ClearHasBit(_impl_._has_bits_[0],
+                  0x00000020U);
+}
+inline float DetectionItem::velocity_y() const {
+  // @@protoc_insertion_point(field_get:app.DetectionItem.velocity_y)
+  return _internal_velocity_y();
+}
+inline void DetectionItem::set_velocity_y(float value) {
+  _internal_set_velocity_y(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000020U);
+  // @@protoc_insertion_point(field_set:app.DetectionItem.velocity_y)
+}
+inline float DetectionItem::_internal_velocity_y() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.velocity_y_;
+}
+inline void DetectionItem::_internal_set_velocity_y(float value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.velocity_y_ = value;
 }
 
 // -------------------------------------------------------------------

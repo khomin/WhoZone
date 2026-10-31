@@ -3,67 +3,71 @@ import 'package:flutter/material.dart';
 extension AppColorScheme on ColorScheme {
   bool dark() => brightness == Brightness.dark;
 
-  Color get appBar =>
-      dark() ? const Color(0xFF1c1e23) : const Color(0xFFecebf2);
-  Color get baseColor1 =>
-      dark() ? const Color(0xFF000000) : const Color(0xFFecebf2);
+  // One accent across the app, the same green as the detection boxes
+  static const accentDark = Color(0xFF32FF78);
+  static const accentLight = Color(0xFF0B7A3E);
 
-  static Color get bottomBarLight => Color(0xFFecebf2);
-  static Color get bottomBarDark => Color(0xFF252525);
+  static const _backgroundDark = Color(0xFF0E1110);
+  static const _backgroundLight = Color(0xFFF5F7F5);
+  static const _surfaceDark = Color(0xFF181D1B);
+  static const _lineDark = Color(0xFF262C29);
+  static const _lineLight = Color(0xFFE3E7E4);
+  static const _textDark = Color(0xFFF2F5F3);
+  static const _textLight = Color(0xFF101412);
+  static const _textSecondDark = Color(0xFF98A29D);
+  static const _textSecondLight = Color(0xFF59625D);
+
+  Color get appBar => dark() ? _backgroundDark : _backgroundLight;
+  Color get baseColor1 => dark() ? _backgroundDark : _backgroundLight;
+
+  static Color get bottomBarLight => _backgroundLight;
+  static Color get bottomBarDark => _backgroundDark;
 
   Color get bottomNavBg => dark() ? bottomBarDark : bottomBarLight;
-  Color get bottomNavIconUnselected =>
-      dark() ? Color(0xFF6F63AA) : Color(0xFF8476C7);
-  Color get bottomNavIconSelected =>
-      dark() ? Color(0xFF8181FB) : Color(0xFF2C2C54);
+  Color get bottomNavIconUnselected => dark() ? _textSecondDark : _textSecondLight;
+  Color get bottomNavIconSelected => colorPrimary;
 
-  Color get cameraButtonIcon =>
-      dark() ? const Color(0xFFFFFFFF) : const Color(0xFFE7E7E7);
+  Color get cameraButtonIcon => Colors.white;
 
-  TextStyle get homeCardH1Style => TextStyle(fontSize: 25, color: homeCardH1);
-  Color get homeCardH1 =>
-      dark() ? const Color(0xFFCACACA) : const Color(0xFF43444c);
+  TextStyle get homeCardH1Style => TextStyle(
+        fontSize: 28,
+        color: homeCardH1,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.3,
+      );
+  Color get homeCardH1 => dark() ? _textDark : _textLight;
 
   Color get menuFontColor1 => colorTextAccent;
   Color get menuFontColor2 => colorTextSecond;
 
-  Color get colorBar => dark() ? Color(0xFF252525) : Color(0xFFD5D4E8);
-  Color get colorCard => dark() ? const Color(0xFF3D3D3D) : Colors.white;
-  Color get colorBgUnderCard => dark() ? Color(0xFF35373B) : Color(0xfff1f2f4);
-  Color get colorTextAccent => dark() ? const Color(0xFFE5E5E5) : Colors.black;
-  Color get colorTextSecond => dark() ? Color(0xFFADADB6) : Color(0xFF414141);
+  Color get colorBar => dark() ? _backgroundDark : _backgroundLight;
+  Color get colorCard => dark() ? _surfaceDark : Colors.white;
+  Color get colorBgUnderCard => dark() ? _backgroundDark : _backgroundLight;
+  Color get colorTextAccent => dark() ? _textDark : _textLight;
+  Color get colorTextSecond => dark() ? _textSecondDark : _textSecondLight;
 
-  Color get colorPrimary => Color.fromARGB(255, 139, 135, 219);
-  Color get colorSecondary => Color.fromARGB(255, 170, 167, 225);
+  Color get colorPrimary => dark() ? accentDark : accentLight;
+  Color get colorSecondary => colorPrimary.withValues(alpha: 0.7);
 
   Color get colorButtonBg => Colors.black12;
-  Color get colorButton => Color(0x516A6A6A);
-  Color get colorButtonBorder =>
-      const Color(0xFFD9D9D9).withValues(alpha: 0.25);
+  // Sits on the live camera. Solid on purpose, a blur here is redone every frame.
+  Color get colorButton => Colors.black.withValues(alpha: 0.5);
+  Color get colorButtonBorder => Colors.white.withValues(alpha: 0.2);
 
-  Color get colorButtonRed => Color.fromARGB(255, 214, 24, 10);
+  Color get colorButtonRed => const Color(0xFFFF453A);
 
-  Color get chipsBox => dark()
-      ? const Color(0xFF1c1e23)
-      : const Color.fromARGB(255, 236, 235, 242);
-  Color get chip => dark() ? const Color(0xFF1c1e23) : const Color(0xFFecebf2);
-  Color get chipActive =>
-      dark() ? const Color.fromARGB(255, 75, 85, 134) : const Color(0xFFC0CCFF);
+  Color get chipsBox => colorCard;
+  Color get chip => dark() ? _lineDark : _lineLight;
+  Color get chipActive => colorPrimary.withValues(alpha: 0.25);
 
-  Color get snackColor =>
-      dark() ? const Color(0xFF524698) : const Color(0xFFCCBDFF);
-  Color get snackColorText =>
-      dark() ? const Color(0xFFecebf2) : const Color.fromARGB(255, 28, 28, 28);
-  Color get snackColorTextError =>
-      dark() ? const Color(0xFFecebf2) : const Color.fromARGB(255, 28, 28, 28);
+  Color get snackColor => dark() ? _lineDark : _textLight;
+  Color get snackColorText => dark() ? _textDark : Colors.white;
+  Color get snackColorTextError => dark() ? _textDark : Colors.white;
 
-  Color get bottomSheet => dark()
-      ? const Color(0xFF1c1e23)
-      : const Color.fromARGB(255, 238, 238, 238);
+  Color get bottomSheet => colorCard;
 
-  Color get buttonOption => Color(0xFF6F63AA);
-  Color get buttonOptionText => Color(0xFFEAEAEA);
+  Color get buttonOption => colorPrimary;
+  Color get buttonOptionText => dark() ? _backgroundDark : Colors.white;
 
-  Color get menuBorderColor =>
-      dark() ? Color(0xFF494949) : Color.fromARGB(255, 222, 222, 222);
+  Color get menuBorderColor => dark() ? _lineDark : _lineLight;
 }

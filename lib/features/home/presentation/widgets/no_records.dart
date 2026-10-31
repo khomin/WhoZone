@@ -76,13 +76,12 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               RoundButton(
-                iconData: Icons.create_new_folder_rounded,
+                iconData: Icons.camera_alt_outlined,
                 color: Theme.of(context).colorScheme.colorPrimary,
                 iconColor: Theme.of(context).colorScheme.colorBar,
-                size: 100,
-                iconSize: 80,
+                size: 88,
+                iconSize: 44,
                 useScaleAnimation: true,
-                useShadow: true,
                 onPressed: (_) {
                   _triggerAnimation();
                 },
@@ -93,7 +92,7 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
                 child: Column(
                   children: [
                     Text(
-                      'There are no entries yet',
+                      'No sessions yet',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.colorTextAccent,
                         fontSize: 18,
@@ -103,7 +102,7 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Click',
+                          'Tap',
                           style: TextStyle(
                             color:
                                 Theme.of(context).colorScheme.colorTextAccent,
@@ -112,13 +111,13 @@ class _State extends State<NoRecords> with TickerProviderStateMixin {
                         ),
                         Padding(
                             padding: const EdgeInsets.only(left: 8, right: 8),
-                            child: Icon(Icons.create_new_folder_rounded,
+                            child: Icon(Icons.camera_alt_outlined,
                                 color: Theme.of(context)
                                     .colorScheme
                                     .colorTextSecond
                                     .withValues(alpha: 0.5))),
                         Text(
-                          'to start',
+                          'to start watching',
                           style: TextStyle(
                             color:
                                 Theme.of(context).colorScheme.colorTextAccent,

@@ -200,6 +200,9 @@ const DetectionItem$json = {
     },
     {'1': 'class_id', '3': 2, '4': 1, '5': 5, '10': 'classId'},
     {'1': 'confidence', '3': 3, '4': 1, '5': 2, '10': 'confidence'},
+    {'1': 'track_id', '3': 4, '4': 1, '5': 5, '10': 'trackId'},
+    {'1': 'velocity_x', '3': 5, '4': 1, '5': 2, '10': 'velocityX'},
+    {'1': 'velocity_y', '3': 6, '4': 1, '5': 2, '10': 'velocityY'},
   ],
 };
 
@@ -207,7 +210,8 @@ const DetectionItem$json = {
 final $typed_data.Uint8List detectionItemDescriptor = $convert.base64Decode(
     'Cg1EZXRlY3Rpb25JdGVtEicKCWRldGVjdGlvbhgBIAEoCzIJLmFwcC5SZWN0UglkZXRlY3Rpb2'
     '4SGQoIY2xhc3NfaWQYAiABKAVSB2NsYXNzSWQSHgoKY29uZmlkZW5jZRgDIAEoAlIKY29uZmlk'
-    'ZW5jZQ==');
+    'ZW5jZRIZCgh0cmFja19pZBgEIAEoBVIHdHJhY2tJZBIdCgp2ZWxvY2l0eV94GAUgASgCUgl2ZW'
+    'xvY2l0eVgSHQoKdmVsb2NpdHlfeRgGIAEoAlIJdmVsb2NpdHlZ');
 
 @$core.Deprecated('Use frameSavedDescriptor instead')
 const FrameSaved$json = {

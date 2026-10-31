@@ -30,6 +30,7 @@ class CameraSession(val context: Context) {
         bgThread.start()
         bgHandler = Handler(bgThread.looper)
         executor = Executor { command -> bgHandler.post(command) }
+        WhoZoneRep.awaitEngine()
         readerSurface = WhoZoneRep.nativeInitImageReader()
     }
 
@@ -88,8 +89,8 @@ class CameraSession(val context: Context) {
     private fun startSession(device: CameraDevice, viewSurface: Surface, codecSurface: Surface) {
         try {
             val info = getCameraInfo(device.id) ?: return
-            val range = info.fpsRangesList.last()
-            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_RECORD)
+            val range = selectFpsRange(info.fpsRangesList)
+            val builder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
             builder.addTarget(codecSurface)
             builder.addTarget(viewSurface)
             builder.set(
@@ -124,6 +125,13 @@ class CameraSession(val context: Context) {
         } catch (e: Exception) {
             XLog.tag(TAG).i( "exception: ${e.message}")
         }
+    }
+
+    // Fixed rate if possible: a smooth preview, and short exposures keep moving
+    // objects sharp, which is what the detector needs.
+    private fun selectFpsRange(ranges: List<App.Range>) : App.Range {
+        return ranges.filter { it.upper == TARGET_FPS }.maxByOrNull { it.lower }
+            ?: ranges.minBy { kotlin.math.abs(it.upper - TARGET_FPS) }
     }
 
     fun getCameras() : List<App.CameraInfo> {
@@ -194,5 +202,6 @@ class CameraSession(val context: Context) {
 
     companion object {
         private const val TAG = "CameraSession"
+        private const val TARGET_FPS = 30
     }
 }

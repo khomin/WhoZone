@@ -11,13 +11,15 @@ class SafeQueue {
     std::queue<T> queue_;
     std::mutex mutex_;
     std::condition_variable cond_;
-    size_t max_size_ = 10; // Drop frames if network is too slow
+    size_t max_size_;
     bool shutdown_ = false;
 
 public:
+    explicit SafeQueue(size_t max_size) : max_size_(max_size) {}
+
     void push(T item) {
         std::unique_lock<std::mutex> lock(mutex_);
-        if (queue_.size() > max_size_) queue_.pop(); // Drop oldest frame
+        if (queue_.size() >= max_size_) queue_.pop(); // Drop oldest frame
         queue_.push(std::move(item));
         lock.unlock();
         cond_.notify_one();
